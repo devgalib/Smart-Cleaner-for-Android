@@ -167,6 +167,12 @@
         <plurals name="large_files_card_more_format">
         <item quantity="other">+%1$d개 더</item>
     </plurals>
+    <string name="duplicate_files_card_title">중복 파일</string>
+    <string name="duplicate_files_card_subtitle">중복 파일을 찾아 삭제하세요.</string>
+    <string name="open_duplicate_files">중복 보기</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="other">+%1$d개 더</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">연락처 클리너</string>
     <string name="contacts_cleaner_card_subtitle">중복 연락처 찾기 및 병합</string>
     <string name="open_contacts_cleaner">연락처 클리너 열기</string>

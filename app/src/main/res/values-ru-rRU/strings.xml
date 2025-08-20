@@ -182,6 +182,15 @@
         <item quantity="many">+%1$d ещё</item>
         <item quantity="other">+%1$d ещё</item>
     </plurals>
+    <string name="duplicate_files_card_title">Дубликаты файлов</string>
+    <string name="duplicate_files_card_subtitle">Найдите и удалите дубликаты файлов.</string>
+    <string name="open_duplicate_files">Просмотреть дубликаты</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d ещё</item>
+        <item quantity="few">+%1$d ещё</item>
+        <item quantity="many">+%1$d ещё</item>
+        <item quantity="other">+%1$d ещё</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Очистка контактов</string>
     <string name="contacts_cleaner_card_subtitle">Находит и объединяет повторяющиеся контакты</string>
     <string name="open_contacts_cleaner">Открыть очистку контактов</string>

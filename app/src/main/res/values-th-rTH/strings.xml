@@ -167,6 +167,12 @@
         <plurals name="large_files_card_more_format">
         <item quantity="other">+%1$d เพิ่มเติม</item>
     </plurals>
+    <string name="duplicate_files_card_title">ไฟล์ซ้ำ</string>
+    <string name="duplicate_files_card_subtitle">ค้นหาและลบไฟล์ที่ซ้ำกัน</string>
+    <string name="open_duplicate_files">ดูไฟล์ซ้ำ</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="other">+%1$d เพิ่มเติม</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">ตัวล้างรายชื่อ</string>
     <string name="contacts_cleaner_card_subtitle">ค้นหาและรวมรายชื่อที่ซ้ำกัน</string>
     <string name="open_contacts_cleaner">เปิดตัวล้างรายชื่อ</string>

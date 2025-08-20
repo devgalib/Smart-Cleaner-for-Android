@@ -177,6 +177,14 @@
         <item quantity="many">+%1$d in più</item>
         <item quantity="other">+%1$d in più</item>
     </plurals>
+    <string name="duplicate_files_card_title">File duplicati</string>
+    <string name="duplicate_files_card_subtitle">Trova e rimuovi i file duplicati.</string>
+    <string name="open_duplicate_files">Vedi duplicati</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d in più</item>
+        <item quantity="many">+%1$d in più</item>
+        <item quantity="other">+%1$d in più</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Pulizia contatti</string>
     <string name="contacts_cleaner_card_subtitle">Trova e unisci i contatti duplicati</string>
     <string name="open_contacts_cleaner">Apri Pulizia contatti</string>

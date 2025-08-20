@@ -167,6 +167,12 @@
         <plurals name="large_files_card_more_format">
         <item quantity="other">+%1$d lagi</item>
     </plurals>
+    <string name="duplicate_files_card_title">File Duplikat</string>
+    <string name="duplicate_files_card_subtitle">Temukan dan hapus file duplikat.</string>
+    <string name="open_duplicate_files">Lihat Duplikat</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="other">+%1$d lagi</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Pembersih Kontak</string>
     <string name="contacts_cleaner_card_subtitle">Temukan dan gabungkan kontak ganda</string>
     <string name="open_contacts_cleaner">Buka Pembersih Kontak</string>

@@ -182,6 +182,15 @@
         <item quantity="many">+%1$d додатково</item>
         <item quantity="other">+%1$d додатково</item>
     </plurals>
+    <string name="duplicate_files_card_title">Дублікати файлів</string>
+    <string name="duplicate_files_card_subtitle">Знайдіть і видаліть дублікати файлів.</string>
+    <string name="open_duplicate_files">Переглянути дублікати</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d додатково</item>
+        <item quantity="few">+%1$d додатково</item>
+        <item quantity="many">+%1$d додатково</item>
+        <item quantity="other">+%1$d додатково</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Очищення контактів</string>
     <string name="contacts_cleaner_card_subtitle">Знаходить і об\'єднує дублікати контактів</string>
     <string name="open_contacts_cleaner">Відкрити очищення контактів</string>

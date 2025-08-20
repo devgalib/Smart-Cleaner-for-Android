@@ -172,6 +172,13 @@
         <item quantity="one">+%1$d till</item>
         <item quantity="other">+%1$d till</item>
     </plurals>
+    <string name="duplicate_files_card_title">Duplicerade filer</string>
+    <string name="duplicate_files_card_subtitle">Hitta och ta bort duplicerade filer.</string>
+    <string name="open_duplicate_files">Visa dubbletter</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d till</item>
+        <item quantity="other">+%1$d till</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Kontaktrensare</string>
     <string name="contacts_cleaner_card_subtitle">Hitta och slå ihop dubbla kontakter</string>
     <string name="open_contacts_cleaner">Öppna Kontaktrensare</string>

@@ -172,6 +172,13 @@
         <item quantity="one">+%1$d और</item>
         <item quantity="other">+%1$d और</item>
     </plurals>
+    <string name="duplicate_files_card_title">डुप्लीकेट फ़ाइलें</string>
+    <string name="duplicate_files_card_subtitle">डुप्लीकेट फ़ाइलें खोजें और हटाएँ।</string>
+    <string name="open_duplicate_files">डुप्लीकेट देखें</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d और</item>
+        <item quantity="other">+%1$d और</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">संपर्क क्लीनर</string>
     <string name="contacts_cleaner_card_subtitle">डुप्लीकेट संपर्क खोजें और मिलाएँ</string>
     <string name="open_contacts_cleaner">संपर्क क्लीनर खोलें</string>

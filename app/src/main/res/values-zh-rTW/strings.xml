@@ -167,6 +167,12 @@
         <plurals name="large_files_card_more_format">
         <item quantity="other">+%1$d 個以上</item>
     </plurals>
+    <string name="duplicate_files_card_title">重複檔案</string>
+    <string name="duplicate_files_card_subtitle">尋找並移除重複的檔案。</string>
+    <string name="open_duplicate_files">檢視重複項</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="other">+%1$d 個以上</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">聯絡人清理</string>
     <string name="contacts_cleaner_card_subtitle">尋找並合併重複的聯絡人</string>
     <string name="open_contacts_cleaner">開啟聯絡人清理</string>
