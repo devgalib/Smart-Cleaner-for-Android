@@ -193,6 +193,7 @@
     <string name="can_be_freed">Dapat dibebaskan</string>
     <string name="empty_folders">Folder Kosong</string>
     <string name="duplicates">Duplikat file</string>
+    <string name="no_duplicates">Tidak ada duplikat yang ditemukan</string>
     <plurals name="status_selected_files">
         <item quantity="other">Status: %1$d file dipilih | %2$s</item>
     </plurals>

@@ -208,6 +208,7 @@
     <string name="can_be_freed">Można zwolnić</string>
     <string name="empty_folders">Puste foldery</string>
     <string name="duplicates">Duplikat plików</string>
+    <string name="no_duplicates">Nie znaleziono duplikatów</string>
     <plurals name="status_selected_files">
         <item quantity="one">Status: Wybrano %1$d plik | %2$s</item>
         <item quantity="few">Status: Wybrano %1$d pliki | %2$s</item>

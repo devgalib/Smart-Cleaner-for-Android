@@ -193,6 +193,7 @@
     <string name="can_be_freed">해제 가능</string>
     <string name="empty_folders">빈 폴더</string>
     <string name="duplicates">중복 파일</string>
+    <string name="no_duplicates">중복이 발견되지 않았습니다</string>
     <plurals name="status_selected_files">
         <item quantity="other">상태: %1$d개 파일 선택됨 | %2$s</item>
     </plurals>

@@ -198,6 +198,7 @@
     <string name="can_be_freed">Kan frigöras</string>
     <string name="empty_folders">Tomma mappar</string>
     <string name="duplicates">Duplicerade filer</string>
+    <string name="no_duplicates">Inga dubbletter hittades</string>
     <plurals name="status_selected_files">
         <item quantity="one">Status: %1$d fil vald | %2$s</item>
         <item quantity="other">Status: %1$d filer valda | %2$s</item>

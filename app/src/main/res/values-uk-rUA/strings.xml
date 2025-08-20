@@ -208,6 +208,7 @@
     <string name="can_be_freed">Можна звільнити</string>
     <string name="empty_folders">Порожні теки</string>
     <string name="duplicates">Дублікат файлів</string>
+    <string name="no_duplicates">Дублікатів не знайдено</string>
     <plurals name="status_selected_files">
         <item quantity="one">Статус: Вибрано %1$d файл | %2$s</item>
         <item quantity="few">Статус: Вибрано %1$d файли | %2$s</item>

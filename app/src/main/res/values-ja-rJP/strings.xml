@@ -193,6 +193,7 @@
     <string name="can_be_freed">解放可能</string>
     <string name="empty_folders">空のフォルダ</string>
     <string name="duplicates">ファイルの複製</string>
+    <string name="no_duplicates">重複は見つかりませんでした</string>
     <plurals name="status_selected_files">
         <item quantity="other">ステータス: %1$d個のファイルを選択中 | %2$s</item>
     </plurals>

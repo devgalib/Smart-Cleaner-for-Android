@@ -198,6 +198,7 @@
     <string name="can_be_freed">Boşaltılabilir</string>
     <string name="empty_folders">Boş Klasörler</string>
     <string name="duplicates">Yinelenen dosyalar</string>
+    <string name="no_duplicates">Yinelenen bulunamadı</string>
     <plurals name="status_selected_files">
         <item quantity="one">Durum: %1$d dosya seçildi | %2$s</item>
         <item quantity="other">Durum: %1$d dosya seçildi | %2$s</item>

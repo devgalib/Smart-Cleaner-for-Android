@@ -193,6 +193,7 @@
     <string name="can_be_freed">สามารถล้างได้</string>
     <string name="empty_folders">โฟลเดอร์ว่าง</string>
     <string name="duplicates">ไฟล์ที่ซ้ำกัน</string>
+    <string name="no_duplicates">ไม่พบไฟล์ซ้ำ</string>
     <plurals name="status_selected_files">
         <item quantity="other">สถานะ: เลือก %1$d ไฟล์ | %2$s</item>
     </plurals>
