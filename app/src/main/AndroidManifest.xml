@@ -111,7 +111,8 @@
             android:name=".app.clean.duplicates.ui.DuplicateCleanerActivity"
             android:exported="false"
             android:label="@string/duplicates"
-            android:parentActivityName=".app.main.ui.MainActivity">
+            android:parentActivityName=".app.main.ui.MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="com.d4rk.cleaner.action.DUPLICATE_CLEANER" />
                 <category android:name="android.intent.category.DEFAULT" />
