@@ -34,6 +34,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetEmptyFoldersUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetFileTypesUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetLargestFilesUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetPromotedAppUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.HasDuplicateFilesUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetStorageInfoUseCase
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.getWhatsAppMediaSummary
 import com.d4rk.cleaner.app.clean.scanner.work.FileCleanupWorker
@@ -71,6 +72,7 @@ class ScannerViewModel(
     private val getPromotedAppUseCase: GetPromotedAppUseCase,
     private val getLargestFilesUseCase: GetLargestFilesUseCase,
     private val getEmptyFoldersUseCase: GetEmptyFoldersUseCase,
+    private val hasDuplicateFilesUseCase: HasDuplicateFilesUseCase,
     private val dispatchers: DispatcherProvider,
     private val dataStore: DataStore,
     private val fileCleanWorkEnqueuer: FileCleanWorkEnqueuer
@@ -102,6 +104,9 @@ class ScannerViewModel(
 
     private val _cleaningApks = MutableStateFlow(false)
     val cleaningApks: StateFlow<Boolean> = _cleaningApks
+
+    private val _showDuplicateCard = MutableStateFlow(false)
+    val showDuplicateCard: StateFlow<Boolean> = _showDuplicateCard
 
     private var pendingEmptyFoldersCleanup = false
 
@@ -142,6 +147,11 @@ class ScannerViewModel(
         loadLargestFilesPreview()
         loadEmptyFoldersPreview()
         loadEmptyFoldersHideUntil()
+        launch(dispatchers.io) {
+            if (dataStore.duplicateScanEnabled.first()) {
+                _showDuplicateCard.value = hasDuplicateFilesUseCase()
+            }
+        }
         launch(dispatchers.io) {
             dataStore.scannerCleanWorkId.first()?.let { id ->
                 val uuid = UUID.fromString(id)
