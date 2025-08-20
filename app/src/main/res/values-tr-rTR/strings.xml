@@ -172,6 +172,13 @@
         <item quantity="one">+%1$d daha</item>
         <item quantity="other">+%1$d daha</item>
     </plurals>
+    <string name="duplicate_files_card_title">Yinelenen Dosyalar</string>
+    <string name="duplicate_files_card_subtitle">Yinelenen dosyaları bulun ve kaldırın.</string>
+    <string name="open_duplicate_files">Kopyaları görüntüle</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d daha</item>
+        <item quantity="other">+%1$d daha</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Kişi Temizleyici</string>
     <string name="contacts_cleaner_card_subtitle">Yinelenen kişileri bulup birleştirin</string>
     <string name="open_contacts_cleaner">Kişi Temizleyici\'yi aç</string>

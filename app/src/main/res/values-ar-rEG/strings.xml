@@ -192,6 +192,17 @@
         <item quantity="many">+%1$d إضافية</item>
         <item quantity="other">+%1$d إضافية</item>
     </plurals>
+    <string name="duplicate_files_card_title">الملفات المكررة</string>
+    <string name="duplicate_files_card_subtitle">ابحث عن الملفات المكررة واحذفها.</string>
+    <string name="open_duplicate_files">عرض الملفات المكررة</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="zero">+%1$d إضافية</item>
+        <item quantity="one">+%1$d إضافية</item>
+        <item quantity="two">+%1$d إضافية</item>
+        <item quantity="few">+%1$d إضافية</item>
+        <item quantity="many">+%1$d إضافية</item>
+        <item quantity="other">+%1$d إضافية</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">منظف جهات الاتصال</string>
     <string name="contacts_cleaner_card_subtitle">اعثر على جهات الاتصال المكررة وادمجها</string>
     <string name="open_contacts_cleaner">افتح منظف جهات الاتصال</string>

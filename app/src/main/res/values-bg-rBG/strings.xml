@@ -172,6 +172,13 @@
         <item quantity="one">+%1$d още</item>
         <item quantity="other">+%1$d още</item>
     </plurals>
+    <string name="duplicate_files_card_title">Дублирани файлове</string>
+    <string name="duplicate_files_card_subtitle">Намерете и премахнете дублираните файлове.</string>
+    <string name="open_duplicate_files">Виж дубликатите</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d още</item>
+        <item quantity="other">+%1$d още</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Почистване на контакти</string>
     <string name="contacts_cleaner_card_subtitle">Намира и обединява дублирани контакти</string>
     <string name="open_contacts_cleaner">Отвори чистач на контакти</string>

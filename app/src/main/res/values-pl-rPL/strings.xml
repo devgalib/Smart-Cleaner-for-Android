@@ -182,6 +182,15 @@
         <item quantity="many">+%1$d więcej</item>
         <item quantity="other">+%1$d więcej</item>
     </plurals>
+    <string name="duplicate_files_card_title">Zduplikowane pliki</string>
+    <string name="duplicate_files_card_subtitle">Znajdź i usuń zduplikowane pliki.</string>
+    <string name="open_duplicate_files">Wyświetl duplikaty</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d więcej</item>
+        <item quantity="few">+%1$d więcej</item>
+        <item quantity="many">+%1$d więcej</item>
+        <item quantity="other">+%1$d więcej</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Czyszczenie kontaktów</string>
     <string name="contacts_cleaner_card_subtitle">Znajdź i połącz zduplikowane kontakty</string>
     <string name="open_contacts_cleaner">Otwórz czyszczenie kontaktów</string>

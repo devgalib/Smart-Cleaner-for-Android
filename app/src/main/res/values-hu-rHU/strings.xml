@@ -172,6 +172,13 @@
         <item quantity="one">+%1$d további</item>
         <item quantity="other">+%1$d további</item>
     </plurals>
+    <string name="duplicate_files_card_title">Duplikált fájlok</string>
+    <string name="duplicate_files_card_subtitle">Keresse meg és távolítsa el a duplikált fájlokat.</string>
+    <string name="open_duplicate_files">Duplikátumok megtekintése</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d további</item>
+        <item quantity="other">+%1$d további</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Névjegytisztító</string>
     <string name="contacts_cleaner_card_subtitle">Keresse meg és egyesítse a duplikált névjegyeket</string>
     <string name="open_contacts_cleaner">Névjegytisztító megnyitása</string>

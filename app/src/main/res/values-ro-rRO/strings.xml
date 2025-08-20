@@ -177,6 +177,14 @@
         <item quantity="few">+%1$d în plus</item>
         <item quantity="other">+%1$d în plus</item>
     </plurals>
+    <string name="duplicate_files_card_title">Fișiere duplicate</string>
+    <string name="duplicate_files_card_subtitle">Găsește și elimină fișierele duplicate.</string>
+    <string name="open_duplicate_files">Vezi duplicatele</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="one">+%1$d în plus</item>
+        <item quantity="few">+%1$d în plus</item>
+        <item quantity="other">+%1$d în plus</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Curățător contacte</string>
     <string name="contacts_cleaner_card_subtitle">Găsește și combină contactele duplicate</string>
     <string name="open_contacts_cleaner">Deschide Curățător contacte</string>

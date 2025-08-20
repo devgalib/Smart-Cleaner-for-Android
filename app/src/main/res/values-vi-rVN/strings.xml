@@ -167,6 +167,12 @@
         <plurals name="large_files_card_more_format">
         <item quantity="other">+%1$d thêm</item>
     </plurals>
+    <string name="duplicate_files_card_title">Tệp trùng lặp</string>
+    <string name="duplicate_files_card_subtitle">Tìm và xóa các tệp trùng lặp.</string>
+    <string name="open_duplicate_files">Xem bản trùng</string>
+        <plurals name="duplicate_files_card_more_format">
+        <item quantity="other">+%1$d thêm</item>
+    </plurals>
     <string name="contacts_cleaner_card_title">Trình dọn liên hệ</string>
     <string name="contacts_cleaner_card_subtitle">Tìm và gộp các liên hệ trùng</string>
     <string name="open_contacts_cleaner">Mở Trình dọn liên hệ</string>
