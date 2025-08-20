@@ -203,6 +203,7 @@
     <string name="can_be_freed">Pode ser liberado</string>
     <string name="empty_folders">Pastas Vazias</string>
     <string name="duplicates">Arquivos duplicados</string>
+    <string name="no_duplicates">Nenhum duplicado encontrado</string>
     <plurals name="status_selected_files">
         <item quantity="one">Status: %1$d arquivo selecionado | %2$s</item>
         <item quantity="other">Status: %1$d arquivos selecionados | %2$s</item>

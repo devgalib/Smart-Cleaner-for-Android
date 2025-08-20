@@ -193,6 +193,7 @@
     <string name="can_be_freed">可釋出</string>
     <string name="empty_folders">空資料夾</string>
     <string name="duplicates">重複檔案</string>
+    <string name="no_duplicates">未找到重複檔案</string>
     <plurals name="status_selected_files">
         <item quantity="other">狀態：已選取 %1$d 個檔案 | %2$s</item>
     </plurals>

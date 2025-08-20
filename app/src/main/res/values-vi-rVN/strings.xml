@@ -193,6 +193,7 @@
     <string name="can_be_freed">Có thể giải phóng</string>
     <string name="empty_folders">Thư mục trống</string>
     <string name="duplicates">Các tập tin trùng lặp</string>
+    <string name="no_duplicates">Không tìm thấy tệp trùng lặp</string>
     <plurals name="status_selected_files">
         <item quantity="other">Trạng thái: Đã chọn %1$d tệp | %2$s</item>
     </plurals>

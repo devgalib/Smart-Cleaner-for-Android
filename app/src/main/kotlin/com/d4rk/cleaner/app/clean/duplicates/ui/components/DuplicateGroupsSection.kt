@@ -1,4 +1,4 @@
-package com.d4rk.cleaner.app.clean.analyze.ui.components
+package com.d4rk.cleaner.app.clean.duplicates.ui.components
 
 import android.view.View
 import androidx.compose.foundation.horizontalScroll
@@ -17,6 +17,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.ScreenHelper
+import com.d4rk.cleaner.app.clean.analyze.ui.components.DateHeader
+import com.d4rk.cleaner.app.clean.analyze.ui.components.FileCard
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import java.io.File
 import java.text.SimpleDateFormat

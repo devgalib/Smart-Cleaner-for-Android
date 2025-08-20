@@ -208,6 +208,7 @@
     <string name="can_be_freed">Можно освободить</string>
     <string name="empty_folders">Пустые папки</string>
     <string name="duplicates">Дублировать файлы</string>
+    <string name="no_duplicates">Дубликаты не найдены</string>
     <plurals name="status_selected_files">
         <item quantity="one">Статус: Выбран %1$d файл | %2$s</item>
         <item quantity="few">Статус: Выбрано %1$d файла | %2$s</item>

@@ -203,6 +203,7 @@
     <string name="can_be_freed">Can be freed</string>
     <string name="empty_folders">Empty Folders</string>
     <string name="duplicates">Duplicates</string>
+    <string name="no_duplicates">No duplicates found</string>
     <plurals name="status_selected_files">
         <item quantity="one">Status: Selected %1$d file | %2$s</item>
         <item quantity="other">Status: Selected %1$d files | %2$s</item>

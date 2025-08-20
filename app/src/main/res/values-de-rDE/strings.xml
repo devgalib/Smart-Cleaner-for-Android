@@ -198,6 +198,7 @@
     <string name="can_be_freed">Kann freigegeben werden</string>
     <string name="empty_folders">Leere Ordner</string>
     <string name="duplicates">Doppelte Dateien</string>
+    <string name="no_duplicates">Keine Duplikate gefunden</string>
     <plurals name="status_selected_files">
         <item quantity="one">Status: %1$d Datei ausgewählt | %2$s</item>
         <item quantity="other">Status: %1$d Dateien ausgewählt | %2$s</item>

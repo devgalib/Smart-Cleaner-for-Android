@@ -218,6 +218,7 @@
     <string name="can_be_freed">يمكن تفريغه</string>
     <string name="empty_folders">مجلدات فاضية</string>
     <string name="duplicates">ملفات مكررة</string>
+    <string name="no_duplicates">لم يتم العثور على ملفات مكررة</string>
     <plurals name="status_selected_files">
         <item quantity="zero">الحالة: لم يتم تحديد أي ملفات | %2$s</item>
         <item quantity="one">الحالة: تم تحديد ملف واحد (%1$d) | %2$s</item>

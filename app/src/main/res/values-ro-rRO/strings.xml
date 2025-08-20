@@ -203,6 +203,7 @@
     <string name="can_be_freed">Poate fi eliberat</string>
     <string name="empty_folders">Foldere goale</string>
     <string name="duplicates">Fișiere duplicate</string>
+    <string name="no_duplicates">Nu s-au găsit duplicate</string>
     <plurals name="status_selected_files">
         <item quantity="one">Stare: %1$d fișier selectat | %2$s</item>
         <item quantity="few">Stare: %1$d fișiere selectate | %2$s</item>

@@ -198,6 +198,7 @@
     <string name="can_be_freed">মুক্ত করা যাবে</string>
     <string name="empty_folders">খালি ফোল্ডারসমূহ</string>
     <string name="duplicates">সদৃশ ফাইল</string>
+    <string name="no_duplicates">কোনো ডুপ্লিকেট পাওয়া যায়নি</string>
     <plurals name="status_selected_files">
         <item quantity="one">স্থিতি: %1$d টি ফাইল নির্বাচিত | %2$s</item>
         <item quantity="other">স্থিতি: %1$d টি ফাইল নির্বাচিত | %2$s</item>

@@ -198,6 +198,7 @@
     <string name="can_be_freed">Felszabadítható</string>
     <string name="empty_folders">Üres mappák</string>
     <string name="duplicates">Másolatú fájlok</string>
+    <string name="no_duplicates">Nem találhatók duplikátumok</string>
     <plurals name="status_selected_files">
         <item quantity="one">Állapot: %1$d fájl kiválasztva | %2$s</item>
         <item quantity="other">Állapot: %1$d fájl kiválasztva | %2$s</item>

@@ -198,6 +198,7 @@
     <string name="can_be_freed">Maaaring i-free</string>
     <string name="empty_folders">Mga Walang Lamang Folder</string>
     <string name="duplicates">Dobleng mga file</string>
+    <string name="no_duplicates">Walang natagpuang duplicate</string>
     <plurals name="status_selected_files">
         <item quantity="one">Katayuan: %1$d file ang napili | %2$s</item>
         <item quantity="other">Katayuan: %1$d (na) file ang napili | %2$s</item>
