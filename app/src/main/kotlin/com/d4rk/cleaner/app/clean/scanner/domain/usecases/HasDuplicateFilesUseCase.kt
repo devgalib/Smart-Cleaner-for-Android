@@ -17,21 +17,21 @@ class HasDuplicateFilesUseCase(
     )
 
     suspend operator fun invoke(): Boolean = withContext(dispatchers.io) {
-        val seen = HashMap<Pair<Long, Long>, File>()
+        val seen = HashMap<Long, File>()
         val hashCache = HashMap<File, String>()
 
         for (dir in searchDirs) {
             if (!dir.exists()) continue
             for (file in dir.walkTopDown()) {
                 if (!file.isFile) continue
-                val key = file.length() to file.lastModified()
-                val other = seen[key]
+                val size = file.length()
+                val other = seen[size]
                 if (other != null) {
                     val hash1 = hashCache[other] ?: other.partialMd5()?.also { hashCache[other] = it }
                     val hash2 = hashCache[file] ?: file.partialMd5()?.also { hashCache[file] = it }
                     if (hash1 != null && hash1 == hash2) return@withContext true
                 } else {
-                    seen[key] = file
+                    seen[size] = file
                 }
             }
         }
