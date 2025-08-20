@@ -1,4 +1,4 @@
-package com.d4rk.cleaner.app.clean.analyze.ui.components
+package com.d4rk.cleaner.app.clean.duplicates.ui.components
 
 import android.view.View
 import androidx.compose.foundation.horizontalScroll

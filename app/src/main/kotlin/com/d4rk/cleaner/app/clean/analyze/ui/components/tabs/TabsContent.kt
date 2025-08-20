@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.IconButton
 import com.d4rk.android.libs.apptoolkit.core.ui.components.modifiers.bounceClick
 import com.d4rk.android.libs.apptoolkit.core.ui.components.modifiers.hapticPagerSwipe
-import com.d4rk.cleaner.app.clean.analyze.ui.components.DuplicateGroupsSection
+import com.d4rk.cleaner.app.clean.duplicates.ui.components.DuplicateGroupsSection
 import com.d4rk.cleaner.app.clean.analyze.ui.components.FilesByDateSection
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry

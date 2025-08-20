@@ -108,6 +108,17 @@
             android:parentActivityName=".app.main.ui.MainActivity" />
 
         <activity
+            android:name=".app.clean.duplicates.ui.DuplicateCleanerActivity"
+            android:exported="false"
+            android:label="@string/duplicates"
+            android:parentActivityName=".app.main.ui.MainActivity">
+            <intent-filter>
+                <action android:name="com.d4rk.cleaner.action.DUPLICATE_CLEANER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name="com.d4rk.cleaner.app.clean.contacts.ui.ContactsCleanerActivity"
             android:exported="false"
             android:label="@string/contacts_cleaner_title"
