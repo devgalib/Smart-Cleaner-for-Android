@@ -38,7 +38,7 @@ fun DuplicateFilesCard(
         title = stringResource(id = R.string.duplicate_files_card_title),
         subtitle = stringResource(id = R.string.duplicate_files_card_subtitle),
         actionLabel = stringResource(id = R.string.open_duplicate_files),
-        actionPainter = painterResource(id = R.drawable.ic_file_duplicate),
+        actionPainter = painterResource(id = R.drawable.ic_duplicate),
         onActionClick = onOpenClick,
         onHeaderClick = onOpenClick
     ) {
