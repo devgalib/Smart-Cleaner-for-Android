@@ -20,6 +20,7 @@ import com.d4rk.cleaner.core.utils.helpers.FileGroupingHelper
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 import java.io.File
 
 class DuplicatesViewModel(
