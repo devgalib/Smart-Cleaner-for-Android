@@ -35,6 +35,7 @@ import com.d4rk.cleaner.app.apps.manager.ui.AppManagerViewModel
 import com.d4rk.cleaner.app.clean.contacts.ui.ContactsCleanerActivity
 import com.d4rk.cleaner.app.clean.contacts.ui.components.ContactsCleanerCard
 import com.d4rk.cleaner.app.clean.dashboard.ui.components.DashboardActionCard
+import com.d4rk.cleaner.app.clean.duplicates.ui.DuplicateCleanerActivity
 import com.d4rk.cleaner.app.clean.largefiles.ui.LargeFilesActivity
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
@@ -44,6 +45,7 @@ import com.d4rk.cleaner.app.clean.scanner.ui.components.ApkCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ClipboardCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.EmptyFolderCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ImageOptimizerCard
+import com.d4rk.cleaner.app.clean.scanner.ui.components.DuplicateFilesCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.LargeFilesCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.LinkCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.PromotedAppCard
@@ -68,6 +70,7 @@ private enum class ContentCard {
     SYSTEM_STORAGE,
     WEEKLY_STREAK,
     LARGE_FILES,
+    DUPLICATES,
     WHATSAPP,
     APK,
     EMPTY_FOLDERS,
@@ -104,6 +107,9 @@ fun ScannerDashboardScreen(
     val whatsappInstalled by viewModel.isWhatsAppInstalled.collectAsState()
     val clipboardText by viewModel.clipboardPreview.collectAsState()
     val largeFiles by viewModel.largestFiles.collectAsState()
+    val duplicateGroups = uiState.data?.analyzeState?.duplicateGroups?.map { group ->
+        group.map { File(it.path) }
+    } ?: emptyList()
     val emptyFolders by viewModel.emptyFolders.collectAsState()
     val emptyFoldersHideUntil by viewModel.emptyFoldersHideUntil.collectAsState()
     val streakDays by viewModel.cleanStreak.collectAsState()
@@ -135,6 +141,9 @@ fun ScannerDashboardScreen(
     val showLargeFilesCard by remember(largeFiles) {
         derivedStateOf { largeFiles.isNotEmpty() }
     }
+    val showDuplicateCard by remember(duplicateGroups) {
+        derivedStateOf { duplicateGroups.isNotEmpty() }
+    }
     val showEmptyFoldersCard by remember(emptyFolders, emptyFoldersHideUntil) {
         derivedStateOf {
             emptyFolders.isNotEmpty() && emptyFoldersHideUntil <= System.currentTimeMillis()
@@ -158,14 +167,15 @@ fun ScannerDashboardScreen(
         if (showSystemStorageManagerCard) add(2 to ContentCard.SYSTEM_STORAGE)
         if (showStreakCard) add(3 to ContentCard.WEEKLY_STREAK)
         if (showLargeFilesCard) add(4 to ContentCard.LARGE_FILES)
-        if (showWhatsAppCard) add(5 to ContentCard.WHATSAPP)
-        if (showApkCard) add(6 to ContentCard.APK)
-        if (showEmptyFoldersCard) add(7 to ContentCard.EMPTY_FOLDERS)
-        if (showClipboardCard) add(8 to ContentCard.CLIPBOARD)
-        if (showContactsCard) add(9 to ContentCard.CONTACTS)
-        if (showLinkCleanerCard) add(10 to ContentCard.LINK_CLEANER)
-        add(11 to ContentCard.IMAGE_OPTIMIZER)
-        promotedApp?.let { add(12 to ContentCard.PROMOTED_APP) }
+        if (showDuplicateCard) add(5 to ContentCard.DUPLICATES)
+        if (showWhatsAppCard) add(6 to ContentCard.WHATSAPP)
+        if (showApkCard) add(7 to ContentCard.APK)
+        if (showEmptyFoldersCard) add(8 to ContentCard.EMPTY_FOLDERS)
+        if (showClipboardCard) add(9 to ContentCard.CLIPBOARD)
+        if (showContactsCard) add(10 to ContentCard.CONTACTS)
+        if (showLinkCleanerCard) add(11 to ContentCard.LINK_CLEANER)
+        add(12 to ContentCard.IMAGE_OPTIMIZER)
+        promotedApp?.let { add(13 to ContentCard.PROMOTED_APP) }
     }
     val visibleCount = content.size
 
@@ -297,6 +307,17 @@ fun ScannerDashboardScreen(
                                 IntentsHelper.openActivity(
                                     context = context,
                                     activityClass = LargeFilesActivity::class.java
+                                )
+                            }
+                        )
+                    }
+                    ContentCard.DUPLICATES -> {
+                        DuplicateFilesCard(
+                            duplicateGroups = duplicateGroups,
+                            onOpenClick = {
+                                IntentsHelper.openActivity(
+                                    context = context,
+                                    activityClass = DuplicateCleanerActivity::class.java
                                 )
                             }
                         )
