@@ -10,11 +10,28 @@ import kotlinx.coroutines.flow.flow
 import java.io.File
 
 class GetLargestFilesUseCase(private val repository: ScannerRepositoryInterface) {
-    operator fun invoke(limit: Int): Flow<DataState<List<File>, Errors>> = flow {
+
+    private var cache: List<File>? = null
+    private var lastFetch: Long = 0L
+    private val cacheDuration = 5 * 60 * 1000L // 5 minutes
+
+    operator fun invoke(limit: Int? = null): Flow<DataState<List<File>, Errors>> = flow {
         emit(DataState.Loading())
+        val now = System.currentTimeMillis()
+        val cached = cache
+        if (cached != null && now - lastFetch < cacheDuration) {
+            val data = limit?.let { cached.take(it) } ?: cached
+            emit(DataState.Success(data))
+            return@flow
+        }
+
         runCatching {
             repository.getLargestFiles(limit)
         }.onSuccess { files ->
+            if (limit == null) {
+                cache = files
+                lastFetch = now
+            }
             emit(DataState.Success(files))
         }.onFailure { throwable ->
             if (throwable is CancellationException) throw throwable

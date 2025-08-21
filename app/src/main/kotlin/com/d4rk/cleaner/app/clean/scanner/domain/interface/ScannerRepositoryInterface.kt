@@ -12,7 +12,7 @@ interface ScannerRepositoryInterface : FileDeletionRepository<Unit> {
     fun getAllFiles(onLockedDir: ((File) -> Unit)? = null): Flow<File>
     fun getEmptyFolders(): Flow<File>
     suspend fun getTrashFiles(): List<File>
-    suspend fun getLargestFiles(limit: Int): List<File>
+    suspend fun getLargestFiles(limit: Int? = null): List<File>
     suspend fun restoreFromTrash(filesToRestore: Set<File>)
     suspend fun addTrashSize(size: Long)
     suspend fun subtractTrashSize(size: Long)

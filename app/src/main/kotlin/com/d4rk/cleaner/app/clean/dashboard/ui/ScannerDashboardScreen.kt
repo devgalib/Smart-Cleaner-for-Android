@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
+import com.d4rk.android.libs.apptoolkit.core.domain.model.network.DataState
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.ads.AdBanner
 import com.d4rk.android.libs.apptoolkit.core.ui.components.animations.rememberAnimatedVisibilityState
@@ -111,7 +112,7 @@ fun ScannerDashboardScreen(
     val whatsappLoaded by viewModel.whatsAppMediaLoaded.collectAsState()
     val whatsappInstalled by viewModel.isWhatsAppInstalled.collectAsState()
     val clipboardText by viewModel.clipboardPreview.collectAsState()
-    val largeFiles by viewModel.largestFiles.collectAsState()
+    val largeFilesState by viewModel.largestFilesState.collectAsState()
     val duplicateGroups = uiState.data?.analyzeState?.duplicateGroups?.map { group ->
         group.map { File(it.path) }
     } ?: emptyList()
@@ -144,8 +145,13 @@ fun ScannerDashboardScreen(
         derivedStateOf { !clipboardText.isNullOrBlank() }
     }
     val showLinkCleanerCard = true
-    val showLargeFilesCard by remember(largeFiles) {
-        derivedStateOf { largeFiles.isNotEmpty() }
+    val showLargeFilesCard by remember(largeFilesState) {
+        derivedStateOf {
+            when (largeFilesState) {
+                is DataState.Success -> largeFilesState.data.isNotEmpty()
+                else -> true
+            }
+        }
     }
     val showEmptyFoldersCard by remember(emptyFolders, emptyFoldersHideUntil) {
         derivedStateOf {
@@ -346,7 +352,7 @@ fun ScannerDashboardScreen(
                                 visible = isVisible,
                                 index = index
                             ),
-                            files = largeFiles,
+                            state = largeFilesState,
                             onOpenClick = {
                                 IntentsHelper.openActivity(
                                     context = context,

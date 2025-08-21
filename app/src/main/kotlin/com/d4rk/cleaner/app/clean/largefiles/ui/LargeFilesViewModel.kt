@@ -28,6 +28,8 @@ import com.d4rk.cleaner.core.work.observeFileCleanWork
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.io.File
 import java.util.UUID
@@ -42,9 +44,11 @@ class LargeFilesViewModel(
     initialState = UiStateScreen(data = UiLargeFilesModel())
 ) {
 
-    private val limit = 20
-
     private var activeWorkObserver: Job? = null
+
+    private val _largestFilesState: MutableStateFlow<DataState<List<File>, Errors>> =
+        MutableStateFlow(DataState.Loading())
+    val largestFilesState: StateFlow<DataState<List<File>, Errors>> = _largestFilesState
 
     init {
         onEvent(LargeFilesEvent.LoadLargeFiles)
@@ -77,7 +81,8 @@ class LargeFilesViewModel(
 
     private fun loadLargeFiles() {
         launch(context = dispatchers.io) {
-            getLargestFilesUseCase(limit).collectLatest { result ->
+            getLargestFilesUseCase().collectLatest { result ->
+                _largestFilesState.value = result
                 _uiState.update { current ->
                     when (result) {
                         is DataState.Loading -> current.copy(
