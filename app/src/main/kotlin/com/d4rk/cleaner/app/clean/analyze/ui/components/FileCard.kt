@@ -3,6 +3,7 @@ package com.d4rk.cleaner.app.clean.analyze.ui.components
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.view.View
+import android.media.MediaMetadataRetriever
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
@@ -35,9 +37,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.d4rk.android.libs.apptoolkit.core.ui.components.modifiers.bounceClick
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
@@ -64,6 +68,24 @@ fun FileCard(
     val haptic = LocalHapticFeedback.current
     val view: View = LocalView.current
     val defaultColor = MaterialTheme.colorScheme.onSurface
+    val previewType = FilePreviewHelper.getPreviewType(file)
+    val hasAlbumArt by produceState(initialValue = false, file.path) {
+        value = withContext(Dispatchers.IO) {
+            if (previewType is FilePreviewHelper.PreviewType.Audio) {
+                runCatching {
+                    val mmr = MediaMetadataRetriever()
+                    try {
+                        mmr.setDataSource(file.path)
+                        mmr.embeddedPicture != null
+                    } finally {
+                        mmr.release()
+                    }
+                }.getOrDefault(false)
+            } else {
+                false
+            }
+        }
+    }
     val textColor by produceState(initialValue = defaultColor, file.path) {
         value = withContext(Dispatchers.IO) {
             runCatching {
@@ -105,6 +127,17 @@ fun FileCard(
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 FilePreviewHelper.Preview(file = file, modifier = Modifier.align(Alignment.Center))
+
+                if (previewType is FilePreviewHelper.PreviewType.Audio && hasAlbumArt) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_audio_file),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(24.dp)
+                    )
+                }
 
                 Row(
                     modifier = Modifier
