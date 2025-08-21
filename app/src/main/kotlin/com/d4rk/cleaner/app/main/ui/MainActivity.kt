@@ -31,7 +31,6 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.UserMessagingPlatform
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -96,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val trashDir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Trash")
-            val actualTrashSize = withContext(Dispatchers.IO) { calculateDirectorySize(trashDir) }
+            val actualTrashSize = calculateDirectorySize(trashDir)
             val storedTrashSize = dataStore.trashSize.first()
             when {
                 actualTrashSize > storedTrashSize -> dataStore.addTrashSize(actualTrashSize - storedTrashSize)
@@ -163,19 +162,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun calculateDirectorySize(directory: File): Long {
-        if (!directory.exists()) return 0L
+    private suspend fun calculateDirectorySize(directory: File): Long = withContext(Dispatchers.IO) {
+        if (!directory.exists()) return@withContext 0L
 
         var totalSize = 0L
-        directory.listFiles()?.forEach { file: File ->
-            totalSize += if (file.isFile) file.length() else calculateDirectorySize(file)
+        val stack = ArrayDeque<File>()
+        stack.add(directory)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            current.listFiles()?.forEach { file ->
+                if (file.isFile) {
+                    totalSize += file.length()
+                } else {
+                    stack.add(file)
+                }
+            }
         }
-        return totalSize
+        totalSize
     }
 
     private fun handleNotificationIntent(intent: Intent?) {
         if (intent?.getBooleanExtra("open_scan", false) == true) {
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 dataStore.saveLastCleanupNotificationClicked(System.currentTimeMillis())
             }
         }
