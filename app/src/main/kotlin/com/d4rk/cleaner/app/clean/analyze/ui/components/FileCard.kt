@@ -5,8 +5,10 @@ import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +43,6 @@ import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FilePreviewHelper
 import com.d4rk.cleaner.core.utils.helpers.FileManagerHelper
 import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
 import java.io.File
-import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,54 +72,58 @@ fun FileCard(
             Box(modifier = Modifier.fillMaxSize()) {
                 FilePreviewHelper.Preview(file = file, modifier = Modifier.align(Alignment.Center))
 
-                Checkbox(
-                    checked = isChecked,
-                    onCheckedChange = { checked ->
-                        view.playSoundEffect(android.view.SoundEffectConstants.CLICK)
-                        haptic.performHapticFeedback(if (checked) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
-                        onCheckedChange(checked)
-                    },
-                    enabled = !isProtected,
-                    modifier = Modifier.align(alignment = Alignment.TopEnd)
-                )
-
-                Column(
+                Row(
                     modifier = Modifier
-                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .align(Alignment.TopStart),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    if (isOriginal) {
-                        Text(
-                            text = stringResource(id = R.string.original),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.errorContainer,
-                            modifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colorScheme.error,
-                                    shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
-                                )
-                                .padding(all = SizeConstants.SmallSize)
-                        )
+                    Column {
+                        if (isOriginal) {
+                            Text(
+                                text = stringResource(id = R.string.original),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.errorContainer,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.error,
+                                        shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
+                                    )
+                                    .padding(all = SizeConstants.SmallSize)
+                            )
+                        }
+
+                        if (sizeBytes > 0L) {
+                            Text(
+                                text = FileSizeFormatter.format(sizeBytes),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
+                                    )
+                                    .padding(all = SizeConstants.SmallSize)
+                            )
+                        }
                     }
 
-                    if (sizeBytes > 0L) {
-                        Text(
-                            text = FileSizeFormatter.format(sizeBytes),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
-                                )
-                                .padding(all = SizeConstants.SmallSize)
-                        )
-                    }
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = { checked ->
+                            view.playSoundEffect(android.view.SoundEffectConstants.CLICK)
+                            haptic.performHapticFeedback(if (checked) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
+                            onCheckedChange(checked)
+                        },
+                        enabled = !isProtected,
+                    )
                 }
 
                 if (isProtected) {
