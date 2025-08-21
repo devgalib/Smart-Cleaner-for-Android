@@ -10,6 +10,7 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.disk.DiskCache
 import coil3.disk.directory
+import coil3.gif.GifDecoder
 import coil3.memory.MemoryCache
 import com.d4rk.android.libs.apptoolkit.data.core.BaseCoreManager
 import com.d4rk.android.libs.apptoolkit.data.core.ads.AdsCoreManager
@@ -94,6 +95,9 @@ class Cleaner : BaseCoreManager(), SingletonImageLoader.Factory, DefaultLifecycl
                     .directory(context.cacheDir.resolve(relative = "image_cache"))
                     .maxSizePercent(percent = 0.02)
                     .build()
+            }
+            .components {
+                add(GifDecoder.Factory())
             }
             .build()
     }
