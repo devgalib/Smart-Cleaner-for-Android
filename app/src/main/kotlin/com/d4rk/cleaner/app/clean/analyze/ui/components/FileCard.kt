@@ -41,6 +41,7 @@ import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FilePreviewHelper
 import com.d4rk.cleaner.core.utils.helpers.FileManagerHelper
 import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
 import java.io.File
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +91,8 @@ fun FileCard(
                             text = stringResource(id = R.string.original),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.errorContainer,
                             modifier = Modifier
                                 .background(
@@ -103,9 +106,11 @@ fun FileCard(
                     if (sizeBytes > 0L) {
                         Text(
                             text = FileSizeFormatter.format(sizeBytes),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primaryContainer,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .background(
                                     color = MaterialTheme.colorScheme.primary,
