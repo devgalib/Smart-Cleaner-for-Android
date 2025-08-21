@@ -32,13 +32,12 @@ fun DateHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = SizeConstants.SmallSize, vertical = SizeConstants.ExtraSmallSize),
+            .padding(top = SizeConstants.ExtraSmallSize),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         if (files.isNotEmpty()) {
             Text(
-                modifier = Modifier.padding(start = SizeConstants.SmallSize),
                 text = TimeHelper.formatDate(
                     date = Date(files[0].lastModified()),
                     context = context

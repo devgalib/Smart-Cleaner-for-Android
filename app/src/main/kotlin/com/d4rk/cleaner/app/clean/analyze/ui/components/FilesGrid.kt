@@ -1,5 +1,6 @@
 package com.d4rk.cleaner.app.clean.analyze.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,17 +29,19 @@ fun FilesGridLayout(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = SizeConstants.SmallSize),
+        verticalArrangement = Arrangement.spacedBy(SizeConstants.SmallSize),
+        horizontalArrangement = Arrangement.spacedBy(SizeConstants.SmallSize),
         content = content,
     )
 }
 
 @Composable
 fun FilesGrid(
+    modifier: Modifier = Modifier,
     files: List<File>,
     fileSelectionStates: Map<File, Boolean>,
     onFileSelectionChange: (File, Boolean) -> Unit,
     originals: Set<File> = emptySet(),
-    modifier: Modifier = Modifier,
     onFileLongPress: ((File) -> Unit)? = null,
 ) {
     FilesGridLayout(modifier = modifier) {
