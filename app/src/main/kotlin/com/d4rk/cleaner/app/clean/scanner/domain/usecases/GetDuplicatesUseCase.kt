@@ -18,7 +18,7 @@ class GetDuplicatesUseCase(
 
     suspend operator fun invoke(files: List<File>): List<List<FileEntry>> {
         val candidates = files.filter { it.isFile }
-            .groupBy { it.length() to it.lastModified() }
+            .groupBy { it.length() }
             .values
             .filter { it.size > 1 }
             .flatten()
