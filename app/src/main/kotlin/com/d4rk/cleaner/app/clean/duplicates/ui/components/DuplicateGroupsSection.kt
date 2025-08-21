@@ -56,7 +56,6 @@ fun DuplicateGroupsSection(
                     DateHeader(
                         files = allFiles,
                         fileSelectionStates = fileSelectionStates,
-                        onFileSelectionChange = onFileSelectionChange,
                         onDateSelectionChange = { list, checked ->
                             onDateSelectionChange(list.filterNot { it.isProtectedAndroidDir() }, checked)
                         },

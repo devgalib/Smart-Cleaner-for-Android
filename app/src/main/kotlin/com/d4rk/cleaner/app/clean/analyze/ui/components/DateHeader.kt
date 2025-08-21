@@ -25,7 +25,6 @@ import java.util.Date
 fun DateHeader(
     files: List<File>,
     fileSelectionStates: Map<File, Boolean>,
-    onFileSelectionChange: (File, Boolean) -> Unit,
     onDateSelectionChange: (List<File>, Boolean) -> Unit,
     view: View,
 ) {

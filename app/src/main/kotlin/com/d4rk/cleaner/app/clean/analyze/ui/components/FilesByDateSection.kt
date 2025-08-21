@@ -34,7 +34,6 @@ fun FilesByDateSection(
                     DateHeader(
                         files = files,
                         fileSelectionStates = fileSelectionStates,
-                        onFileSelectionChange = onFileSelectionChange,
                         onDateSelectionChange = { list, checked ->
                             onDateSelectionChange(list.filterNot { it.isProtectedAndroidDir() }, checked)
                         },
