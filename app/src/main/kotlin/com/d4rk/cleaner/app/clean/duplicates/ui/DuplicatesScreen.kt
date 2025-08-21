@@ -87,6 +87,7 @@ fun DuplicatesScreen(activity: DuplicateCleanerActivity) {
                                 viewModel.onEvent(DuplicatesEvent.OnFileSelectionChange(it, checked))
                             }
                         },
+                        originals = data.originals,
                         view = view
                     )
 
