@@ -25,6 +25,10 @@ import com.google.android.material.color.MaterialColors
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Worker responsible for deleting files or moving them to the trash.
@@ -138,7 +142,7 @@ class FileCleanupWorker(
                         .setContentTitle(applicationContext.getString(R.string.cleanup_cancelled))
                         .setContentText(applicationContext.getString(R.string.cleanup_cancelled))
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    notificationManager.cancel(NOTIFICATION_ID)
+                    notificationManager.cancelDelayed()
                 } else {
                     Log.w(TAG, "Notification permission not granted")
                 }
@@ -184,7 +188,7 @@ class FileCleanupWorker(
                     .setContentTitle(applicationContext.getString(R.string.cleanup_cancelled))
                     .setContentText(applicationContext.getString(R.string.cleanup_cancelled))
                 notificationManager.notify(NOTIFICATION_ID, builder.build())
-                notificationManager.cancel(NOTIFICATION_ID)
+                notificationManager.cancelDelayed()
             } else {
                 Log.w(TAG, "Notification permission not granted")
             }
@@ -208,7 +212,7 @@ class FileCleanupWorker(
                     builder.setContentTitle(applicationContext.getString(R.string.cleanup_finished))
                         .setContentText(applicationContext.getString(R.string.all_clean))
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    notificationManager.cancel(NOTIFICATION_ID)
+                    notificationManager.cancelDelayed()
                 } else {
                     Log.w(TAG, "Notification permission not granted")
                 }
@@ -219,7 +223,7 @@ class FileCleanupWorker(
                     builder.setContentTitle(applicationContext.getString(R.string.cleanup_failed))
                         .setContentText(applicationContext.getString(R.string.cleanup_failed_details))
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    notificationManager.cancel(NOTIFICATION_ID)
+                    notificationManager.cancelDelayed()
                 } else {
                     Log.w(TAG, "Notification permission not granted")
                 }
@@ -238,7 +242,7 @@ class FileCleanupWorker(
                             ),
                         )
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    notificationManager.cancel(NOTIFICATION_ID)
+                    notificationManager.cancelDelayed()
                 } else {
                     Log.w(TAG, "Notification permission not granted")
                 }
@@ -269,6 +273,13 @@ class FileCleanupWorker(
         }
     }
 
+    private fun NotificationManagerCompat.cancelDelayed() {
+        CoroutineScope(Dispatchers.Default).launch {
+            delay(NOTIFICATION_CANCEL_DELAY)
+            cancel(NOTIFICATION_ID)
+        }
+    }
+
     companion object {
         const val KEY_PATHS = "paths"
         const val KEY_ACTION = "action"
@@ -287,6 +298,7 @@ class FileCleanupWorker(
         const val MAX_PATHS_PER_WORKER = 100
         private const val NOTIFICATION_ID = 2001
         private const val NOTIFICATION_CHANNEL = "file_cleanup"
+        private const val NOTIFICATION_CANCEL_DELAY = 2000L
         private const val TAG = LogHelper.FILE_CLEANUP_WORKER
     }
 }
