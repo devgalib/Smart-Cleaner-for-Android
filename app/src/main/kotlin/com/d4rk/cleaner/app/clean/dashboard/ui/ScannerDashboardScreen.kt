@@ -279,11 +279,13 @@ fun ScannerDashboardScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items.forEachIndexed { index, item ->
-            val isVisible = uiState.data?.analyzeState?.isAnalyzeScreenVisible == false &&
-                    visibilityStates.getOrElse(index) { false }
+            val baseVisible =
+                uiState.data?.analyzeState?.isAnalyzeScreenVisible == false &&
+                        visibilityStates.getOrElse(index) { false }
             when (item) {
                 is HomeItem.Card -> when (item.type) {
                     ContentCard.QUICK_SCAN -> {
+                        val isVisible = baseVisible
                         QuickScanSummaryCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -303,6 +305,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.SYSTEM_STORAGE -> {
+                        val isVisible = baseVisible && showSystemStorageManagerCard
                         SystemStorageManagerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -323,6 +326,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.WEEKLY_STREAK -> {
+                        val isVisible = baseVisible && showStreakCard
                         WeeklyCleanStreakCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -341,6 +345,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.LARGE_FILES -> {
+                        val isVisible = baseVisible && showLargeFilesCard
                         LargeFilesCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -357,6 +362,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.DUPLICATES -> {
+                        val isVisible = baseVisible && showDuplicateCard
                         DuplicateFilesCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -373,6 +379,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.WHATSAPP -> {
+                        val isVisible = baseVisible && showWhatsAppCard
                         if (whatsappSummary.hasData) {
                             WhatsAppCleanerCard(
                                 modifier = Modifier.animateVisibility(
@@ -417,6 +424,7 @@ fun ScannerDashboardScreen(
                     ContentCard.APK -> {
                         val isCleaningApks =
                             cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
+                        val isVisible = baseVisible && showApkCard
                         ApkCleanerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -432,6 +440,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.EMPTY_FOLDERS -> {
+                        val isVisible = baseVisible && showEmptyFoldersCard
                         EmptyFolderCleanerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -443,6 +452,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.CLIPBOARD -> {
+                        val isVisible = baseVisible && showClipboardCard
                         ClipboardCleanerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -454,6 +464,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.CONTACTS -> {
+                        val isVisible = baseVisible && showContactsCard
                         ContactsCleanerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -469,6 +480,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.LINK_CLEANER -> {
+                        val isVisible = baseVisible && showLinkCleanerCard
                         LinkCleanerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -478,6 +490,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.IMAGE_OPTIMIZER -> {
+                        val isVisible = baseVisible
                         ImageOptimizerCard(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
@@ -493,6 +506,7 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.PROMOTED_APP -> {
+                        val isVisible = baseVisible && promotedApp != null
                         promotedApp?.let { app ->
                             PromotedAppCard(
                                 modifier = Modifier.animateVisibility(
@@ -510,7 +524,7 @@ fun ScannerDashboardScreen(
                         chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
                     AdBanner(
                         modifier = Modifier.animateVisibility(
-                            visible = isVisible,
+                            visible = baseVisible,
                             index = index
                         ),
                         adsConfig = config
