@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -65,7 +62,7 @@ import com.d4rk.android.libs.apptoolkit.core.ui.components.navigation.LargeTopAp
 import com.d4rk.android.libs.apptoolkit.core.ui.components.spacers.ExtraSmallHorizontalSpacer
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.analyze.ui.components.CleaningAnimationScreen
-import com.d4rk.cleaner.app.clean.analyze.ui.components.FileCard
+import com.d4rk.cleaner.app.clean.analyze.ui.components.FilesGrid
 import com.d4rk.cleaner.app.clean.analyze.ui.components.dialogs.GlobalSelectAllWarningDialog
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
 import com.d4rk.cleaner.app.clean.scanner.ui.components.FileListItem
@@ -403,6 +400,20 @@ fun DetailsScreenContent(
 ) {
     val context: Context = LocalContext.current
 
+    fun isFileProtected(file: File) = file.isProtectedAndroidDir()
+
+    fun updateSelection(file: File, checked: Boolean) {
+        if (checked) selected.add(file) else selected.remove(file)
+    }
+
+    fun toggleSelection(file: File) {
+        if (file in selected) selected.remove(file) else selected.add(file)
+    }
+
+    val selectionStates = remember(selected, files) {
+        files.associateWith { it in selected }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -413,49 +424,23 @@ fun DetailsScreenContent(
             }
         } else {
             if (isGrid) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(96.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(files) { file ->
-                        val checked = file in selected
-                        val isProtected = file.isProtectedAndroidDir()
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .then(
-                                    if (!isProtected) Modifier.pointerInput(file, checked) {
-                                        detectTapGestures(onLongPress = {
-                                            if (checked) selected.remove(file) else selected.add(file)
-                                        })
-                                    } else Modifier
-                                )
-                        ) {
-                            FileCard(
-                                file = file,
-                                isChecked = checked,
-                                onCheckedChange = { isChecked ->
-                                    if (!isProtected) {
-                                        if (isChecked) selected.add(file) else selected.remove(file)
-                                    }
-                                },
-                                sizeBytes = file.length(),
-                                isProtected = isProtected,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
+                FilesGrid(
+                    files = files,
+                    fileSelectionStates = selectionStates,
+                    onFileSelectionChange = { file, checked -> updateSelection(file, checked) },
+                    modifier = Modifier.weight(1f),
+                    onFileLongPress = { file -> if (!isFileProtected(file)) toggleSelection(file) }
+                )
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(files) { file ->
-                        val checked = file in selected
+                        val checked = selectionStates[file] == true
                         val previewType = FilePreviewHelper.getPreviewType(file)
                         val isMedia = remember(previewType) {
                             previewType is FilePreviewHelper.PreviewType.Image ||
                                     previewType is FilePreviewHelper.PreviewType.Video
                         }
-                        val isProtected = file.isProtectedAndroidDir()
+                        val isProtected = isFileProtected(file)
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -464,7 +449,7 @@ fun DetailsScreenContent(
                                     if (!isProtected) Modifier.pointerInput(file) {
                                         detectTapGestures(
                                             onLongPress = {
-                                                if (checked) selected.remove(file) else selected.add(file)
+                                                toggleSelection(file)
                                             },
                                             onTap = { openFile(context, file) }
                                         )
@@ -480,7 +465,7 @@ fun DetailsScreenContent(
                                 state = if (checked) ToggleableState.On else ToggleableState.Off,
                                 onClick = {
                                     if (!isProtected) {
-                                        if (checked) selected.remove(file) else selected.add(file)
+                                        toggleSelection(file)
                                     }
                                 },
                                 enabled = !isProtected,

@@ -1,8 +1,8 @@
 package com.d4rk.cleaner.app.clean.analyze.ui.components
 
 import android.view.View
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
@@ -20,9 +20,7 @@ fun FilesByDateSection(
     originals: Set<File> = emptySet(),
     view: View,
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize()
-    ) {
+    FilesGridLayout(modifier = modifier) {
         val sortedDates: List<String> = filesByDate.keys.sortedByDescending { dateString ->
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateString)
         }
@@ -30,7 +28,7 @@ fun FilesByDateSection(
         sortedDates.forEach { date ->
             val files: List<File> = filesByDate[date] ?: emptyList()
             if (files.isNotEmpty()) {
-                item(key = date) {
+                item(key = date, span = { GridItemSpan(maxLineSpan) }) {
                     DateHeader(
                         files = files,
                         fileSelectionStates = fileSelectionStates,
@@ -41,12 +39,15 @@ fun FilesByDateSection(
                     )
                 }
 
-                item(key = "$date-grid") {
-                    FilesGrid(
-                        files = files,
-                        fileSelectionStates = fileSelectionStates,
-                        onFileSelectionChange = onFileSelectionChange,
-                        originals = originals,
+                items(files, key = { it.path }) { file ->
+                    FileCard(
+                        file = file,
+                        isChecked = fileSelectionStates[file] == true,
+                        onCheckedChange = { checked -> onFileSelectionChange(file, checked) },
+                        isOriginal = file in originals,
+                        isProtected = file.isProtectedAndroidDir(),
+                        sizeBytes = file.length(),
+                        modifier = Modifier
                     )
                 }
             }
