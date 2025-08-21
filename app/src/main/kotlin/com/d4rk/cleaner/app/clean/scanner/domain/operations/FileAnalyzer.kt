@@ -5,6 +5,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import java.io.File
+import java.util.Locale
 
 /**
  * Provides functions used during scanning to analyze files on disk.
@@ -70,7 +71,7 @@ class FileAnalyzer(
             if (includeDuplicates && entry.path in duplicateFiles) {
                 duplicatesTitle?.let { title -> filesMap.getOrPut(title) { mutableListOf() }.add(entry) }
             } else {
-                val category = when (val extension = file.extension.lowercase()) {
+                val category = when (val extension = file.extension.lowercase(Locale.ROOT)) {
                     in fileTypesData.imageExtensions -> if (preferences[ExtensionsConstants.IMAGE_EXTENSIONS] == true) baseFinalTitles[0] else null
                     in fileTypesData.videoExtensions -> if (preferences[ExtensionsConstants.VIDEO_EXTENSIONS] == true) baseFinalTitles[1] else null
                     in fileTypesData.audioExtensions -> if (preferences[ExtensionsConstants.AUDIO_EXTENSIONS] == true) baseFinalTitles[2] else null
