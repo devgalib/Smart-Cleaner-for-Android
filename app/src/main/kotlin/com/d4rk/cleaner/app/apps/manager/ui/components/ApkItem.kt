@@ -1,5 +1,6 @@
 package com.d4rk.cleaner.app.apps.manager.ui.components
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,10 +62,14 @@ fun ApkItem(apkPath: String, viewModel: AppManagerViewModel, modifier: Modifier)
                 Text(
                     text = apkFile.name,
                     style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    modifier = Modifier.basicMarquee()
                 )
                 Text(
                     text = FileSizeFormatter.format(apkFile.length()),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    modifier = Modifier.basicMarquee()
                 )
             }
 

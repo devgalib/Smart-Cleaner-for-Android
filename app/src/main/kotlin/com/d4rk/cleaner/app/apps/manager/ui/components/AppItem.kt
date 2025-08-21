@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,7 +45,7 @@ import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
 import java.io.File
 
 @Composable
-fun AppItemComposable(
+fun AppItem(
     app: ApplicationInfo,
     lastUsed: Long?,
     viewModel: AppManagerViewModel,
@@ -82,11 +83,15 @@ fun AppItemComposable(
                 Text(
                     text = appName,
                     style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    modifier = Modifier.basicMarquee()
                 )
                 Row {
                     Text(
                         text = appSize,
                         style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
                     )
                     lastUsed?.takeIf { it > 0 }?.let { used ->
                         Text(

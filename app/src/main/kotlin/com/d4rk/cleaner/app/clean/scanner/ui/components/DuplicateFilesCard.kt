@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Difference
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +34,11 @@ fun DuplicateFilesCard(
 
     DashboardActionCard(
         modifier = modifier,
-        icon = Icons.Outlined.ContentCopy,
+        icon = Icons.Outlined.Difference,
         title = stringResource(id = R.string.duplicate_files_card_title),
         subtitle = stringResource(id = R.string.duplicate_files_card_subtitle),
         actionLabel = stringResource(id = R.string.open_duplicate_files),
-        actionPainter = painterResource(id = R.drawable.ic_duplicate),
+        actionPainter = painterResource(id = R.drawable.ic_folder_search),
         onActionClick = onOpenClick,
         onHeaderClick = onOpenClick
     ) {

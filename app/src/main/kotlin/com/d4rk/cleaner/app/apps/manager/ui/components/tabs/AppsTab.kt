@@ -16,7 +16,7 @@ import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.apps.manager.domain.actions.AppManagerEvent
 import com.d4rk.cleaner.app.apps.manager.ui.AppManagerViewModel
-import com.d4rk.cleaner.app.apps.manager.ui.components.AppItemComposable
+import com.d4rk.cleaner.app.apps.manager.ui.components.AppItem
 import com.d4rk.cleaner.app.apps.manager.ui.components.ShimmerLoadingScreen
 
 @Composable
@@ -53,7 +53,7 @@ fun AppsTab(
                     itemsIndexed(
                         items = sorted,
                         key = { _: Int, app: ApplicationInfo -> app.packageName }) { _: Int, app: ApplicationInfo ->
-                        AppItemComposable(
+                        AppItem(
                             app = app,
                             lastUsed = usageStats[app.packageName],
                             viewModel = viewModel,
