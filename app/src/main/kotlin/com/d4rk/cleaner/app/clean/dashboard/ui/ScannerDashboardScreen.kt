@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -84,6 +85,7 @@ private enum class ContentCard {
     IMAGE_OPTIMIZER,
     PROMOTED_APP
 }
+
 private sealed interface HomeItem {
     data class Card(val type: ContentCard) : HomeItem
     data class Ad(val slot: AdSlot) : HomeItem
@@ -128,7 +130,7 @@ fun ScannerDashboardScreen(
     val showApkCard by remember(appManagerState) {
         derivedStateOf {
             appManagerState.data?.apkFilesLoading == false &&
-                appManagerState.data?.apkFiles?.isNotEmpty() == true
+                    appManagerState.data?.apkFiles?.isNotEmpty() == true
         }
     }
     val showWhatsAppCard by remember(whatsappLoaded, whatsappInstalled) {
@@ -196,10 +198,12 @@ fun ScannerDashboardScreen(
     }
 
     val gmsAvailable = remember {
-        GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+        GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
     }
 
-    val sessionDuration = remember { (System.currentTimeMillis() - Cleaner.sessionStartTime) / 1000L }
+    val sessionDuration =
+        remember { (System.currentTimeMillis() - Cleaner.sessionStartTime) / 1000L }
     val sessionSlots = when {
         sessionDuration < 60 -> listOf(AdSlot.A, AdSlot.C, AdSlot.F)
         sessionDuration < 180 -> listOf(AdSlot.A, AdSlot.B, AdSlot.C, AdSlot.F)
@@ -216,6 +220,7 @@ fun ScannerDashboardScreen(
             val firstAB = listOf(AdSlot.A, AdSlot.B).firstOrNull { sessionSlots.contains(it) }
             listOfNotNull(firstAB, AdSlot.C, AdSlot.F)
         }
+
         else -> sessionSlots
     }
     val allowedSlots = if (adsState && gmsAvailable && dataLoaded) {
@@ -262,7 +267,10 @@ fun ScannerDashboardScreen(
         items.add(HomeItem.Ad(adQueue.removeAt(0)))
     }
     val listState = rememberLazyListState()
-    val (visibilityStates) = rememberAnimatedVisibilityState(listState, items.size)
+    val (visibilityStates: SnapshotStateList<Boolean>) = rememberAnimatedVisibilityState(
+        listState = listState,
+        itemCount = items.size
+    )
 
     Column(
         modifier = Modifier
@@ -273,7 +281,7 @@ fun ScannerDashboardScreen(
     ) {
         items.forEachIndexed { index, item ->
             val isVisible = uiState.data?.analyzeState?.isAnalyzeScreenVisible == false &&
-                visibilityStates.getOrElse(index) { false }
+                    visibilityStates.getOrElse(index) { false }
             AnimatedVisibility(visible = isVisible) {
                 when (item) {
                     is HomeItem.Card -> when (item.type) {
@@ -285,7 +293,8 @@ fun ScannerDashboardScreen(
                                 ),
                                 cleanedSize = uiState.data?.storageInfo?.cleanedSpace ?: "",
                                 freePercent = uiState.data?.storageInfo?.freeSpacePercentage ?: 0,
-                                usedPercent = ((uiState.data?.storageInfo?.storageUsageProgress ?: 0f) * 100).toInt(),
+                                usedPercent = ((uiState.data?.storageInfo?.storageUsageProgress
+                                    ?: 0f) * 100).toInt(),
                                 progress = uiState.data?.storageInfo?.storageUsageProgress ?: 0f,
                                 onQuickScanClick = {
                                     viewModel.onEvent(
@@ -294,6 +303,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.SYSTEM_STORAGE -> {
                             SystemStorageManagerCard(
                                 modifier = Modifier.animateVisibility(
@@ -304,11 +314,16 @@ fun ScannerDashboardScreen(
                                     if (storageManagerIntent.resolveActivity(context.packageManager) != null) {
                                         context.startActivity(storageManagerIntent)
                                     } else {
-                                        Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            R.string.no_application_found,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                             )
                         }
+
                         ContentCard.WEEKLY_STREAK -> {
                             WeeklyCleanStreakCard(
                                 modifier = Modifier.animateVisibility(
@@ -317,9 +332,16 @@ fun ScannerDashboardScreen(
                                 ),
                                 streakDays = streakDays,
                                 streakRecord = streakRecord,
-                                onDismiss = { viewModel.onEvent(ScannerEvent.SetHideStreakDialogVisibility(true)) }
+                                onDismiss = {
+                                    viewModel.onEvent(
+                                        ScannerEvent.SetHideStreakDialogVisibility(
+                                            true
+                                        )
+                                    )
+                                }
                             )
                         }
+
                         ContentCard.LARGE_FILES -> {
                             LargeFilesCard(
                                 modifier = Modifier.animateVisibility(
@@ -335,6 +357,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.DUPLICATES -> {
                             DuplicateFilesCard(
                                 modifier = Modifier.animateVisibility(
@@ -350,6 +373,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.WHATSAPP -> {
                             if (whatsappSummary.hasData) {
                                 WhatsAppCleanerCard(
@@ -391,6 +415,7 @@ fun ScannerDashboardScreen(
                                 )
                             }
                         }
+
                         ContentCard.APK -> {
                             val isCleaningApks =
                                 cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
@@ -407,6 +432,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.EMPTY_FOLDERS -> {
                             EmptyFolderCleanerCard(
                                 modifier = Modifier.animateVisibility(
@@ -417,6 +443,7 @@ fun ScannerDashboardScreen(
                                 onCleanClick = { viewModel.onCleanEmptyFolders(it) }
                             )
                         }
+
                         ContentCard.CLIPBOARD -> {
                             ClipboardCleanerCard(
                                 modifier = Modifier.animateVisibility(
@@ -427,6 +454,7 @@ fun ScannerDashboardScreen(
                                 onCleanClick = { viewModel.onClipboardClear() }
                             )
                         }
+
                         ContentCard.CONTACTS -> {
                             ContactsCleanerCard(
                                 modifier = Modifier.animateVisibility(
@@ -441,6 +469,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.LINK_CLEANER -> {
                             LinkCleanerCard(
                                 modifier = Modifier.animateVisibility(
@@ -449,6 +478,7 @@ fun ScannerDashboardScreen(
                                 )
                             )
                         }
+
                         ContentCard.IMAGE_OPTIMIZER -> {
                             ImageOptimizerCard(
                                 modifier = Modifier.animateVisibility(
@@ -463,6 +493,7 @@ fun ScannerDashboardScreen(
                                 }
                             )
                         }
+
                         ContentCard.PROMOTED_APP -> {
                             promotedApp?.let { app ->
                                 PromotedAppCard(
@@ -475,8 +506,10 @@ fun ScannerDashboardScreen(
                             }
                         }
                     }
+
                     is HomeItem.Ad -> {
-                        val config = chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
+                        val config =
+                            chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
                         AdBanner(
                             modifier = Modifier.animateVisibility(
                                 visible = isVisible,
