@@ -73,9 +73,12 @@ fun FileCard(
         value = withContext(Dispatchers.IO) {
             if (previewType is FilePreviewHelper.PreviewType.Audio) {
                 runCatching {
-                    MediaMetadataRetriever().use { mmr ->
+                    val mmr = MediaMetadataRetriever()
+                    try {
                         mmr.setDataSource(file.path)
                         mmr.embeddedPicture != null
+                    } finally {
+                        mmr.release()
                     }
                 }.getOrDefault(false)
             } else {
