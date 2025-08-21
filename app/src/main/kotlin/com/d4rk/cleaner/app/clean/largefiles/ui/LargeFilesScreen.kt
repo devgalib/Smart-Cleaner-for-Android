@@ -16,6 +16,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
+import com.d4rk.android.libs.apptoolkit.core.ui.components.ads.AdBanner
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.OutlinedIconButtonWithText
 import com.d4rk.android.libs.apptoolkit.core.ui.components.layouts.LoadingScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.layouts.NoDataScreen
@@ -29,7 +31,9 @@ import com.d4rk.cleaner.app.clean.largefiles.domain.actions.LargeFilesEvent
 import com.d4rk.cleaner.app.clean.largefiles.domain.data.model.ui.UiLargeFilesModel
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.qualifier.named
 import java.io.File
 
 private const val TAG = LogHelper.LARGE_FILES_SCREEN
@@ -39,6 +43,7 @@ fun LargeFilesScreen(activity: LargeFilesActivity) {
     val viewModel: LargeFilesViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val view: View = LocalView.current
+    val adsConfig: AdsConfig = koinInject(qualifier = named("large_banner"))
 
     LargeTopAppBarWithScaffold(
         title = stringResource(id = R.string.large_files),
@@ -64,7 +69,7 @@ fun LargeFilesScreen(activity: LargeFilesActivity) {
                         .padding(padding)
                         .fillMaxSize()
                 ) {
-                    val (list, buttons) = createRefs()
+                    val (list, adView, buttons) = createRefs()
                     val enabled = data.selectedFileCount > 0 &&
                         data.cleaningState != CleaningState.Cleaning &&
                         data.cleaningState != CleaningState.Error
@@ -73,7 +78,7 @@ fun LargeFilesScreen(activity: LargeFilesActivity) {
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
-                            bottom.linkTo(buttons.top)
+                            bottom.linkTo(adView.top)
                             width = Dimension.fillToConstraints
                             height = Dimension.fillToConstraints
                         },
@@ -93,6 +98,19 @@ fun LargeFilesScreen(activity: LargeFilesActivity) {
                             }
                         },
                         view = view
+                    )
+
+                    AdBanner(
+                        modifier = Modifier
+                            .padding(horizontal = SizeConstants.LargeSize, vertical = SizeConstants.MediumSize)
+                            .constrainAs(adView) {
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                top.linkTo(list.bottom)
+                                bottom.linkTo(buttons.top)
+                                width = Dimension.fillToConstraints
+                            },
+                        adsConfig = adsConfig
                     )
 
                     OutlinedIconButtonWithText(
