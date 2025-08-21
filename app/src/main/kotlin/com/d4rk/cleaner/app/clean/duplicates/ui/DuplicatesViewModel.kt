@@ -45,6 +45,11 @@ class DuplicatesViewModel(
             val files = repository.getAllFiles().toList()
             val grouped = getDuplicatesUseCase(files)
             val duplicates = grouped.map { group -> group.map { File(it.path) } }
+            val originals = grouped
+                .mapNotNull { group ->
+                    group.minByOrNull { it.modified }?.let { File(it.path) }
+                }
+                .toSet()
             val groupedByDate = FileGroupingHelper.groupDuplicateGroupsByDate(grouped)
             _uiState.update { current ->
                 current.copy(
@@ -52,6 +57,7 @@ class DuplicatesViewModel(
                     data = UiDuplicatesModel(
                         duplicateGroups = duplicates,
                         duplicatesByDate = groupedByDate,
+                        originals = originals,
                         fileSelectionStates = emptyMap(),
                         selectedFileCount = 0,
                         cleaningState = CleaningState.Idle,

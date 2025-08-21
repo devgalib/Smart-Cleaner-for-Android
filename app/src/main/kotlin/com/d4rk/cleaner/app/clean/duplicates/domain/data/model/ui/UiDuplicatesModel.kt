@@ -6,6 +6,7 @@ import java.io.File
 data class UiDuplicatesModel(
     val duplicateGroups: List<List<File>> = emptyList(),
     val duplicatesByDate: Map<String, List<List<File>>> = emptyMap(),
+    val originals: Set<File> = emptySet(),
     /** Map of file paths to selection state */
     val fileSelectionStates: Map<String, Boolean> = emptyMap(),
     val selectedFileCount: Int = 0,
