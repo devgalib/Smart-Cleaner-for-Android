@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.d4rk.cleaner
 
 import android.app.Activity
@@ -106,6 +104,7 @@ class Cleaner : BaseCoreManager(), SingletonImageLoader.Factory, DefaultLifecycl
     }
 
     override fun onLowMemory() {
+        @Suppress("DEPRECATION")
         FilePreviewHelper.onTrimMemory(TRIM_MEMORY_MODERATE)
         super.onLowMemory()
     }

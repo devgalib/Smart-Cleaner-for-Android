@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.d4rk.cleaner.app.clean.scanner.utils.helpers
 
 import android.content.ComponentCallbacks2
@@ -192,6 +190,7 @@ object FilePreviewHelper {
                 bitmapCache.evictAll()
             }
         } else {
+            @Suppress("DEPRECATION")
             when {
                 level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE -> {
                     bitmapCache.evictAll()

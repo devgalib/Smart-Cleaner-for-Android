@@ -1,6 +1,5 @@
 package com.d4rk.cleaner.app.clean.duplicates.ui
 
-import android.app.Application
 import com.d4rk.android.libs.apptoolkit.core.di.DispatcherProvider
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.ScreenState
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiSnackbar
@@ -12,19 +11,17 @@ import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.duplicates.domain.actions.DuplicatesAction
 import com.d4rk.cleaner.app.clean.duplicates.domain.actions.DuplicatesEvent
 import com.d4rk.cleaner.app.clean.duplicates.domain.data.model.ui.UiDuplicatesModel
-import com.d4rk.cleaner.app.clean.scanner.domain.`interface`.ScannerRepositoryInterface
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
+import com.d4rk.cleaner.app.clean.scanner.domain.`interface`.ScannerRepositoryInterface
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
 import com.d4rk.cleaner.core.utils.extensions.selectedFiles
 import com.d4rk.cleaner.core.utils.helpers.FileGroupingHelper
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.update
 import java.io.File
 
 class DuplicatesViewModel(
-    private val application: Application,
     private val repository: ScannerRepositoryInterface,
     private val getDuplicatesUseCase: GetDuplicatesUseCase,
     private val dispatchers: DispatcherProvider,

@@ -119,7 +119,7 @@ class ScannerRepositoryImpl(
 
     override fun getAllFiles(onLockedDir: ((File) -> Unit)?): Flow<File> = flow {
         val stack: ArrayDeque<File> = ArrayDeque()
-        @Suppress("DEPRECATION")
+
         val root = Environment.getExternalStorageDirectory()
         stack.addFirst(root)
 
