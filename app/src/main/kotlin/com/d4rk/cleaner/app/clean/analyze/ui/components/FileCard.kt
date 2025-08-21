@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,6 +50,7 @@ fun FileCard(
     isChecked: Boolean,
     isOriginal: Boolean = false,
     isProtected: Boolean = false,
+    fileSize : Int = 0,
 ) {
     val context: Context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -78,19 +80,39 @@ fun FileCard(
                     modifier = Modifier.align(alignment = Alignment.TopEnd)
                 )
 
-                if (true) {
-                    Text(
-                        text = stringResource(id = R.string.original),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(bottomEnd = SizeConstants.ExtraLargeSize)
-                            )
-                            .padding(all = SizeConstants.MediumSize)
-                    )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                ) {
+                    if (isOriginal) {
+                        Text(
+                            text = stringResource(id = R.string.original),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.error,
+                                    shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
+                                )
+                                .padding(all = SizeConstants.SmallSize)
+                        )
+                    }
+
+                    if (fileSize > 0) {
+                        Text(
+                            text = "23 KB", // TODO: add file size with format KB MB GB
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(bottomEnd = SizeConstants.MediumSize)
+                                )
+                                .padding(all = SizeConstants.SmallSize)
+                        )
+                    }
                 }
 
                 if (isProtected) {
