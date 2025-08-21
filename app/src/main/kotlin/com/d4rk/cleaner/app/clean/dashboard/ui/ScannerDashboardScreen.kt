@@ -4,9 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,9 +47,9 @@ import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ApkCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ClipboardCleanerCard
+import com.d4rk.cleaner.app.clean.scanner.ui.components.DuplicateFilesCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.EmptyFolderCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ImageOptimizerCard
-import com.d4rk.cleaner.app.clean.scanner.ui.components.DuplicateFilesCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.LargeFilesCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.LinkCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.PromotedAppCard
