@@ -79,6 +79,7 @@ fun DuplicateGroupsSection(
                             onCheckedChange = { checked -> onFileSelectionChange(file, checked) },
                             isOriginal = file in originals,
                             isProtected = file.isProtectedAndroidDir(),
+                            sizeBytes = file.length(),
                             modifier = Modifier
                                 .padding(
                                     end = SizeConstants.SmallSize,
