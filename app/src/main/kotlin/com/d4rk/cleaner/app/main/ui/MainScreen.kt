@@ -109,7 +109,11 @@ fun MainScaffoldContent(drawerState: DrawerState) {
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         CleanerTopAppBar(
             navigationIcon = if (drawerState.isOpen) Icons.AutoMirrored.Outlined.MenuOpen else Icons.Default.Menu,
-            onNavigationIconClick = { coroutineScope.launch { drawerState.open() } },
+            onNavigationIconClick = {
+                coroutineScope.launch {
+                    if (drawerState.isOpen) drawerState.close() else drawerState.open()
+                }
+            },
             scrollBehavior = scrollBehavior,
             showSearch = currentRoute == NavigationRoutes.ROUTE_APP_MANAGER,
             searchQuery = searchQuery,
