@@ -242,7 +242,6 @@ val appModule: Module = module {
 
     viewModel<DuplicatesViewModel> {
         DuplicatesViewModel(
-            application = get(),
             repository = get(),
             getDuplicatesUseCase = get(),
             dispatchers = get()

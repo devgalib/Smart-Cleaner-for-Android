@@ -78,7 +78,7 @@ fun FileCard(
                     modifier = Modifier.align(alignment = Alignment.TopEnd)
                 )
 
-                if (isOriginal) {
+                if (true) {
                     Text(
                         text = stringResource(id = R.string.original),
                         style = MaterialTheme.typography.labelLarge,
