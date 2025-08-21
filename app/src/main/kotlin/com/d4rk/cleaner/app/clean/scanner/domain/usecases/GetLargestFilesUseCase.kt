@@ -26,13 +26,12 @@ class GetLargestFilesUseCase(private val repository: ScannerRepositoryInterface)
         }
 
         runCatching {
-            repository.getLargestFiles(limit)
+            repository.getLargestFiles(limit = null)
         }.onSuccess { files ->
-            if (limit == null) {
-                cache = files
-                lastFetch = now
-            }
-            emit(DataState.Success(files))
+            cache = files
+            lastFetch = now
+            val data = limit?.let { files.take(it) } ?: files
+            emit(DataState.Success(data))
         }.onFailure { throwable ->
             if (throwable is CancellationException) throw throwable
             emit(DataState.Error(error = throwable.toError()))

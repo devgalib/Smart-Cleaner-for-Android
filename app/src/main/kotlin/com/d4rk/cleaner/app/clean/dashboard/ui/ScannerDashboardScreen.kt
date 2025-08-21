@@ -17,7 +17,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -269,11 +273,22 @@ fun ScannerDashboardScreen(
     if (adQueue.isNotEmpty() && !lastWasAd) {
         items.add(HomeItem.Ad(adQueue.removeAt(0)))
     }
-    val listState = rememberLazyListState()
-    val (visibilityStates: SnapshotStateList<Boolean>) = rememberAnimatedVisibilityState(
-        listState = listState,
-        itemCount = items.size
-    )
+
+    var animationKey by remember { mutableIntStateOf(0) }
+    val lastAdsEnabled = remember { mutableStateOf(adsState) }
+    val lastCount = remember { mutableIntStateOf(items.size) }
+    if (adsState != lastAdsEnabled.value || items.size > lastCount.intValue) {
+        animationKey++
+        lastAdsEnabled.value = adsState
+    }
+    lastCount.intValue = items.size
+    val (visibilityStates: SnapshotStateList<Boolean>) = key(animationKey) {
+        rememberAnimatedVisibilityState(
+            listState = rememberLazyListState(),
+            itemCount = items.size
+        )
+    }
+
 
     Column(
         modifier = Modifier

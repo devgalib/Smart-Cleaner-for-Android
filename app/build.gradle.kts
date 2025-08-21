@@ -17,7 +17,7 @@ android {
         applicationId = "com.d4rk.cleaner"
         minSdk = 23
         targetSdk = 36
-        versionCode = 227
+        versionCode = 228
         versionName = "3.5.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         @Suppress("UnstableApiUsage")
