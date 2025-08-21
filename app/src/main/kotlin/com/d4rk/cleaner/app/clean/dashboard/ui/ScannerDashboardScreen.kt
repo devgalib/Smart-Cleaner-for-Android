@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.ads.AdBanner
+import com.d4rk.android.libs.apptoolkit.core.ui.components.animations.rememberAnimatedVisibilityState
+import com.d4rk.android.libs.apptoolkit.core.ui.components.modifiers.animateVisibility
 import com.d4rk.android.libs.apptoolkit.core.ui.components.spacers.LargeVerticalSpacer
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.IntentsHelper
@@ -257,6 +261,8 @@ fun ScannerDashboardScreen(
     if (adQueue.isNotEmpty() && !lastWasAd) {
         items.add(HomeItem.Ad(adQueue.removeAt(0)))
     }
+    val listState = rememberLazyListState()
+    val (visibilityStates) = rememberAnimatedVisibilityState(listState, items.size)
 
     Column(
         modifier = Modifier
@@ -265,146 +271,220 @@ fun ScannerDashboardScreen(
         verticalArrangement = Arrangement.spacedBy(SizeConstants.LargeSize),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items.forEach { item ->
-            when (item) {
-                is HomeItem.Card -> when (item.type) {
-                    ContentCard.QUICK_SCAN -> {
-                        QuickScanSummaryCard(
-                            modifier = Modifier,
-                            cleanedSize = uiState.data?.storageInfo?.cleanedSpace ?: "",
-                            freePercent = uiState.data?.storageInfo?.freeSpacePercentage ?: 0,
-                            usedPercent = ((uiState.data?.storageInfo?.storageUsageProgress ?: 0f) * 100).toInt(),
-                            progress = uiState.data?.storageInfo?.storageUsageProgress ?: 0f,
-                            onQuickScanClick = {
-                                viewModel.onEvent(
-                                    event = ScannerEvent.ToggleAnalyzeScreen(true)
+        items.forEachIndexed { index, item ->
+            val isVisible = uiState.data?.analyzeState?.isAnalyzeScreenVisible == false &&
+                visibilityStates.getOrElse(index) { false }
+            AnimatedVisibility(visible = isVisible) {
+                when (item) {
+                    is HomeItem.Card -> when (item.type) {
+                        ContentCard.QUICK_SCAN -> {
+                            QuickScanSummaryCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                cleanedSize = uiState.data?.storageInfo?.cleanedSpace ?: "",
+                                freePercent = uiState.data?.storageInfo?.freeSpacePercentage ?: 0,
+                                usedPercent = ((uiState.data?.storageInfo?.storageUsageProgress ?: 0f) * 100).toInt(),
+                                progress = uiState.data?.storageInfo?.storageUsageProgress ?: 0f,
+                                onQuickScanClick = {
+                                    viewModel.onEvent(
+                                        event = ScannerEvent.ToggleAnalyzeScreen(true)
+                                    )
+                                }
+                            )
+                        }
+                        ContentCard.SYSTEM_STORAGE -> {
+                            SystemStorageManagerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                onOpen = {
+                                    if (storageManagerIntent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(storageManagerIntent)
+                                    } else {
+                                        Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+                        }
+                        ContentCard.WEEKLY_STREAK -> {
+                            WeeklyCleanStreakCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                streakDays = streakDays,
+                                streakRecord = streakRecord,
+                                onDismiss = { viewModel.onEvent(ScannerEvent.SetHideStreakDialogVisibility(true)) }
+                            )
+                        }
+                        ContentCard.LARGE_FILES -> {
+                            LargeFilesCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                files = largeFiles,
+                                onOpenClick = {
+                                    IntentsHelper.openActivity(
+                                        context = context,
+                                        activityClass = LargeFilesActivity::class.java
+                                    )
+                                }
+                            )
+                        }
+                        ContentCard.DUPLICATES -> {
+                            DuplicateFilesCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                duplicateGroups = duplicateGroups,
+                                onOpenClick = {
+                                    IntentsHelper.openActivity(
+                                        context = context,
+                                        activityClass = DuplicateCleanerActivity::class.java
+                                    )
+                                }
+                            )
+                        }
+                        ContentCard.WHATSAPP -> {
+                            if (whatsappSummary.hasData) {
+                                WhatsAppCleanerCard(
+                                    modifier = Modifier.animateVisibility(
+                                        visible = isVisible,
+                                        index = index
+                                    ),
+                                    mediaSummary = whatsappSummary,
+                                    onCleanClick = {
+                                        IntentsHelper.openActivity(
+                                            context = context,
+                                            activityClass = WhatsAppCleanerActivity::class.java
+                                        )
+                                    }
                                 )
-                            }
-                        )
-                    }
-                    ContentCard.SYSTEM_STORAGE -> {
-                        SystemStorageManagerCard(onOpen = {
-                            if (storageManagerIntent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(storageManagerIntent)
                             } else {
-                                Toast.makeText(context, R.string.no_application_found, Toast.LENGTH_SHORT).show()
-                            }
-                        })
-                    }
-                    ContentCard.WEEKLY_STREAK -> {
-                        WeeklyCleanStreakCard(
-                            streakDays = streakDays,
-                            streakRecord = streakRecord,
-                            onDismiss = { viewModel.onEvent(ScannerEvent.SetHideStreakDialogVisibility(true)) }
-                        )
-                    }
-                    ContentCard.LARGE_FILES -> {
-                        LargeFilesCard(
-                            files = largeFiles,
-                            onOpenClick = {
-                                IntentsHelper.openActivity(
-                                    context = context,
-                                    activityClass = LargeFilesActivity::class.java
+                                DashboardActionCard(
+                                    modifier = Modifier.animateVisibility(
+                                        visible = isVisible,
+                                        index = index
+                                    ),
+                                    icon = Icons.Filled.Whatsapp,
+                                    title = stringResource(id = R.string.whatsapp_card_title),
+                                    subtitle = stringResource(id = R.string.whatsapp_cleaner_empty_message),
+                                    actionLabel = stringResource(id = R.string.open_whatsapp_cleaner),
+                                    actionPainter = painterResource(id = R.drawable.ic_folder_search),
+                                    onActionClick = {
+                                        IntentsHelper.openActivity(
+                                            context = context,
+                                            activityClass = WhatsAppCleanerActivity::class.java
+                                        )
+                                    },
+                                    onHeaderClick = {
+                                        IntentsHelper.openActivity(
+                                            context = context,
+                                            activityClass = WhatsAppCleanerActivity::class.java
+                                        )
+                                    }
                                 )
                             }
-                        )
-                    }
-                    ContentCard.DUPLICATES -> {
-                        DuplicateFilesCard(
-                            duplicateGroups = duplicateGroups,
-                            onOpenClick = {
-                                IntentsHelper.openActivity(
-                                    context = context,
-                                    activityClass = DuplicateCleanerActivity::class.java
-                                )
-                            }
-                        )
-                    }
-                    ContentCard.WHATSAPP -> {
-                        if (whatsappSummary.hasData) {
-                            WhatsAppCleanerCard(
-                                mediaSummary = whatsappSummary,
-                                onCleanClick = {
-                                    IntentsHelper.openActivity(
-                                        context = context,
-                                        activityClass = WhatsAppCleanerActivity::class.java
-                                    )
+                        }
+                        ContentCard.APK -> {
+                            val isCleaningApks =
+                                cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
+                            ApkCleanerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                apkFiles = appManagerState.data?.apkFiles ?: emptyList(),
+                                isLoading = isCleaningApks,
+                                onCleanClick = { selected ->
+                                    val files = selected.map { File(it.path) }
+                                    viewModel.onCleanApks(files)
                                 }
                             )
-                        } else {
-                            DashboardActionCard(
-                                icon = Icons.Filled.Whatsapp,
-                                title = stringResource(id = R.string.whatsapp_card_title),
-                                subtitle = stringResource(id = R.string.whatsapp_cleaner_empty_message),
-                                actionLabel = stringResource(id = R.string.open_whatsapp_cleaner),
-                                actionPainter = painterResource(id = R.drawable.ic_folder_search),
-                                onActionClick = {
+                        }
+                        ContentCard.EMPTY_FOLDERS -> {
+                            EmptyFolderCleanerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                folders = emptyFolders,
+                                onCleanClick = { viewModel.onCleanEmptyFolders(it) }
+                            )
+                        }
+                        ContentCard.CLIPBOARD -> {
+                            ClipboardCleanerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                clipboardText = clipboardText,
+                                onCleanClick = { viewModel.onClipboardClear() }
+                            )
+                        }
+                        ContentCard.CONTACTS -> {
+                            ContactsCleanerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                onOpen = {
                                     IntentsHelper.openActivity(
                                         context = context,
-                                        activityClass = WhatsAppCleanerActivity::class.java
-                                    )
-                                },
-                                onHeaderClick = {
-                                    IntentsHelper.openActivity(
-                                        context = context,
-                                        activityClass = WhatsAppCleanerActivity::class.java
+                                        activityClass = ContactsCleanerActivity::class.java
                                     )
                                 }
                             )
                         }
-                    }
-                    ContentCard.APK -> {
-                        val isCleaningApks =
-                            cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
-                        ApkCleanerCard(
-                            apkFiles = appManagerState.data?.apkFiles ?: emptyList(),
-                            isLoading = isCleaningApks,
-                            onCleanClick = { selected ->
-                                val files = selected.map { File(it.path) }
-                                viewModel.onCleanApks(files)
+                        ContentCard.LINK_CLEANER -> {
+                            LinkCleanerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                )
+                            )
+                        }
+                        ContentCard.IMAGE_OPTIMIZER -> {
+                            ImageOptimizerCard(
+                                modifier = Modifier.animateVisibility(
+                                    visible = isVisible,
+                                    index = index
+                                ),
+                                onOptimizeClick = {
+                                    IntentsHelper.openActivity(
+                                        context = context,
+                                        activityClass = ImagePickerActivity::class.java
+                                    )
+                                }
+                            )
+                        }
+                        ContentCard.PROMOTED_APP -> {
+                            promotedApp?.let { app ->
+                                PromotedAppCard(
+                                    modifier = Modifier.animateVisibility(
+                                        visible = isVisible,
+                                        index = index
+                                    ),
+                                    app = app
+                                )
                             }
-                        )
-                    }
-                    ContentCard.EMPTY_FOLDERS -> {
-                        EmptyFolderCleanerCard(
-                            folders = emptyFolders,
-                            onCleanClick = { viewModel.onCleanEmptyFolders(it) }
-                        )
-                    }
-                    ContentCard.CLIPBOARD -> {
-                        ClipboardCleanerCard(
-                            clipboardText = clipboardText,
-                            onCleanClick = { viewModel.onClipboardClear() }
-                        )
-                    }
-                    ContentCard.CONTACTS -> {
-                        ContactsCleanerCard(onOpen = {
-                            IntentsHelper.openActivity(
-                                context = context,
-                                activityClass = ContactsCleanerActivity::class.java
-                            )
-                        })
-                    }
-                    ContentCard.LINK_CLEANER -> {
-                        LinkCleanerCard()
-                    }
-                    ContentCard.IMAGE_OPTIMIZER -> {
-                        ImageOptimizerCard(onOptimizeClick = {
-                            IntentsHelper.openActivity(
-                                context = context,
-                                activityClass = ImagePickerActivity::class.java
-                            )
-                        })
-                    }
-                    ContentCard.PROMOTED_APP -> {
-                        promotedApp?.let { app ->
-                            PromotedAppCard(app = app)
                         }
                     }
-                }
-                is HomeItem.Ad -> {
-                    val config = chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
-                    AdBanner(adsConfig = config)
+                    is HomeItem.Ad -> {
+                        val config = chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
+                        AdBanner(
+                            modifier = Modifier.animateVisibility(
+                                visible = isVisible,
+                                index = index
+                            ),
+                            adsConfig = config
+                        )
+                    }
                 }
             }
         }
