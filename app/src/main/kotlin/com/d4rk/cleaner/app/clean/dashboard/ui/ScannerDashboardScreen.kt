@@ -147,10 +147,8 @@ fun ScannerDashboardScreen(
     val showLinkCleanerCard = true
     val showLargeFilesCard by remember(largeFilesState) {
         derivedStateOf {
-            when (largeFilesState) {
-                is DataState.Success -> largeFilesState.data.isNotEmpty()
-                else -> true
-            }
+            val state = largeFilesState
+            if (state is DataState.Success) state.data.isNotEmpty() else true
         }
     }
     val showEmptyFoldersCard by remember(emptyFolders, emptyFoldersHideUntil) {

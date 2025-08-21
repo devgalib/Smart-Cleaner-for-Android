@@ -19,6 +19,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetLargestFilesUseCase
 import com.d4rk.cleaner.app.clean.scanner.work.FileCleanupWorker
 import com.d4rk.cleaner.core.data.datastore.DataStore
+import com.d4rk.cleaner.core.domain.model.network.Errors
 import com.d4rk.cleaner.core.utils.extensions.selectedFiles
 import com.d4rk.cleaner.core.utils.helpers.FileGroupingHelper
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
