@@ -110,6 +110,7 @@ fun ScannerDashboardScreen(
     val duplicateGroups = uiState.data?.analyzeState?.duplicateGroups?.map { group ->
         group.map { File(it.path) }
     } ?: emptyList()
+    val showDuplicateCard by viewModel.showDuplicateCard.collectAsState()
     val emptyFolders by viewModel.emptyFolders.collectAsState()
     val emptyFoldersHideUntil by viewModel.emptyFoldersHideUntil.collectAsState()
     val streakDays by viewModel.cleanStreak.collectAsState()
@@ -140,9 +141,6 @@ fun ScannerDashboardScreen(
     val showLinkCleanerCard = true
     val showLargeFilesCard by remember(largeFiles) {
         derivedStateOf { largeFiles.isNotEmpty() }
-    }
-    val showDuplicateCard by remember(duplicateGroups) {
-        derivedStateOf { duplicateGroups.isNotEmpty() }
     }
     val showEmptyFoldersCard by remember(emptyFolders, emptyFoldersHideUntil) {
         derivedStateOf {
