@@ -272,7 +272,7 @@ class ScannerRepositoryImpl(
         dataStore.subtractTrashSize(size = size)
     }
 
-    override suspend fun getLargestFiles(limit: Int): List<File> {
+    override suspend fun getLargestFiles(limit: Int?): List<File> {
         return withContext(Dispatchers.IO) {
             @Suppress("DEPRECATION")
             val root = Environment.getExternalStorageDirectory()
@@ -330,20 +330,26 @@ class ScannerRepositoryImpl(
                 list.sortWith(compareByDescending<File> { it.length() }.thenByDescending { it.lastModified() })
             }
 
-            val result = mutableListOf<File>()
-            var index = 0
-            while (result.size < limit) {
-                var added = false
-                for (list in groups.values) {
-                    if (index < list.size && result.size < limit) {
-                        result.add(list[index])
-                        added = true
+            if (limit == null) {
+                groups.values.flatten().sortedWith(
+                    compareByDescending<File> { it.length() }.thenByDescending { it.lastModified() }
+                )
+            } else {
+                val result = mutableListOf<File>()
+                var index = 0
+                while (result.size < limit) {
+                    var added = false
+                    for (list in groups.values) {
+                        if (index < list.size && result.size < limit) {
+                            result.add(list[index])
+                            added = true
+                        }
                     }
+                    if (!added) break
+                    index++
                 }
-                if (!added) break
-                index++
+                result
             }
-            result
         }
     }
 

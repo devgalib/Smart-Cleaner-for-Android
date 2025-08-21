@@ -93,8 +93,9 @@ class ScannerViewModel(
     val isWhatsAppInstalled: StateFlow<Boolean> = _isWhatsAppInstalled
 
 
-    private val _largestFiles = MutableStateFlow<List<File>>(emptyList())
-    val largestFiles: StateFlow<List<File>> = _largestFiles
+    private val _largestFilesState: MutableStateFlow<DataState<List<File>, Errors>> =
+        MutableStateFlow(DataState.Loading())
+    val largestFilesState: StateFlow<DataState<List<File>, Errors>> = _largestFilesState
 
     private val _emptyFolders = MutableStateFlow<List<File>>(emptyList())
     val emptyFolders: StateFlow<List<File>> = _emptyFolders
@@ -800,10 +801,8 @@ class ScannerViewModel(
 
     private fun loadLargestFilesPreview() {
         launch(dispatchers.io) {
-            getLargestFilesUseCase(5).collectLatest { result ->
-                if (result is DataState.Success) {
-                    _largestFiles.value = result.data
-                }
+            getLargestFilesUseCase(limit = 5).collectLatest { result ->
+                _largestFilesState.value = result
             }
         }
     }
