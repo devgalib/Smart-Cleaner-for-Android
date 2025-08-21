@@ -439,6 +439,7 @@ fun DetailsScreenContent(
                                         if (isChecked) selected.add(file) else selected.remove(file)
                                     }
                                 },
+                                sizeBytes = file.length(),
                                 isProtected = isProtected,
                                 modifier = Modifier.fillMaxWidth()
                             )

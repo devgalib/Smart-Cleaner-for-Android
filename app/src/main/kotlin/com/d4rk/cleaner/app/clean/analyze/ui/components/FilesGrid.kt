@@ -36,6 +36,7 @@ fun FilesGrid(
                 onCheckedChange = { isChecked -> onFileSelectionChange(file, isChecked) },
                 isOriginal = file in originals,
                 isProtected = file.isProtectedAndroidDir(),
+                sizeBytes = file.length(),
                 modifier = Modifier
             )
         }

@@ -39,6 +39,7 @@ import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FilePreviewHelper
 import com.d4rk.cleaner.core.utils.helpers.FileManagerHelper
+import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +51,7 @@ fun FileCard(
     isChecked: Boolean,
     isOriginal: Boolean = false,
     isProtected: Boolean = false,
-    fileSize : Int = 0,
+    sizeBytes: Long = 0L,
 ) {
     val context: Context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -99,9 +100,9 @@ fun FileCard(
                         )
                     }
 
-                    if (fileSize > 0) {
+                    if (sizeBytes > 0L) {
                         Text(
-                            text = "23 KB", // TODO: add file size with format KB MB GB
+                            text = FileSizeFormatter.format(sizeBytes),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primaryContainer,
                             fontWeight = FontWeight.Bold,
