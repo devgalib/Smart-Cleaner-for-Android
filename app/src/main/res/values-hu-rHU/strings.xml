@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Keresés</string>
+    <string name="clear_search">Keresés törlése</string>
     <string name="app_manager">Alkalmazáskezelő</string>
     <string name="installed_apps">Telepített alkalmazások</string>
     <string name="system_apps">Rendszeralkalmazások</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">Válaszd ki az optimalizálni kívánt képet</string>
     <string name="choose_image">Kép kiválasztása</string>
     <string name="optimize_image">Kép optimalizálása</string>
+    <string name="selected_image">Kiválasztott kép</string>
     <string name="quick_compress">Gyors tömörítés</string>
     <string name="low">Alacsony</string>
     <string name="medium">Közepes</string>

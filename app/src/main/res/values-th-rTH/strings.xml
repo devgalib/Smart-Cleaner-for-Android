@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">ค้นหา</string>
+    <string name="clear_search">ล้างการค้นหา</string>
     <string name="app_manager">ตัวจัดการแอป</string>
     <string name="installed_apps">แอปที่ติดตั้งแล้ว</string>
     <string name="system_apps">แประบบ</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">เลือกรูปภาพที่คุณต้องการเพิ่มประสิทธิภาพ</string>
     <string name="choose_image">เลือกรูปภาพ</string>
     <string name="optimize_image">เพิ่มประสิทธิภาพรูปภาพ</string>
+    <string name="selected_image">ภาพที่เลือก</string>
     <string name="quick_compress">บีบอัดด่วน</string>
     <string name="low">ต่ำ</string>
     <string name="medium">ปานกลาง</string>

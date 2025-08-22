@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Suchen</string>
+    <string name="clear_search">Suche löschen</string>
     <string name="app_manager">App-Manager</string>
     <string name="installed_apps">Installierte Apps</string>
     <string name="system_apps">System-Apps</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">Wählen Sie das Bild aus, das Sie optimieren möchten</string>
     <string name="choose_image">Bild auswählen</string>
     <string name="optimize_image">Bild optimieren</string>
+    <string name="selected_image">Ausgewähltes Bild</string>
     <string name="quick_compress">Schnellkomprimierung</string>
     <string name="low">Niedrig</string>
     <string name="medium">Mittel</string>

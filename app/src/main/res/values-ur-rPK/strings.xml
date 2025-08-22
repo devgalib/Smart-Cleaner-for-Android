@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">تلاش</string>
+    <string name="clear_search">تلاش صاف کریں</string>
     <string name="app_manager">ایپ مینیجر</string>
     <string name="installed_apps">انسٹال شدہ ایپس</string>
     <string name="system_apps">سسٹم ایپس</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">وہ تصویر منتخب کریں جسے آپ بہتر بنانا چاہتے ہیں</string>
     <string name="choose_image">تصویر منتخب کریں</string>
     <string name="optimize_image">تصویر کو بہتر بنائیں</string>
+    <string name="selected_image">منتخب تصویر</string>
     <string name="quick_compress">فوری کمپریس</string>
     <string name="low">کم</string>
     <string name="medium">درمیانی</string>

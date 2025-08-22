@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Търсене</string>
+    <string name="clear_search">Изчистване на търсенето</string>
     <string name="app_manager">Мениджър на приложения</string>
     <string name="installed_apps">Инсталирани приложения</string>
     <string name="system_apps">Системни приложения</string>
@@ -276,6 +277,7 @@
     <string name="summary_select_image">Изберете изображението, което искате да оптимизирате</string>
     <string name="choose_image">Избор на изображение</string>
     <string name="optimize_image">Оптимизиране на изображение</string>
+    <string name="selected_image">Избрано изображение</string>
     <string name="quick_compress">Бързо компресиране</string>
     <string name="low">Ниско</string>
     <string name="medium">Средно</string>

@@ -285,6 +285,7 @@
 
     <!-- App manager -->
     <string name="search">بحث</string>
+    <string name="clear_search">مسح البحث</string>
     <string name="app_manager">مدير التطبيقات</string>
     <string name="installed_apps">التطبيقات المثبتة</string>
     <string name="system_apps">تطبيقات النظام</string>
@@ -317,6 +318,7 @@
     <string name="summary_select_image">اختار الصورة اللي عايز تحسنها</string>
     <string name="choose_image">اختار صورة</string>
     <string name="optimize_image">تحسين الصورة</string>
+    <string name="selected_image">الصورة المحددة</string>
     <string name="quick_compress">ضغط سريع</string>
     <string name="low">منخفض</string>
     <string name="medium">متوسط</string>
