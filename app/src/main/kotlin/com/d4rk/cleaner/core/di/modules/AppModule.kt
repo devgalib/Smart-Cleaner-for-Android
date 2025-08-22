@@ -33,8 +33,8 @@ import com.d4rk.cleaner.app.clean.contacts.domain.usecases.DeleteOlderContactsUs
 import com.d4rk.cleaner.app.clean.contacts.domain.usecases.GetDuplicateContactsUseCase
 import com.d4rk.cleaner.app.clean.contacts.domain.usecases.MergeContactsUseCase
 import com.d4rk.cleaner.app.clean.contacts.ui.ContactsCleanerViewModel
-import com.d4rk.cleaner.app.clean.largefiles.ui.LargeFilesViewModel
 import com.d4rk.cleaner.app.clean.duplicates.ui.DuplicatesViewModel
+import com.d4rk.cleaner.app.clean.largefiles.ui.LargeFilesViewModel
 import com.d4rk.cleaner.app.clean.memory.data.MemoryRepositoryImpl
 import com.d4rk.cleaner.app.clean.memory.domain.interfaces.MemoryRepository
 import com.d4rk.cleaner.app.clean.memory.domain.usecases.GetRamInfoUseCase

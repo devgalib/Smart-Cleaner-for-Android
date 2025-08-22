@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
 import com.d4rk.android.libs.apptoolkit.core.ui.components.ads.AdBanner
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.OutlinedIconButtonWithText
@@ -59,6 +58,7 @@ import com.d4rk.android.libs.apptoolkit.core.ui.components.spacers.SmallHorizont
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.ScreenHelper
 import com.d4rk.cleaner.R
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.d4rk.cleaner.app.images.compressor.domain.data.model.ui.UiImageOptimizerState
 import com.d4rk.cleaner.app.images.compressor.ui.components.tabs.FileSizeTab
 import com.d4rk.cleaner.app.images.compressor.ui.components.tabs.ManualModeTab

@@ -22,13 +22,13 @@ import com.d4rk.cleaner.core.utils.helpers.CleaningEventBus
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.google.android.material.color.MaterialColors
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.io.File
 
 /**
  * Worker responsible for deleting files or moving them to the trash.

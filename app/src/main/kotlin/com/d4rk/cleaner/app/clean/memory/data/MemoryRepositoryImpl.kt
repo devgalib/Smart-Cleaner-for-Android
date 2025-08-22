@@ -13,15 +13,15 @@ import com.d4rk.cleaner.app.clean.memory.domain.data.model.RamInfo
 import com.d4rk.cleaner.app.clean.memory.domain.data.model.StorageInfo
 import com.d4rk.cleaner.app.clean.memory.domain.interfaces.MemoryRepository
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.StorageUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.pow
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MemoryRepositoryImpl(private val application: Application) : MemoryRepository {
 

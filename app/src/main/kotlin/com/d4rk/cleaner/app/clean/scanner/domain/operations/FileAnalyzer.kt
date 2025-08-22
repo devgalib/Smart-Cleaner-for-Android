@@ -4,9 +4,9 @@ import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
+import kotlinx.coroutines.flow.asFlow
 import java.io.File
 import java.util.Locale
-import kotlinx.coroutines.flow.asFlow
 
 /**
  * Provides functions used during scanning to analyze files on disk.

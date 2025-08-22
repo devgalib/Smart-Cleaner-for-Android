@@ -2,8 +2,8 @@ package com.d4rk.cleaner.app.clean.analyze.ui.components
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.view.View
 import android.media.MediaMetadataRetriever
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,9 +50,9 @@ import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FilePreviewHelper
 import com.d4rk.cleaner.core.utils.helpers.FileManagerHelper
 import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -43,7 +43,7 @@ class DuplicatesViewModel(
         launch(dispatchers.io) {
             val grouped = getDuplicatesUseCase(repository.getAllFiles())
             val sortedGroups = grouped.map { it.sortedBy { entry -> entry.modified } }
-            val duplicates = sortedGroups.map { it.map { File(it.path) } }
+            val duplicates = sortedGroups.map { fileEntries -> fileEntries.map { File(it.path) } }
             val originals = duplicates.map { it.first() }.toSet()
             val groupedByDate = FileGroupingHelper.groupDuplicateGroupsByDate(sortedGroups)
             _uiState.update { current ->
@@ -125,11 +125,3 @@ class DuplicatesViewModel(
         }
     }
 }
-
-private suspend inline fun <T> runCatching(block: suspend () -> T): Result<T> =
-    try {
-        Result.success(block())
-    } catch (e: Throwable) {
-        Result.failure(e)
-    }
-

@@ -24,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.snackbar.DefaultSnackbarHandler
 import com.d4rk.android.libs.apptoolkit.core.ui.effects.LifecycleEventsEffect
-import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeScreen
 import com.d4rk.cleaner.app.clean.dashboard.ui.ScannerDashboardScreen
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent

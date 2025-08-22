@@ -141,7 +141,7 @@ class WhatsAppCleanerRepositoryImpl(private val application: Application) :
                 cached.files
             }
 
-            if (offset >= files.size) return@withContext emptyList<File>()
+            if (offset >= files.size) return@withContext emptyList()
 
             val toIndex = (offset + limit).coerceAtMost(files.size)
             files.subList(offset, toIndex)

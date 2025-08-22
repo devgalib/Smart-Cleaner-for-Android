@@ -54,7 +54,7 @@ fun ContactsCleanerScreen(activity: Activity) {
     val scrollBehavior: TopAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val permissionState = ContactsPermissionController(activity)
+    val permissionState = contactsPermissionController(activity)
 
     val bottomBarAdConfig: AdsConfig = koinInject(qualifier = named(name = "full_banner"))
 

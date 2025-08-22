@@ -21,10 +21,8 @@ fun AppImage(
 ) {
     val context = LocalContext.current
     val request = remember(model, size, requestBuilder) {
-        if (model is ImageRequest) {
-            model
-        } else {
-            ImageRequest.Builder(context)
+        model as? ImageRequest
+            ?: ImageRequest.Builder(context)
                 .data(model)
                 .crossfade(true)
                 .apply {
@@ -32,7 +30,6 @@ fun AppImage(
                     requestBuilder?.invoke(this)
                 }
                 .build()
-        }
     }
     AsyncImage(
         model = request,

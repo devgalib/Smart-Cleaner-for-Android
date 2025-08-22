@@ -39,12 +39,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.scale
 import androidx.core.graphics.createBitmap
-import com.d4rk.cleaner.app.core.ui.components.AppImage
 import coil3.video.VideoFrameDecoder
 import coil3.video.videoFramePercent
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.apps.manager.ui.components.IconLoadingPlaceholder
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.google.common.io.Files.getFileExtension
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -100,8 +101,8 @@ object FilePreviewHelper {
         }
     }
 
-    private fun albumArtKey(file: File) = "art:${'$'}{file.path}"
-    private fun waveformKey(file: File) = "waveform:${'$'}{file.path}"
+    private fun albumArtKey(filePath: String) = "art:$filePath"
+    private fun waveformKey(filePath: String) = "waveform:$filePath"
 
 
     /**
@@ -131,7 +132,7 @@ object FilePreviewHelper {
     }
 
     private suspend fun loadAlbumArt(file: File): Bitmap? = withContext(Dispatchers.IO) {
-        val key = albumArtKey(file)
+        val key = albumArtKey(file.path)
         bitmapCache.get(key)?.let { cached ->
             return@withContext cached.config?.let { cached.copy(it, true) } ?: cached
         }
@@ -160,7 +161,7 @@ object FilePreviewHelper {
                         )
                         val w = (decoded.width * scale).toInt()
                         val h = (decoded.height * scale).toInt()
-                        Bitmap.createScaledBitmap(decoded, w, h, true).also { scaled ->
+                        decoded.scale(w, h, true).also { scaled ->
                             if (scaled != decoded) decoded.recycle()
                             scaled
                         }
@@ -176,7 +177,7 @@ object FilePreviewHelper {
     }
 
     private suspend fun generateWaveform(file: File, width: Int = 64, height: Int = 32): Bitmap? = withContext(Dispatchers.IO) {
-        val key = waveformKey(file)
+        val key = waveformKey(file.path)
         bitmapCache.get(key)?.let { cached ->
             return@withContext cached.config?.let { cached.copy(it, true) } ?: cached
         }
