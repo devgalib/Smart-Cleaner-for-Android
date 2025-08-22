@@ -120,6 +120,24 @@ class DataStore(val context: Context) : CommonDataStore(context = context) {
         }
     }
 
+    private val contactsCleanWorkIdKey =
+        stringPreferencesKey(AppDataStoreConstants.DATA_STORE_CONTACTS_CLEAN_WORK_ID)
+    val contactsCleanWorkId: Flow<String?> = dataStore.data.map { prefs ->
+        prefs[contactsCleanWorkIdKey]
+    }
+
+    suspend fun saveContactsCleanWorkId(id: String) {
+        dataStore.edit { prefs ->
+            prefs[contactsCleanWorkIdKey] = id
+        }
+    }
+
+    suspend fun clearContactsCleanWorkId() {
+        dataStore.edit { prefs ->
+            prefs.remove(contactsCleanWorkIdKey)
+        }
+    }
+
     private val whatsappCleanWorkIdKey =
         stringPreferencesKey(AppDataStoreConstants.DATA_STORE_WHATSAPP_CLEAN_WORK_ID)
     val whatsappCleanWorkId: Flow<String?> = dataStore.data.map { prefs ->

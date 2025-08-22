@@ -146,11 +146,14 @@ val appModule: Module = module {
     single { MergeContactsUseCase(repository = get()) }
     viewModel {
         ContactsCleanerViewModel(
+            application = get(),
             getDuplicatesUseCase = get(),
             deleteOlderUseCase = get(),
             deleteContactsUseCase = get(),
             mergeContactsUseCase = get(),
-            dispatchers = get()
+            dataStore = get(),
+            dispatchers = get(),
+            fileCleanWorkEnqueuer = get(),
         )
     }
 
