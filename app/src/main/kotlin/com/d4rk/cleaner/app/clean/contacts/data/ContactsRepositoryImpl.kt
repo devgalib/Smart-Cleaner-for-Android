@@ -180,6 +180,14 @@ class ContactsRepositoryImpl(context: Context) : ContactsRepository {
                 if (ra != rb) parent[rb] = ra
             }
 
+            // Pre-normalize phones and emails into hashed sets for quick lookups
+            val phoneSets = Array(contacts.size) { hashSetOf<String>() }
+            val emailSets = Array(contacts.size) { hashSetOf<String>() }
+            contacts.forEachIndexed { index, info ->
+                phoneSets[index] = info.phones.map { it.trimStart('+') }.toHashSet()
+                emailSets[index] = info.emails.map { it.lowercase() }.toHashSet()
+            }
+
             val phoneGroups = mutableMapOf<String, MutableList<Int>>()
             val emailGroups = mutableMapOf<String, MutableList<Int>>()
             contacts.forEachIndexed { index, info ->
@@ -205,27 +213,32 @@ class ContactsRepositoryImpl(context: Context) : ContactsRepository {
             }
             nameGroups.values.forEach { group ->
                 if (group.size > 1) {
-                    for (i in 0 until group.size) {
-                        val aIdx = group[i]
-                        val a = contacts[aIdx]
-                        for (j in i + 1 until group.size) {
-                            val bIdx = group[j]
-                            val b = contacts[bIdx]
-                            if (a.phones.isEmpty() && b.phones.isEmpty() && a.emails.isEmpty() && b.emails.isEmpty()) {
-                                union(aIdx, bIdx)
-                            } else {
-                                loop@ for (pa in a.phones) {
-                                    val da = normalizePhone(pa).trimStart('+')
-                                    for (pb in b.phones) {
-                                        val db = normalizePhone(pb).trimStart('+')
-                                        if (da.endsWith(db) || db.endsWith(da)) {
-                                            union(aIdx, bIdx)
-                                            break@loop
-                                        }
-                                    }
+                    val phoneMap = mutableMapOf<String, Int>()
+                    val emailMap = mutableMapOf<String, Int>()
+                    val emptyContacts = mutableListOf<Int>()
+
+                    group.forEach { idx ->
+                        val phones = phoneSets[idx]
+                        val emails = emailSets[idx]
+                        if (phones.isEmpty() && emails.isEmpty()) {
+                            emptyContacts.add(idx)
+                        } else {
+                            phones.forEach { phone ->
+                                for (i in phone.indices) {
+                                    val fragment = phone.substring(i)
+                                    val prev = phoneMap.putIfAbsent(fragment, idx)
+                                    if (prev != null) union(prev, idx)
                                 }
                             }
+                            emails.forEach { email ->
+                                val prev = emailMap.putIfAbsent(email, idx)
+                                if (prev != null) union(prev, idx)
+                            }
                         }
+                    }
+
+                    for (i in 1 until emptyContacts.size) {
+                        union(emptyContacts[0], emptyContacts[i])
                     }
                 }
             }
