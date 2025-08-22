@@ -3,7 +3,6 @@ package com.d4rk.cleaner.app.clean.scanner.domain.usecases
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
-import kotlinx.coroutines.yield
 import java.io.File
 
 /**
@@ -50,7 +49,7 @@ class DefaultFileSelectionUseCase : FileSelectionUseCase {
                     val path = file.path
                     if (path !in duplicateOriginals) base.add(path)
                 }
-                yield()
+                Thread.yield()
             }
             base
         } else mutableSetOf()
