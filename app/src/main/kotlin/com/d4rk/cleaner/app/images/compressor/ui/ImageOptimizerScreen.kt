@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import coil3.compose.AsyncImage
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
 import com.d4rk.android.libs.apptoolkit.core.ui.components.ads.AdBanner
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.OutlinedIconButtonWithText
@@ -336,7 +336,7 @@ fun ImageDisplay(
             CircularProgressIndicator()
         } else {
             imageUri?.let { uri ->
-                AsyncImage(
+                AppImage(
                     model = uri,
                     contentDescription = stringResource(id = R.string.selected_image),
                     modifier = Modifier.fillMaxSize(),

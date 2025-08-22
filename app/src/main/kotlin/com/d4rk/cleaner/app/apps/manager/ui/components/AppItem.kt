@@ -32,7 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.IconButton
 import com.d4rk.android.libs.apptoolkit.core.ui.components.dropdown.CommonDropdownMenuItem
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
@@ -69,7 +69,7 @@ fun AppItem(
                 .clip(RoundedCornerShape(SizeConstants.LargeSize)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
+            AppImage(
                 model = model,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),

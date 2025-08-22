@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.TonalIconButtonWithText
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.IntentsHelper
@@ -65,7 +65,7 @@ fun PromotedAppCard(app: PromotedApp, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(SizeConstants.MediumSize)
             ) {
-                AsyncImage(
+                AppImage(
                     model = app.iconLogo,
                     contentDescription = stringResource(
                         R.string.promoted_app_icon_description,
