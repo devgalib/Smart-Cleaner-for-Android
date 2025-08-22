@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.d4rk.android.libs.apptoolkit.core.ui.components.layouts.NoDataScreen
@@ -43,8 +44,9 @@ fun AppsTab(
             else -> {
                 val context = LocalContext.current
                 val packageManager = context.packageManager
-                val sorted =
+                val sorted = remember(apps) {
                     apps.sortedBy { packageManager.getApplicationLabel(it).toString().lowercase() }
+                }
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = SizeConstants.ExtraTinySize),
                     verticalArrangement = Arrangement.spacedBy(space = SizeConstants.ExtraTinySize),
