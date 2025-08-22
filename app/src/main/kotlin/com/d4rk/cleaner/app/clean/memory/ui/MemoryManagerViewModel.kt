@@ -25,6 +25,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.supervisorScope
 
+private const val RAM_UPDATE_INTERVAL_MS = 5_000L
+
 class MemoryManagerViewModel(
     private val getStorageInfoUseCase: GetStorageInfoUseCase,
     private val getRamInfoUseCase: GetRamInfoUseCase,
@@ -121,7 +123,7 @@ class MemoryManagerViewModel(
         ramUpdateJob?.cancel()
         ramUpdateJob = launch(dispatchers.default) {
             while (isActive) {
-                delay(5000)
+                delay(RAM_UPDATE_INTERVAL_MS)
 
                 runCatching {
                     getRamInfoUseCase().collectLatest { result ->
