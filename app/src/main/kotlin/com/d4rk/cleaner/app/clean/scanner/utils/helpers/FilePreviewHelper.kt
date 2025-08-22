@@ -41,7 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
-import coil3.compose.AsyncImage
+import com.d4rk.cleaner.app.core.ui.components.AppImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
@@ -429,7 +429,7 @@ object FilePreviewHelper {
             }
 
             PreviewType.Image -> {
-                AsyncImage(
+                AppImage(
                     model = remember(file) {
                         ImageRequest.Builder(context).data(file).size(64).crossfade(true).build()
                     },
@@ -440,7 +440,7 @@ object FilePreviewHelper {
             }
 
             PreviewType.Video -> {
-                AsyncImage(
+                AppImage(
                     model = remember(file) {
                         ImageRequest.Builder(context)
                             .data(file)
@@ -474,7 +474,7 @@ object FilePreviewHelper {
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
-                        AsyncImage(
+                        AppImage(
                             model = ImageRequest.Builder(context)
                                 .data(icon)
                                 .crossfade(true)
