@@ -59,30 +59,52 @@ class MemoryRepositoryImpl(private val application: Application) : MemoryReposit
 
     private suspend fun getStorageBreakdown(context: Context): Map<String, Long> =
         withContext(Dispatchers.IO) {
-            val breakdown: MutableMap<String, Long> = mutableMapOf()
-            val externalStoragePath: String =
-                context.getExternalFilesDir(null)?.parentFile?.parentFile?.parentFile?.absolutePath
-                    ?: "/"
+            coroutineScope {
+                val breakdown: MutableMap<String, Long> = mutableMapOf()
+                val externalStoragePath: String =
+                    context.getExternalFilesDir(null)?.parentFile?.parentFile?.parentFile?.absolutePath
+                        ?: "/"
 
-            breakdown[context.getString(R.string.installed_apps)] =
-                getInstalledAppsSize(context)
-            breakdown[context.getString(R.string.system)] =
-                getDirectorySize(Environment.getRootDirectory())
-            breakdown[context.getString(R.string.music)] =
-                getDirectorySize(File(externalStoragePath, "Music"))
-            breakdown[context.getString(R.string.images)] =
-                getDirectorySize(File(externalStoragePath, "DCIM")) + getDirectorySize(
-                    File(
-                        externalStoragePath, "Pictures"
-                    )
+                val installedAppsDeferred = async { getInstalledAppsSize(context) }
+                val systemDeferred = async { getDirectorySize(Environment.getRootDirectory()) }
+                val musicDeferred = async { getDirectorySize(File(externalStoragePath, "Music")) }
+                val dcimDeferred = async { getDirectorySize(File(externalStoragePath, "DCIM")) }
+                val picturesDeferred = async {
+                    getDirectorySize(File(externalStoragePath, "Pictures"))
+                }
+                val documentsDeferred =
+                    async { getDirectorySize(File(externalStoragePath, "Documents")) }
+                val downloadsDeferred =
+                    async { getDirectorySize(File(externalStoragePath, "Download")) }
+
+                val (
+                    installedAppsSize,
+                    systemSize,
+                    musicSize,
+                    dcimSize,
+                    picturesSize,
+                    documentsSize,
+                    downloadsSize
+                ) = awaitAll(
+                    installedAppsDeferred,
+                    systemDeferred,
+                    musicDeferred,
+                    dcimDeferred,
+                    picturesDeferred,
+                    documentsDeferred,
+                    downloadsDeferred
                 )
-            breakdown[context.getString(R.string.documents)] =
-                getDirectorySize(File(externalStoragePath, "Documents"))
-            breakdown[context.getString(R.string.downloads)] =
-                getDirectorySize(File(externalStoragePath, "Download"))
-            breakdown[context.getString(R.string.other_files)] = getOtherFilesSize(breakdown)
 
-            breakdown
+                breakdown[context.getString(R.string.installed_apps)] = installedAppsSize
+                breakdown[context.getString(R.string.system)] = systemSize
+                breakdown[context.getString(R.string.music)] = musicSize
+                breakdown[context.getString(R.string.images)] = dcimSize + picturesSize
+                breakdown[context.getString(R.string.documents)] = documentsSize
+                breakdown[context.getString(R.string.downloads)] = downloadsSize
+                breakdown[context.getString(R.string.other_files)] = getOtherFilesSize(breakdown)
+
+                breakdown
+            }
         }
 
     private suspend fun getInstalledAppsSize(context: Context): Long {
