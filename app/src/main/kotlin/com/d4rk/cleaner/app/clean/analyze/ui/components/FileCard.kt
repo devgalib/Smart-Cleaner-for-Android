@@ -69,7 +69,7 @@ fun FileCard(
     val haptic = LocalHapticFeedback.current
     val view: View = LocalView.current
     val defaultColor = MaterialTheme.colorScheme.onSurface
-    val previewType = remember(file) { FilePreviewHelper.getPreviewType(file) }
+    val previewType = remember(file) { FilePreviewHelper.getPreviewType(file, context.resources) }
     val hasAlbumArt by produceState(initialValue = false, file.path) {
         value = withContext(Dispatchers.IO) {
             if (previewType is FilePreviewHelper.PreviewType.Audio) {

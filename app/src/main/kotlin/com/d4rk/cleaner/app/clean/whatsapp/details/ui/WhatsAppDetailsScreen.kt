@@ -435,7 +435,7 @@ fun DetailsScreenContent(
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(files) { file ->
                         val checked = selectionStates[file] == true
-                        val previewType = FilePreviewHelper.getPreviewType(file)
+                        val previewType = FilePreviewHelper.getPreviewType(file, context.resources)
                         val isMedia = remember(previewType) {
                             previewType is FilePreviewHelper.PreviewType.Image ||
                                     previewType is FilePreviewHelper.PreviewType.Video
