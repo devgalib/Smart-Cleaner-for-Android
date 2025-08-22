@@ -187,6 +187,7 @@
         <item>webp</item>
         <item>bmp</item>
         <item>png</item>
+        <item>gif</item>
         <item>raw</item>
         <item>psd</item>
     </string-array>
