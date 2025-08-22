@@ -42,8 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.d4rk.cleaner.app.core.ui.components.AppImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 import coil3.video.videoFramePercent
 import com.d4rk.cleaner.R
@@ -430,31 +428,27 @@ object FilePreviewHelper {
 
             PreviewType.Image -> {
                 AppImage(
-                    model = remember(file) {
-                        ImageRequest.Builder(context).data(file).size(64).crossfade(true).build()
-                    },
+                    model = file,
                     contentDescription = file.name,
                     contentScale = ContentScale.FillWidth,
-                    modifier = modifier.fillMaxWidth()
+                    modifier = modifier.fillMaxWidth(),
+                    size = 64,
                 )
             }
 
             PreviewType.Video -> {
                 AppImage(
-                    model = remember(file) {
-                        ImageRequest.Builder(context)
-                            .data(file)
-                            .size(64)
-                            .decoderFactory { result, options, _ ->
-                                VideoFrameDecoder(result.source, options)
-                            }
-                            .videoFramePercent(0.5)
-                            .crossfade(true)
-                            .build()
-                    },
+                    model = file,
                     contentDescription = file.name,
                     contentScale = ContentScale.Crop,
-                    modifier = modifier.fillMaxSize()
+                    modifier = modifier.fillMaxSize(),
+                    size = 64,
+                    requestBuilder = {
+                        decoderFactory { result, options, _ ->
+                            VideoFrameDecoder(result.source, options)
+                        }
+                        videoFramePercent(0.5f)
+                    },
                 )
             }
 
@@ -475,13 +469,10 @@ object FilePreviewHelper {
                         )
                     } else {
                         AppImage(
-                            model = ImageRequest.Builder(context)
-                                .data(icon)
-                                .crossfade(true)
-                                .build(),
+                            model = icon,
                             contentDescription = file.name,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Fit,
                         )
                     }
                 }

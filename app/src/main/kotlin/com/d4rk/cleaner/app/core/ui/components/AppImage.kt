@@ -16,15 +16,21 @@ fun AppImage(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
+    size: Int? = null,
+    requestBuilder: (ImageRequest.Builder.() -> Unit)? = null,
 ) {
     val context = LocalContext.current
-    val request = remember(model) {
+    val request = remember(model, size, requestBuilder) {
         if (model is ImageRequest) {
             model
         } else {
             ImageRequest.Builder(context)
                 .data(model)
                 .crossfade(true)
+                .apply {
+                    size?.let { size(it) }
+                    requestBuilder?.invoke(this)
+                }
                 .build()
         }
     }
