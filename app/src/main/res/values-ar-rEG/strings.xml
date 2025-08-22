@@ -437,6 +437,8 @@
     <string name="share_app_failed">فشل مشاركة التطبيق</string>
     <string name="share_play_store_link">مشاركة رابط متجر Play</string>
     <string name="share_apk_file">مشاركة ملف APK</string>
+    <string name="share_play_store_link_icon_description">أيقونة مشاركة رابط متجر Play</string>
+    <string name="share_apk_file_icon_description">أيقونة مشاركة ملف APK</string>
     <string name="apk_installed_successfully">ملف APK اتثبت بنجاح!</string>
     <string name="failed_to_install_apk">فشل تثبيت ملف APK: %1$s</string>
     <string name="failed_to_uninstall_app">فشل إلغاء تثبيت التطبيق: %1$s</string>

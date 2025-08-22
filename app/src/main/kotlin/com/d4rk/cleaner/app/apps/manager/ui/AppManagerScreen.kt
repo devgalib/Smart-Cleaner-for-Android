@@ -138,7 +138,12 @@ fun AppManagerScreen(snackbarHostState: SnackbarHostState, paddingValues: Paddin
             ) {
                 ListItem(
                     headlineContent = { Text(text = stringResource(id = R.string.share_play_store_link)) },
-                    leadingContent = { Icon(imageVector = Icons.Outlined.Shop, contentDescription = null) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.Shop,
+                            contentDescription = stringResource(id = R.string.share_play_store_link_icon_description)
+                        )
+                    },
                     modifier = Modifier.clickable {
                         viewModel.onEvent(AppManagerEvent.ShareStoreLink)
                     },
@@ -148,7 +153,12 @@ fun AppManagerScreen(snackbarHostState: SnackbarHostState, paddingValues: Paddin
 
                 ListItem(
                     headlineContent = { Text(text = stringResource(id = R.string.share_apk_file)) },
-                    leadingContent = { Icon(imageVector = Icons.Outlined.Android, contentDescription = null) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.Android,
+                            contentDescription = stringResource(id = R.string.share_apk_file_icon_description)
+                        )
+                    },
                     modifier = Modifier
                         .clickable {
                         viewModel.onEvent(AppManagerEvent.ShareApkFile)

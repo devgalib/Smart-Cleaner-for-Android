@@ -397,6 +397,8 @@
     <string name="share_app_failed">Nem sikerült megosztani az alkalmazást</string>
     <string name="share_play_store_link">Play Áruház hivatkozás megosztása</string>
     <string name="share_apk_file">APK fájl megosztása</string>
+    <string name="share_play_store_link_icon_description">Ikon a Play Áruház-hivatkozás megosztásához</string>
+    <string name="share_apk_file_icon_description">Ikon az APK-fájl megosztásához</string>
     <string name="apk_installed_successfully">Az APK sikeresen telepítve!</string>
     <string name="failed_to_install_apk">Nem sikerült telepíteni az APK-t: %1$s</string>
     <string name="failed_to_uninstall_app">Nem sikerült eltávolítani az alkalmazást: %1$s</string>

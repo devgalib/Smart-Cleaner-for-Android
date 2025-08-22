@@ -417,6 +417,8 @@
     <string name="share_app_failed">Nie udało się udostępnić aplikacji</string>
     <string name="share_play_store_link">Udostępnij link do Sklepu Play</string>
     <string name="share_apk_file">Udostępnij plik APK</string>
+    <string name="share_play_store_link_icon_description">Ikona udostępniania linku do Sklepu Play</string>
+    <string name="share_apk_file_icon_description">Ikona udostępniania pliku APK</string>
     <string name="apk_installed_successfully">Plik APK został pomyślnie zainstalowany!</string>
     <string name="failed_to_install_apk">Nie udało się zainstalować pliku APK: %1$s</string>
     <string name="failed_to_uninstall_app">Nie udało się odinstalować aplikacji: %1$s</string>

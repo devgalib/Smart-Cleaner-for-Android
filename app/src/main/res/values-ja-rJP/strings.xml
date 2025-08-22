@@ -387,6 +387,8 @@
     <string name="share_app_failed">アプリの共有に失敗しました</string>
     <string name="share_play_store_link">Play ストアのリンクを共有</string>
     <string name="share_apk_file">APK ファイルを共有</string>
+    <string name="share_play_store_link_icon_description">Play ストアリンク共有アイコン</string>
+    <string name="share_apk_file_icon_description">APK ファイル共有アイコン</string>
     <string name="apk_installed_successfully">APKが正常にインストールされました！</string>
     <string name="failed_to_install_apk">APKのインストールに失敗しました: %1$s</string>
     <string name="failed_to_uninstall_app">アプリのアンインストールに失敗しました: %1$s</string>

@@ -396,6 +396,8 @@
     <string name="share_app_failed">Неуспешно споделяне на приложението</string>
     <string name="share_play_store_link">Сподели връзката в Play Store</string>
     <string name="share_apk_file">Сподели APK файла</string>
+    <string name="share_play_store_link_icon_description">Икона за споделяне на връзка към Play Store</string>
+    <string name="share_apk_file_icon_description">Икона за споделяне на APK файл</string>
     <string name="apk_installed_successfully">APK файлът е инсталиран успешно!</string>
     <string name="failed_to_install_apk">Неуспешно инсталиране на APK: %1$s</string>
     <string name="failed_to_uninstall_app">Неуспешно деинсталиране на приложението: %1$s</string>
