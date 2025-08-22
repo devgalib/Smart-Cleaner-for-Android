@@ -6,6 +6,8 @@ import com.d4rk.cleaner.core.utils.extensions.partialMd5
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -16,23 +18,30 @@ class GetDuplicatesUseCase(
     private val hashCache = ConcurrentHashMap<String, String>()
     private val chunkSize = 100
 
-    suspend operator fun invoke(files: List<File>): List<List<FileEntry>> {
-        val candidates = files.filter { it.isFile }
-            .groupBy { it.length() }
-            .values
-            .filter { it.size > 1 }
-            .flatten()
+    suspend operator fun invoke(files: Flow<File>): List<List<FileEntry>> {
+        val groupsBySize = HashMap<Long, MutableList<FileEntry>>()
 
+        files.collect { file ->
+            if (file.isFile) {
+                val entry = FileEntry(file.absolutePath, file.length(), file.lastModified())
+                groupsBySize.getOrPut(entry.size) { mutableListOf() }.add(entry)
+            }
+        }
+
+        val candidates = groupsBySize.values.filter { it.size > 1 }
         if (candidates.isEmpty()) return emptyList()
 
         val hashed = coroutineScope {
-            candidates.chunked(chunkSize).map { chunk ->
-                async {
-                    withContext(dispatchers.io) {
-                        chunk.mapNotNull { file ->
-                            val key = "${file.absolutePath}:${file.lastModified()}"
-                            val hash = hashCache[key] ?: file.partialMd5()?.also { hashCache[key] = it }
-                            hash?.let { it to file }
+            candidates.flatMap { group ->
+                group.chunked(chunkSize).map { chunk ->
+                    async {
+                        withContext(dispatchers.io) {
+                            chunk.mapNotNull { entry ->
+                                val file = File(entry.path)
+                                val key = "${entry.path}:${entry.modified}"
+                                val hash = hashCache[key] ?: file.partialMd5()?.also { hashCache[key] = it }
+                                hash?.let { it to entry }
+                            }
                         }
                     }
                 }
@@ -42,9 +51,7 @@ class GetDuplicatesUseCase(
         return hashed.groupBy({ it.first }, { it.second })
             .values
             .filter { it.size > 1 }
-            .map { group ->
-                group.map { f -> FileEntry(f.absolutePath, f.length(), f.lastModified()) }
-            }
+            .toList()
     }
 }
 
