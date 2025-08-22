@@ -79,7 +79,6 @@ object FilePreviewHelper {
     private const val MAX_WAVEFORM_BYTES = 1 * 1024 * 1024 // 1 MB
     private const val MAX_ALBUM_ART_DIMENSION = 256
     private const val MAX_WAVEFORM_FILE_SIZE = 20L * 1024 * 1024 // 20 MB
-    private val sharedWaveformBuffer: ByteBuffer = ByteBuffer.allocate(MAX_WAVEFORM_BYTES)
     private val recycleHandler by lazy { android.os.Handler(android.os.Looper.getMainLooper()) }
 
     private val bitmapCache: LruCache<String, Bitmap> by lazy {
@@ -183,8 +182,8 @@ object FilePreviewHelper {
         }
         if (file.length() > MAX_WAVEFORM_FILE_SIZE) return@withContext null
         runCatching {
-            synchronized(sharedWaveformBuffer) {
-                val extractor = MediaExtractor()
+            val extractor = MediaExtractor()
+            try {
                 extractor.setDataSource(file.path)
                 var trackIndex = 0
                 while (trackIndex < extractor.trackCount) {
@@ -193,8 +192,7 @@ object FilePreviewHelper {
                     if (mime.startsWith("audio/")) break else trackIndex++
                 }
                 if (trackIndex >= extractor.trackCount) {
-                    extractor.release()
-                    return@synchronized null
+                    return@runCatching null
                 }
                 extractor.selectTrack(trackIndex)
                 val format = extractor.getTrackFormat(trackIndex)
@@ -204,9 +202,7 @@ object FilePreviewHelper {
                     64 * 1024
                 }
                 val maxInput = min(reported, MAX_WAVEFORM_BYTES)
-                sharedWaveformBuffer.clear()
-                sharedWaveformBuffer.limit(maxInput)
-                val buffer = sharedWaveformBuffer
+                val buffer = ByteBuffer.allocate(maxInput)
                 val data = IntArray(width)
                 var i = 0
                 while (i < width) {
@@ -221,9 +217,8 @@ object FilePreviewHelper {
                     extractor.advance()
                     i++
                 }
-                extractor.release()
                 val max = data.maxOrNull() ?: 0
-                if (max == 0) return@synchronized null
+                if (max == 0) return@runCatching null
                 val bmp = createBitmap(width, height)
                 val canvas = Canvas(bmp)
                 val paint = Paint().apply { color = Color.WHITE }
@@ -234,6 +229,8 @@ object FilePreviewHelper {
                     canvas.drawLine(x, height - barHeight, x, height.toFloat(), paint)
                 }
                 bmp
+            } finally {
+                extractor.release()
             }
         }.getOrNull()?.also { bitmapCache.put(key, it) }?.let { it.config?.let { config -> it.copy(config, true) } ?: it }
     }
