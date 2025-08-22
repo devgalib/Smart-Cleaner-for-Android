@@ -73,15 +73,11 @@ fun FileCard(
     val hasAlbumArt by produceState(initialValue = false, file.path) {
         value = withContext(Dispatchers.IO) {
             if (previewType is FilePreviewHelper.PreviewType.Audio) {
+                val mmr = MediaMetadataRetriever()
                 runCatching {
-                    val mmr = MediaMetadataRetriever()
-                    try {
-                        mmr.setDataSource(file.path)
-                        mmr.embeddedPicture != null
-                    } finally {
-                        mmr.release()
-                    }
-                }.getOrDefault(false)
+                    mmr.setDataSource(file.path)
+                    mmr.embeddedPicture != null
+                }.also { mmr.release() }.getOrDefault(false)
             } else {
                 false
             }
