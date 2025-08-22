@@ -20,8 +20,6 @@ import com.d4rk.cleaner.app.clean.whatsapp.summary.domain.usecases.GetWhatsAppMe
 import com.d4rk.cleaner.app.clean.whatsapp.summary.domain.usecases.GetWhatsAppMediaSummaryUseCase
 import com.d4rk.cleaner.app.clean.whatsapp.utils.constants.WhatsAppMediaConstants
 import com.d4rk.cleaner.core.data.datastore.DataStore
-import com.d4rk.cleaner.core.utils.helpers.CleaningEventBus
-import com.d4rk.cleaner.core.utils.helpers.FileSizeFormatter
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.core.work.FileCleaner
@@ -242,17 +240,22 @@ class WhatsappCleanerSummaryViewModel(
                     info.outputData.getStringArray(FileCleanupWorker.KEY_FAILED_PATHS)
                         ?.toSet() ?: emptySet()
                 val failedCount = failedPaths.size
-                val successSize = pendingDeleteSizes
-                    .filterKeys { it !in failedPaths }
-                    .values
-                    .sum()
+                val successCount = pendingDeleteSizes.size - failedCount
                 pendingDeleteSizes = emptyMap()
 
                 onEvent(WhatsAppCleanerEvent.LoadMedia)
 
-                val message = buildString {
-                    append("Cleaned ${FileSizeFormatter.format(successSize)}")
-                    if (failedCount > 0) append(", $failedCount failed")
+                val message = if (failedCount > 0) {
+                    UiTextHelper.DynamicString(
+                        application.resources.getQuantityString(
+                            R.plurals.cleanup_partial,
+                            successCount,
+                            successCount,
+                            failedCount,
+                        )
+                    )
+                } else {
+                    UiTextHelper.StringResource(R.string.all_clean)
                 }
 
                 _uiState.update { current ->
@@ -263,10 +266,9 @@ class WhatsappCleanerSummaryViewModel(
 
                 sendAction(
                     WhatsAppCleanerAction.ShowSnackbar(
-                        UiSnackbar(message = UiTextHelper.DynamicString(message))
+                        UiSnackbar(message = message)
                     )
                 )
-                CleaningEventBus.notifyCleaned(success = failedCount == 0)
             },
             onFailed = {
                 pendingDeleteSizes = emptyMap()
@@ -280,7 +282,6 @@ class WhatsappCleanerSummaryViewModel(
                         )
                     )
                 }
-                CleaningEventBus.notifyCleaned(success = false)
             },
             onCancelled = {
                 pendingDeleteSizes = emptyMap()
