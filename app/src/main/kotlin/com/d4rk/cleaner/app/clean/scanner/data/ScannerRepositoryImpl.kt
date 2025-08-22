@@ -223,9 +223,10 @@ class ScannerRepositoryImpl(
 
     override suspend fun restoreFromTrash(filesToRestore: Set<File>) {
         val originalPaths: Set<String> = dataStore.trashFileOriginalPaths.first()
+        val pathMap = originalPaths.associateBy { File(it).name }
         filesToRestore.forEach { file ->
             if (file.exists()) {
-                val originalPath: String? = originalPaths.firstOrNull { File(it).name == file.name }
+                val originalPath: String? = pathMap[file.name]
                 if (originalPath != null) {
                     val destinationFile = File(originalPath)
                     val destinationParent: File? = destinationFile.parentFile
