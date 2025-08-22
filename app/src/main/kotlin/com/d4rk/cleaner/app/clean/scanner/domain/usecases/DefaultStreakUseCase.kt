@@ -1,4 +1,4 @@
-package com.d4rk.cleaner.app.clean.scanner.ui
+package com.d4rk.cleaner.app.clean.scanner.domain.usecases
 
 import com.d4rk.android.libs.apptoolkit.core.di.DispatcherProvider
 import com.d4rk.cleaner.core.data.datastore.DataStore
@@ -9,24 +9,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Manages flows and actions related to the clean streak card.
+ * Default implementation of [StreakUseCase].
  */
-class StreakHandler(
+class DefaultStreakUseCase(
     private val dataStore: DataStore,
     private val scope: CoroutineScope,
     private val dispatchers: DispatcherProvider,
     private val updateHideDialogVisibility: (Boolean) -> Unit,
-) {
+) : StreakUseCase {
     private val streakHelper = StreakCardHelper(dataStore, scope, dispatchers)
 
     private val _cleanStreak = MutableStateFlow(0)
-    val cleanStreak: StateFlow<Int> = _cleanStreak
+    override val cleanStreak: StateFlow<Int> = _cleanStreak
 
     private val _streakRecord = MutableStateFlow(0)
-    val streakRecord: StateFlow<Int> = _streakRecord
+    override val streakRecord: StateFlow<Int> = _streakRecord
 
     private val _showStreakCard = MutableStateFlow(true)
-    val showStreakCard: StateFlow<Boolean> = _showStreakCard
+    override val showStreakCard: StateFlow<Boolean> = _showStreakCard
     private val _streakHideUntil = MutableStateFlow(0L)
 
     init {
@@ -34,16 +34,16 @@ class StreakHandler(
         loadStreakCardVisibility()
     }
 
-    fun setHideStreakDialogVisibility(isVisible: Boolean) {
+    override fun setHideStreakDialogVisibility(isVisible: Boolean) {
         updateHideDialogVisibility(isVisible)
     }
 
-    fun hideStreakForNow() {
+    override fun hideStreakForNow() {
         scope.launch(dispatchers.io) { dataStore.saveStreakHideUntil(startOfNextWeek()) }
         setHideStreakDialogVisibility(false)
     }
 
-    fun hideStreakPermanently() {
+    override fun hideStreakPermanently() {
         scope.launch(dispatchers.io) { dataStore.saveShowStreakCard(false) }
         setHideStreakDialogVisibility(false)
     }
