@@ -187,22 +187,28 @@ fun AppManagerScreenContent(
     val pagerState: PagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val searchQuery by viewModel.searchQuery.collectAsState()
-    val context = LocalContext.current
+    val appLabels by viewModel.appLabels.collectAsState()
 
-    val userApps = screenData.installedApps.filter { app: ApplicationInfo ->
-        app.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
-                context.packageManager.getApplicationLabel(app).toString()
+    val userApps = remember(screenData.installedApps, searchQuery) {
+        screenData.installedApps.filter { app: ApplicationInfo ->
+            app.flags and ApplicationInfo.FLAG_SYSTEM == 0 &&
+                (appLabels[app.packageName] ?: app.packageName)
                     .contains(searchQuery, ignoreCase = true)
+        }
     }
 
-    val systemApps = screenData.installedApps.filter { app: ApplicationInfo ->
-        app.flags and ApplicationInfo.FLAG_SYSTEM != 0 &&
-                context.packageManager.getApplicationLabel(app).toString()
+    val systemApps = remember(screenData.installedApps, searchQuery) {
+        screenData.installedApps.filter { app: ApplicationInfo ->
+            app.flags and ApplicationInfo.FLAG_SYSTEM != 0 &&
+                (appLabels[app.packageName] ?: app.packageName)
                     .contains(searchQuery, ignoreCase = true)
+        }
     }
 
-    val apkFilesFiltered = screenData.apkFiles.filter { apk ->
-        apk.path.substringAfterLast('/').contains(searchQuery, ignoreCase = true)
+    val apkFilesFiltered = remember(screenData.apkFiles, searchQuery) {
+        screenData.apkFiles.filter { apk ->
+            apk.path.substringAfterLast('/').contains(searchQuery, ignoreCase = true)
+        }
     }
 
     val badgeVisible = remember { mutableStateOf(false) }

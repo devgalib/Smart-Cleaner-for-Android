@@ -71,6 +71,9 @@ class AppManagerViewModel(
     private val _sharePackage = MutableStateFlow<String?>(null)
     val sharePackage = _sharePackage.asStateFlow()
 
+    private val _appLabels = MutableStateFlow<Map<String, String>>(emptyMap())
+    val appLabels = _appLabels.asStateFlow()
+
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
@@ -178,22 +181,29 @@ class AppManagerViewModel(
             getInstalledAppsUseCase().flowOn(dispatchers.default).onEach { result ->
                 _uiState.update { currentState ->
                     when (result) {
-                        is DataState.Loading -> currentState.copy(
-                            data = currentState.data?.copy(
-                                userAppsLoading = true,
-                                systemAppsLoading = true
+                        is DataState.Loading -> {
+                            _appLabels.value = emptyMap()
+                            currentState.copy(
+                                data = currentState.data?.copy(
+                                    userAppsLoading = true,
+                                    systemAppsLoading = true
+                                )
                             )
-                        )
+                        }
 
                         is DataState.Success -> {
                             val pm = applicationContext.packageManager
+                            val labels = result.data.associate { appInfo ->
+                                val label = runCatching { pm.getApplicationLabel(appInfo).toString() }
+                                    .getOrElse { appInfo.packageName }
+                                appInfo.packageName to label
+                            }
                             val comparator = compareBy<android.content.pm.ApplicationInfo>(
-                                { runCatching { pm.getApplicationLabel(it).toString() }
-                                    .getOrNull()
-                                    ?.lowercase(Locale.getDefault())
+                                { labels[it.packageName]?.lowercase(Locale.getDefault())
                                     ?: it.packageName.lowercase(Locale.getDefault()) },
                                 { it.packageName.lowercase(Locale.getDefault()) }
                             )
+                            _appLabels.value = labels
                             currentState.copy(
                                 data = currentState.data?.copy(
                                     installedApps = result.data.sortedWith(comparator),
@@ -203,12 +213,15 @@ class AppManagerViewModel(
                             )
                         }
 
-                        is DataState.Error -> currentState.copy(
-                            data = currentState.data?.copy(
-                                userAppsLoading = false,
-                                systemAppsLoading = false
+                        is DataState.Error -> {
+                            _appLabels.value = emptyMap()
+                            currentState.copy(
+                                data = currentState.data?.copy(
+                                    userAppsLoading = false,
+                                    systemAppsLoading = false
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
