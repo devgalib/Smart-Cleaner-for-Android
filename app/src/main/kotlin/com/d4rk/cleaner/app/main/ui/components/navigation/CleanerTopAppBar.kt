@@ -143,7 +143,7 @@ fun CleanerTopAppBar(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Outlined.Close,
-                                            contentDescription = "Clear search"
+                                            contentDescription = stringResource(id = R.string.clear_search)
                                         )
                                     }
                                 }

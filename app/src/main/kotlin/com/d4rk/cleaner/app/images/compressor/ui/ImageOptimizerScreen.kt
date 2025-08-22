@@ -338,7 +338,7 @@ fun ImageDisplay(
             imageUri?.let { uri ->
                 AsyncImage(
                     model = uri,
-                    contentDescription = "Selected Image",
+                    contentDescription = stringResource(id = R.string.selected_image),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
