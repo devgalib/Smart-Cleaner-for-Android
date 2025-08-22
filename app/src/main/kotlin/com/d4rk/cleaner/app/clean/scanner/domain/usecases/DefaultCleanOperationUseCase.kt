@@ -1,4 +1,4 @@
-package com.d4rk.cleaner.app.clean.scanner.ui
+package com.d4rk.cleaner.app.clean.scanner.domain.usecases
 
 import com.d4rk.android.libs.apptoolkit.core.di.DispatcherProvider
 import com.d4rk.android.libs.apptoolkit.core.domain.model.network.DataState
@@ -33,10 +33,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 
-/**
- * Encapsulates heavy cleaning operations so the ViewModel stays lean.
- */
-class CleanOperationHandler(
+class DefaultCleanOperationUseCase(
     private val scope: CoroutineScope,
     private val dispatchers: DispatcherProvider,
     private val dataStore: DataStore,
@@ -48,9 +45,9 @@ class CleanOperationHandler(
     private val postSnackbar: (UiTextHelper, Boolean) -> Unit,
     private val updateTrashSize: (Long) -> Unit,
     private val onWorkEnqueued: (UUID) -> Unit,
-) {
+) : CleanOperationUseCase {
 
-    fun analyzeFiles() {
+    override fun analyzeFiles() {
         if (uiState.value.data?.analyzeState?.state != CleaningState.Idle) {
             return
         }
@@ -171,7 +168,7 @@ class CleanOperationHandler(
         }
     }
 
-    fun cleanFiles(screenData: UiScannerModel?) {
+    override fun cleanFiles(screenData: UiScannerModel?) {
         if (uiState.value.data?.analyzeState?.state != CleaningState.ReadyToClean) {
             return
         }
@@ -218,8 +215,8 @@ class CleanOperationHandler(
                                     cleaningType = CleaningType.DELETE,
                                     totalFilesToClean = total,
                                     cleanedFilesCount = 0
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
                     onWorkEnqueued(id)
@@ -228,7 +225,7 @@ class CleanOperationHandler(
         }
     }
 
-    fun moveToTrash(files: List<FileEntry>) {
+    override fun moveToTrash(files: List<FileEntry>) {
         if (files.isEmpty()) {
             postSnackbar(UiTextHelper.StringResource(R.string.no_files_selected_move_to_trash), false)
             return
@@ -274,12 +271,12 @@ class CleanOperationHandler(
                     onWorkEnqueued(id)
                     updateTrashSize(totalFileSizeToMove)
                 },
-                errorMessage = UiTextHelper.StringResource(R.string.failed_to_move_files_to_trash)
+                errorMessage = UiTextHelper.StringResource(R.string.failed_to_move_files_to_trash),
             )
         }
     }
 
-    fun onCleaningFailed() {
+    override fun onCleaningFailed() {
         uiState.update { state ->
             val current = state.data ?: UiScannerModel()
             state.copy(
@@ -291,7 +288,7 @@ class CleanOperationHandler(
         postSnackbar(UiTextHelper.StringResource(R.string.cleanup_failed), true)
     }
 
-    fun resetAfterError() {
+    override fun resetAfterError() {
         uiState.update { state ->
             val current = state.data ?: UiScannerModel()
             state.copy(

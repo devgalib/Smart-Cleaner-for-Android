@@ -46,6 +46,12 @@ import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.core.work.FileCleaner
 import com.d4rk.cleaner.core.work.observeFileCleanWork
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.CleanOperationUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.DefaultCleanOperationUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.DefaultFileSelectionUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.DefaultStreakUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.FileSelectionUseCase
+import com.d4rk.cleaner.app.clean.scanner.domain.usecases.StreakUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +61,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.yield
 import java.io.File
 import java.util.UUID
 
@@ -82,9 +87,9 @@ class ScannerViewModel(
 
     val clipboardPreview: StateFlow<String?> get() = clipboardHandler.clipboardPreview
 
-    val cleanStreak: StateFlow<Int> get() = streakHandler.cleanStreak
-    val streakRecord: StateFlow<Int> get() = streakHandler.streakRecord
-    val showStreakCard: StateFlow<Boolean> get() = streakHandler.showStreakCard
+    val cleanStreak: StateFlow<Int> get() = streakUseCase.cleanStreak
+    val streakRecord: StateFlow<Int> get() = streakUseCase.streakRecord
+    val showStreakCard: StateFlow<Boolean> get() = streakUseCase.showStreakCard
     private val _whatsAppMediaSummary = MutableStateFlow(WhatsAppMediaSummary())
     val whatsAppMediaSummary: StateFlow<WhatsAppMediaSummary> = _whatsAppMediaSummary
     private val _whatsAppMediaLoaded = MutableStateFlow(false)
@@ -112,7 +117,7 @@ class ScannerViewModel(
     private var pendingEmptyFoldersCleanup = false
 
     private val clipboardHandler = ClipboardHandler(application)
-    private val streakHandler = StreakHandler(
+    private val streakUseCase: StreakUseCase = DefaultStreakUseCase(
         dataStore = dataStore,
         scope = viewModelScope,
         dispatchers = dispatchers,
@@ -122,7 +127,7 @@ class ScannerViewModel(
             }
         }
     )
-    private val cleanOperationHandler = CleanOperationHandler(
+    private val cleanOperationUseCase: CleanOperationUseCase = DefaultCleanOperationUseCase(
         scope = viewModelScope,
         dispatchers = dispatchers,
         dataStore = dataStore,
@@ -135,6 +140,7 @@ class ScannerViewModel(
         updateTrashSize = ::updateTrashSize,
         onWorkEnqueued = ::observeCleaningWork
     )
+    private val fileSelectionUseCase: FileSelectionUseCase = DefaultFileSelectionUseCase()
 
     private var activeCleanWorkObserver: Job? = null
 
@@ -176,11 +182,11 @@ class ScannerViewModel(
     override fun onEvent(event: ScannerEvent) {
         when (event) {
             is ScannerEvent.LoadInitialData -> loadInitialData()
-            is ScannerEvent.AnalyzeFiles -> cleanOperationHandler.analyzeFiles()
+            is ScannerEvent.AnalyzeFiles -> cleanOperationUseCase.analyzeFiles()
             is ScannerEvent.RefreshData -> refreshData()
             is ScannerEvent.DeleteFiles -> deleteFiles(files = event.files)
             is ScannerEvent.MoveToTrash -> {
-                cleanOperationHandler.moveToTrash(files = event.files)
+                cleanOperationUseCase.moveToTrash(files = event.files)
             }
             is ScannerEvent.ToggleAnalyzeScreen -> toggleAnalyzeScreen(visible = event.visible)
             is ScannerEvent.OnFileSelectionChange -> onFileSelectionChange(
@@ -199,7 +205,7 @@ class ScannerViewModel(
             )
 
             is ScannerEvent.CleanFiles -> {
-                cleanOperationHandler.cleanFiles(screenData)
+                cleanOperationUseCase.cleanFiles(screenData)
             }
             is ScannerEvent.CleanWhatsAppFiles -> onCleanWhatsAppFiles()
             is ScannerEvent.CleanCache -> onCleanCache()
@@ -212,9 +218,9 @@ class ScannerViewModel(
                 isVisible = event.isVisible
             )
 
-            is ScannerEvent.SetHideStreakDialogVisibility -> streakHandler.setHideStreakDialogVisibility(event.isVisible)
-            ScannerEvent.HideStreakForNow -> streakHandler.hideStreakForNow()
-            ScannerEvent.HideStreakPermanently -> streakHandler.hideStreakPermanently()
+            is ScannerEvent.SetHideStreakDialogVisibility -> streakUseCase.setHideStreakDialogVisibility(event.isVisible)
+            ScannerEvent.HideStreakForNow -> streakUseCase.hideStreakForNow()
+            ScannerEvent.HideStreakPermanently -> streakUseCase.hideStreakPermanently()
             is ScannerEvent.DismissSnackbar -> screenState.dismissSnackbar()
         }
     }
@@ -304,7 +310,7 @@ class ScannerViewModel(
         loadLargestFilesPreview()
         loadEmptyFoldersPreview()
         if (screenData?.analyzeState?.isAnalyzeScreenVisible == true) {
-            cleanOperationHandler.analyzeFiles()
+            cleanOperationUseCase.analyzeFiles()
         }
     }
 
@@ -395,30 +401,8 @@ class ScannerViewModel(
         launch(context = dispatchers.default) {
             _uiState.update { state: UiStateScreen<UiScannerModel> ->
                 val currentData: UiScannerModel = state.data ?: UiScannerModel()
-                val path = file.absolutePath
-                val updatedFileSelectionStates: MutableSet<String> =
-                    currentData.analyzeState.selectedFiles.toMutableSet().apply {
-                        if (isChecked) add(path) else remove(path)
-                    }
-                val visibleFiles: List<FileEntry> =
-                    currentData.analyzeState.groupedFiles.values.flatten()
-                val visiblePaths = visibleFiles.map { it.path }
-                val selectedVisibleCount: Int =
-                    updatedFileSelectionStates.count { it in visiblePaths && !File(it).isProtectedAndroidDir() }
-                val selectedSize = calculateSelectedFilesSize(
-                    currentData.analyzeState.scannedFileList,
-                    updatedFileSelectionStates
-                )
-                state.copy(
-                    data = currentData.copy(
-                        analyzeState = currentData.analyzeState.copy(
-                            selectedFiles = updatedFileSelectionStates,
-                            selectedFilesCount = selectedVisibleCount,
-                            selectedFilesSize = selectedSize,
-                            areAllFilesSelected = selectedVisibleCount == visibleFiles.size && visibleFiles.isNotEmpty()
-                        )
-                    )
-                )
+                val updatedData = fileSelectionUseCase.onFileSelectionChange(currentData, file, isChecked)
+                state.copy(data = updatedData)
             }
         }
     }
@@ -427,46 +411,8 @@ class ScannerViewModel(
         launch(context = dispatchers.default) {
             _uiState.update { state: UiStateScreen<UiScannerModel> ->
                 val currentData: UiScannerModel = state.data ?: UiScannerModel()
-                val visibleFiles: List<FileEntry> =
-                    currentData.analyzeState.groupedFiles.values.flatten()
-                val visiblePaths = visibleFiles.map { it.path }
-                val hasFiles = visibleFiles.isNotEmpty()
-                val newState: Boolean =
-                    if (hasFiles) !currentData.analyzeState.areAllFilesSelected else false
-                val duplicateOriginals =
-                    currentData.analyzeState.duplicateOriginals.map { it.path }.toSet()
-
-                val updatedSet: MutableSet<String> = if (newState) {
-                    val base = currentData.analyzeState.selectedFiles.toMutableSet()
-                    visibleFiles.chunked(200).forEach { chunk ->
-                        chunk.forEach { file ->
-                            val path = file.path
-                            if (path !in duplicateOriginals) base.add(path)
-                        }
-                        yield()
-                    }
-                    base
-                } else mutableSetOf()
-
-                val selectedVisibleCount = if (newState) {
-                    updatedSet.count { it in visiblePaths && !File(it).isProtectedAndroidDir() }
-                } else 0
-
-                val selectedSize = calculateSelectedFilesSize(
-                    currentData.analyzeState.scannedFileList,
-                    updatedSet
-                )
-
-                state.copy(
-                    data = currentData.copy(
-                        analyzeState = currentData.analyzeState.copy(
-                            areAllFilesSelected = newState,
-                            selectedFiles = updatedSet,
-                            selectedFilesCount = selectedVisibleCount,
-                            selectedFilesSize = selectedSize
-                        )
-                    )
-                )
+                val updatedData = fileSelectionUseCase.toggleSelectAllFiles(currentData)
+                state.copy(data = updatedData)
             }
         }
     }
@@ -511,46 +457,8 @@ class ScannerViewModel(
         launch(context = dispatchers.default) {
             _uiState.update { currentState: UiStateScreen<UiScannerModel> ->
                 val currentData: UiScannerModel = currentState.data ?: UiScannerModel()
-                val filesInCategory: List<FileEntry> =
-                    currentData.analyzeState.groupedFiles[category] ?: emptyList()
-                if (filesInCategory.isEmpty()) return@update currentState
-                val duplicateOriginals =
-                    currentData.analyzeState.duplicateOriginals.map { it.path }.toSet()
-                val currentSelection: Set<String> = currentData.analyzeState.selectedFiles
-                val allSelected: Boolean =
-                    filesInCategory.filterNot { it.path in duplicateOriginals }
-                        .all { it.path in currentSelection }
-                val updatedSelection: MutableSet<String> = currentSelection.toMutableSet().apply {
-                    filesInCategory.forEach { file: FileEntry ->
-                        val path = file.path
-                        if (path in duplicateOriginals) {
-                            if (allSelected) remove(path)
-                        } else {
-                            if (allSelected) remove(path) else add(path)
-                        }
-                    }
-                }
-
-                val visibleFiles: List<FileEntry> =
-                    currentData.analyzeState.groupedFiles.values.flatten()
-                val visiblePaths = visibleFiles.map { it.path }
-                val selectedVisibleCount: Int =
-                    updatedSelection.count { it in visiblePaths && !File(it).isProtectedAndroidDir() }
-                val selectedSize = calculateSelectedFilesSize(
-                    currentData.analyzeState.scannedFileList,
-                    updatedSelection
-                )
-
-                currentState.copy(
-                    data = currentData.copy(
-                        analyzeState = currentData.analyzeState.copy(
-                            selectedFiles = updatedSelection,
-                            selectedFilesCount = selectedVisibleCount,
-                            selectedFilesSize = selectedSize,
-                            areAllFilesSelected = selectedVisibleCount == visibleFiles.size && visibleFiles.isNotEmpty()
-                        )
-                    )
-                )
+                val updatedData = fileSelectionUseCase.toggleSelectFilesForCategory(currentData, category)
+                currentState.copy(data = updatedData)
             }
         }
     }
@@ -559,55 +467,9 @@ class ScannerViewModel(
         launch(context = dispatchers.default) {
             _uiState.update { currentState: UiStateScreen<UiScannerModel> ->
                 val currentData = currentState.data ?: UiScannerModel()
-                val duplicateOriginals =
-                    currentData.analyzeState.duplicateOriginals.map { it.path }.toSet()
-                val updatedSelectionSet =
-                    currentData.analyzeState.selectedFiles.toMutableSet().apply {
-                        files.forEach { file ->
-                            val path = file.absolutePath
-                            if (isChecked) {
-                                if (path in duplicateOriginals && path !in this) {
-                                    // keep unchecked
-                                } else {
-                                    add(path)
-                                }
-                            } else {
-                                remove(path)
-                            }
-                        }
-                    }
-
-                val visibleFiles = currentData.analyzeState.groupedFiles.values.flatten()
-                val visiblePaths = visibleFiles.map { it.path }
-                val selectedVisibleCount =
-                    updatedSelectionSet.count { it in visiblePaths && !File(it).isProtectedAndroidDir() }
-                val selectedSize = calculateSelectedFilesSize(
-                    currentData.analyzeState.scannedFileList,
-                    updatedSelectionSet
-                )
-
-                currentState.copy(
-                    data = currentData.copy(
-                        analyzeState = currentData.analyzeState.copy(
-                            selectedFiles = updatedSelectionSet,
-                            selectedFilesCount = selectedVisibleCount,
-                            selectedFilesSize = selectedSize,
-                            areAllFilesSelected = selectedVisibleCount == visibleFiles.size && visibleFiles.isNotEmpty()
-                        )
-                    )
-                )
+                val updatedData = fileSelectionUseCase.toggleSelectFilesForDate(currentData, files, isChecked)
+                currentState.copy(data = updatedData)
             }
-        }
-    }
-
-
-    private fun calculateSelectedFilesSize(
-        scannedFiles: List<FileEntry>,
-        selectedPaths: Set<String>
-    ): Long {
-        val sizeMap = scannedFiles.associate { it.path to it.size }
-        return selectedPaths.sumOf { path ->
-            if (!File(path).isProtectedAndroidDir()) sizeMap[path] ?: 0L else 0L
         }
     }
 
@@ -679,7 +541,7 @@ class ScannerViewModel(
                 onCloseAnalyzeComposable()
             },
             onFailed = {
-                cleanOperationHandler.onCleaningFailed()
+                cleanOperationUseCase.onCleaningFailed()
                 _cleaningApks.value = false
                 pendingEmptyFoldersCleanup = false
             },
@@ -729,7 +591,7 @@ class ScannerViewModel(
         val selectedEntries = currentScreenData.analyzeState.scannedFileList.filter {
             it.path in currentScreenData.analyzeState.selectedFiles
         }
-        cleanOperationHandler.moveToTrash(selectedEntries)
+        cleanOperationUseCase.moveToTrash(selectedEntries)
     }
 
     private fun updateTrashSize(sizeChange: Long) {
@@ -828,7 +690,7 @@ class ScannerViewModel(
     }
 
     fun resetAfterError() {
-        cleanOperationHandler.resetAfterError()
+        cleanOperationUseCase.resetAfterError()
     }
 
     private fun loadEmptyFoldersHideUntil() {
@@ -890,7 +752,7 @@ class ScannerViewModel(
                         )
                     )
                 }
-                cleanOperationHandler.analyzeFiles()
+            cleanOperationUseCase.analyzeFiles()
             }
         } else {
             _uiState.updateData(ScreenState.Success()) { currentData ->
