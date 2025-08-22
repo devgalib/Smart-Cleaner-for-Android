@@ -36,13 +36,36 @@ class ContactsRepositoryImpl(context: Context) : ContactsRepository {
         val contacts = withContext(Dispatchers.IO) {
             val list = mutableListOf<RawContactInfo>()
             val rawIdToIndex = mutableMapOf<Long, Int>()
+
+            val contactTimestamps = mutableMapOf<Long, Long>()
+            val contactsProjection = arrayOf(
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP
+            )
+            resolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                contactsProjection,
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                val idIdx = cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID)
+                val updatedIdx = cursor.getColumnIndexOrThrow(
+                    ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP
+                )
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idIdx)
+                    val updated = cursor.getLong(updatedIdx)
+                    contactTimestamps[id] = updated
+                }
+            }
+
             val projection = arrayOf(
                 ContactsContract.RawContacts._ID,
                 ContactsContract.RawContacts.CONTACT_ID,
                 ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY,
                 ContactsContract.RawContacts.ACCOUNT_TYPE,
-                ContactsContract.RawContacts.ACCOUNT_NAME,
-                ContactsContract.RawContacts.CONTACT_LAST_UPDATED_TIMESTAMP
+                ContactsContract.RawContacts.ACCOUNT_NAME
             )
 
             resolver.query(ContactsContract.RawContacts.CONTENT_URI, projection, null, null, null)
@@ -56,14 +79,12 @@ class ContactsRepositoryImpl(context: Context) : ContactsRepository {
                         cursor.getColumnIndexOrThrow(ContactsContract.RawContacts.ACCOUNT_TYPE)
                     val accIdx =
                         cursor.getColumnIndexOrThrow(ContactsContract.RawContacts.ACCOUNT_NAME)
-                    val updatedIdx =
-                        cursor.getColumnIndexOrThrow(ContactsContract.RawContacts.CONTACT_LAST_UPDATED_TIMESTAMP)
 
                     while (cursor.moveToNext()) {
                         val rawId = cursor.getLong(idIdx)
                         val contactId = cursor.getLong(contactIdIdx)
                         val name = cursor.getString(nameIdx) ?: ""
-                        val updated = cursor.getLong(updatedIdx)
+                        val updated = contactTimestamps[contactId] ?: 0L
                         val accountType = cursor.getString(typeIdx)
                         val accountName = cursor.getString(accIdx)
                         val phones = mutableListOf<String>()
