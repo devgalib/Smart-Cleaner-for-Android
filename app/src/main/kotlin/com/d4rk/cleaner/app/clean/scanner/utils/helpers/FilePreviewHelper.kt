@@ -447,7 +447,7 @@ object FilePreviewHelper {
                         decoderFactory { result, options, _ ->
                             VideoFrameDecoder(result.source, options)
                         }
-                        videoFramePercent(0.5f)
+                        videoFramePercent(0.5)
                     },
                 )
             }
