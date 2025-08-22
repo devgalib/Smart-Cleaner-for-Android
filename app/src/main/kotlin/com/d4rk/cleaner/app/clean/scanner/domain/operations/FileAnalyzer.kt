@@ -3,9 +3,9 @@ package com.d4rk.cleaner.app.clean.scanner.domain.operations
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
+import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import java.io.File
-import java.util.Locale
 import kotlinx.coroutines.flow.asFlow
 
 /**
@@ -21,12 +21,6 @@ class FileAnalyzer(
         preferences: Map<String, Boolean>,
         includeDuplicates: Boolean
     ): Triple<Map<String, List<FileEntry>>, Set<FileEntry>, List<List<FileEntry>>> {
-        val knownExtensions: Set<String> = (
-            fileTypesData.imageExtensions + fileTypesData.videoExtensions +
-                fileTypesData.audioExtensions + fileTypesData.officeExtensions +
-                fileTypesData.archiveExtensions + fileTypesData.apkExtensions +
-                fileTypesData.fontExtensions + fileTypesData.windowsExtensions
-            ).toSet()
 
         val baseDefaultTitles = listOf(
             "Images",
@@ -72,18 +66,22 @@ class FileAnalyzer(
             if (includeDuplicates && entry.path in duplicateFiles) {
                 duplicatesTitle?.let { title -> filesMap.getOrPut(title) { mutableListOf() }.add(entry) }
             } else {
-                val category = when (val extension = file.extension.lowercase(Locale.ROOT)) {
-                    in fileTypesData.imageExtensions -> if (preferences[ExtensionsConstants.IMAGE_EXTENSIONS] == true) baseFinalTitles[0] else null
-                    in fileTypesData.videoExtensions -> if (preferences[ExtensionsConstants.VIDEO_EXTENSIONS] == true) baseFinalTitles[1] else null
-                    in fileTypesData.audioExtensions -> if (preferences[ExtensionsConstants.AUDIO_EXTENSIONS] == true) baseFinalTitles[2] else null
-                    in fileTypesData.officeExtensions -> if (preferences[ExtensionsConstants.OFFICE_EXTENSIONS] == true) baseFinalTitles[3] else null
-                    in fileTypesData.archiveExtensions -> if (preferences[ExtensionsConstants.ARCHIVE_EXTENSIONS] == true) baseFinalTitles[4] else null
-                    in fileTypesData.apkExtensions -> if (preferences[ExtensionsConstants.APK_EXTENSIONS] == true) baseFinalTitles[5] else null
-                    in fileTypesData.fontExtensions -> if (preferences[ExtensionsConstants.FONT_EXTENSIONS] == true) baseFinalTitles[6] else null
-                    in fileTypesData.windowsExtensions -> if (preferences[ExtensionsConstants.WINDOWS_EXTENSIONS] == true) baseFinalTitles[7] else null
-                    else -> if (!knownExtensions.contains(extension) && preferences[ExtensionsConstants.OTHER_EXTENSIONS] == true) baseFinalTitles[9] else null
+                val type = FileTypeResolver.resolve(file)
+                val (index, prefKey) = when (type) {
+                    FileTypeResolver.Category.IMAGE -> 0 to ExtensionsConstants.IMAGE_EXTENSIONS
+                    FileTypeResolver.Category.VIDEO -> 1 to ExtensionsConstants.VIDEO_EXTENSIONS
+                    FileTypeResolver.Category.AUDIO -> 2 to ExtensionsConstants.AUDIO_EXTENSIONS
+                    FileTypeResolver.Category.DOCUMENT -> 3 to ExtensionsConstants.OFFICE_EXTENSIONS
+                    FileTypeResolver.Category.ARCHIVE -> 4 to ExtensionsConstants.ARCHIVE_EXTENSIONS
+                    FileTypeResolver.Category.APK -> 5 to ExtensionsConstants.APK_EXTENSIONS
+                    FileTypeResolver.Category.FONT -> 6 to ExtensionsConstants.FONT_EXTENSIONS
+                    FileTypeResolver.Category.WINDOWS -> 7 to ExtensionsConstants.WINDOWS_EXTENSIONS
+                    FileTypeResolver.Category.OTHER -> 9 to ExtensionsConstants.OTHER_EXTENSIONS
                 }
-                category?.let { filesMap[it]?.add(entry) }
+                if (preferences[prefKey] == true) {
+                    val title = baseFinalTitles[index]
+                    filesMap.getOrPut(title) { mutableListOf() }.add(entry)
+                }
             }
         }
 

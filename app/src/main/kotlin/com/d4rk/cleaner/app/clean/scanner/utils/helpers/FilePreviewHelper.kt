@@ -1,7 +1,6 @@
 package com.d4rk.cleaner.app.clean.scanner.utils.helpers
 
 import android.content.ComponentCallbacks2
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -106,69 +105,6 @@ object FilePreviewHelper {
     private fun albumArtKey(file: File) = "art:${'$'}{file.path}"
     private fun waveformKey(file: File) = "waveform:${'$'}{file.path}"
 
-    private var imageExtCache: Set<String>? = null
-    private var videoExtCache: Set<String>? = null
-    private var apkExtCache: Set<String>? = null
-    private var officeExtCache: Set<String>? = null
-    private var audioExtCache: Set<String>? = null
-    private var textExtCache: Set<String>? = null
-    private var archiveExtCache: Set<String>? = null
-
-    private fun imageExtensions(res: Resources): Set<String> {
-        val cached = imageExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.image_extensions).toSet()
-        imageExtCache = set
-        return set
-    }
-
-    private fun videoExtensions(res: Resources): Set<String> {
-        val cached = videoExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.video_extensions).toSet()
-        videoExtCache = set
-        return set
-    }
-
-    private fun apkExtensions(res: Resources): Set<String> {
-        val cached = apkExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.apk_extensions).toSet()
-        apkExtCache = set
-        return set
-    }
-
-    private fun officeExtensions(res: Resources): Set<String> {
-        val cached = officeExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.microsoft_office_extensions).toSet()
-        officeExtCache = set
-        return set
-    }
-
-    private fun audioExtensions(res: Resources): Set<String> {
-        val cached = audioExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.audio_extensions).toSet()
-        audioExtCache = set
-        return set
-    }
-
-    private fun textExtensions(res: Resources): Set<String> {
-        val cached = textExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.text_extensions).toSet()
-        textExtCache = set
-        return set
-    }
-
-    private fun archiveExtensions(res: Resources): Set<String> {
-        val cached = archiveExtCache
-        if (cached != null) return cached
-        val set = res.getStringArray(R.array.archive_extensions).toSet()
-        archiveExtCache = set
-        return set
-    }
 
     /**
      * Respond to system memory pressure. On Android 14 (API 34) and above,
@@ -380,26 +316,24 @@ object FilePreviewHelper {
         object Unknown : PreviewType()
     }
 
-    fun getPreviewType(file: File, res: Resources): PreviewType {
+    fun getPreviewType(file: File): PreviewType {
         if (file.isDirectory) return PreviewType.Directory
-        val ext = getFileExtension(file.name).lowercase()
-        val imageExts = imageExtensions(res)
-        val videoExts = videoExtensions(res)
-        val apkExts = apkExtensions(res)
-        val officeExts = officeExtensions(res)
-        val audioExts = audioExtensions(res)
-        val textExts = textExtensions(res)
-        val archiveExts = archiveExtensions(res)
-        return when (ext) {
-            in imageExts -> PreviewType.Image
-            in videoExts -> PreviewType.Video
-            in apkExts -> PreviewType.Apk
-            "pdf" -> PreviewType.Pdf
-            in officeExts -> PreviewType.Office
-            in audioExts -> PreviewType.Audio
-            in textExts -> PreviewType.Text
-            in archiveExts -> PreviewType.Archive
-            else -> PreviewType.Unknown
+        val mime = FileTypeResolver.getMimeType(file) ?: ""
+        val category = FileTypeResolver.resolve(file)
+        return when (category) {
+            FileTypeResolver.Category.IMAGE -> PreviewType.Image
+            FileTypeResolver.Category.VIDEO -> PreviewType.Video
+            FileTypeResolver.Category.APK -> PreviewType.Apk
+            FileTypeResolver.Category.AUDIO -> PreviewType.Audio
+            FileTypeResolver.Category.ARCHIVE -> PreviewType.Archive
+            FileTypeResolver.Category.DOCUMENT -> when {
+                mime == "application/pdf" -> PreviewType.Pdf
+                mime.startsWith("text/") -> PreviewType.Text
+                else -> PreviewType.Office
+            }
+            FileTypeResolver.Category.FONT,
+            FileTypeResolver.Category.WINDOWS,
+            FileTypeResolver.Category.OTHER -> PreviewType.Unknown
         }
     }
 
@@ -410,7 +344,7 @@ object FilePreviewHelper {
     @Composable
     fun Preview(file: File, modifier: Modifier = Modifier) {
         val context = LocalContext.current
-        val type = remember(file) { getPreviewType(file, context.resources) }
+        val type = remember(file) { getPreviewType(file) }
         when (type) {
             PreviewType.Directory -> {
                 Icon(
