@@ -309,14 +309,18 @@ class TrashViewModel(
 
     private fun deleteSelectedPermanently() {
         launch(context = dispatchers.io) {
-            val files = _uiState.value.data?.fileSelectionStates.selectedFiles()
+            val selection = _uiState.value.data?.fileSelectionStates ?: emptyMap()
+            val files = selection.selectedFiles()
             if (files.isEmpty()) {
+                val resId = if (selection.any { it.value }) {
+                    R.string.protected_android_folder
+                } else {
+                    R.string.no_files_selected_to_delete
+                }
                 sendAction(
                     TrashAction.ShowSnackbar(
                         UiSnackbar(
-                            message = UiTextHelper.DynamicString(
-                                "No files selected to delete."
-                            )
+                            message = UiTextHelper.StringResource(resId)
                         )
                     )
                 )
