@@ -42,13 +42,10 @@ class DuplicatesViewModel(
     private fun loadDuplicates() {
         launch(dispatchers.io) {
             val grouped = getDuplicatesUseCase(repository.getAllFiles())
-            val duplicates = grouped.map { group -> group.map { File(it.path) } }
-            val originals = grouped
-                .mapNotNull { group ->
-                    group.minByOrNull { it.modified }?.toFile()
-                }
-                .toSet()
-            val groupedByDate = FileGroupingHelper.groupDuplicateGroupsByDate(grouped)
+            val sortedGroups = grouped.map { it.sortedBy { entry -> entry.modified } }
+            val duplicates = sortedGroups.map { it.map { File(it.path) } }
+            val originals = duplicates.map { it.first() }.toSet()
+            val groupedByDate = FileGroupingHelper.groupDuplicateGroupsByDate(sortedGroups)
             _uiState.update { current ->
                 current.copy(
                     screenState = if (duplicates.isEmpty()) ScreenState.NoData() else ScreenState.Success(),
