@@ -4,7 +4,7 @@
 - Orchestrates scanning and cleaning actions so the ViewModel stays lean.
 - Collects files and empty folders, then builds grouped and duplicate lists before updating `UiScannerModel`【F:app/src/main/kotlin/com/d4rk/cleaner/app/clean/scanner/ui/CleanOperationHandler.kt†L58-L155】.
 - Before enqueuing a cleanup job it checks `DataStore` for an existing job ID, clearing it if the previous work finished【F:app/src/main/kotlin/com/d4rk/cleaner/app/clean/scanner/ui/CleanOperationHandler.kt†L184-L213】.
-- Contains several `FIXME` comments for unused dependencies and a `resultDelayMs` constant that can be removed or implemented.
+- Performs its work without lingering temporary dependencies and constants.
 
 ## UiScannerModel
 - Holds transient scan data: file lists, empty folders, duplicate groups and selections【F:app/src/main/kotlin/com/d4rk/cleaner/app/clean/scanner/domain/data/model/ui/UiScannerModel.kt†L8-L32】.
