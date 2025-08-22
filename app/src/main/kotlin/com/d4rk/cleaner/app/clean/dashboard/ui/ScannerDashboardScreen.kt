@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,7 +22,6 @@ import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
 import com.d4rk.android.libs.apptoolkit.core.domain.model.network.DataState
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.animations.rememberAnimatedVisibilityState
-import com.d4rk.android.libs.apptoolkit.core.ui.components.spacers.LargeVerticalSpacer
 import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.SizeConstants
 import com.d4rk.cleaner.Cleaner
 import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
@@ -163,19 +161,23 @@ fun ScannerDashboardScreen(
     val items = result.items
     val visibleCount = result.visibleCount
 
+    val listState = rememberLazyListState()
+
     val (visibilityStates: SnapshotStateList<Boolean>) = rememberAnimatedVisibilityState(
-        listState = rememberLazyListState(),
+        listState = listState,
         itemCount = items.size
     )
 
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(SizeConstants.LargeSize),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(space = SizeConstants.LargeSize),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        state = listState,
+        contentPadding = PaddingValues(SizeConstants.LargeSize)
     ) {
-        items.forEachIndexed { index, item ->
+        items(items.size) { index ->
+            val item = items[index]
             RenderDashboardItem(
                 item = item,
                 index = index,
@@ -201,7 +203,5 @@ fun ScannerDashboardScreen(
                 promotedApp = promotedApp
             )
         }
-        LargeVerticalSpacer()
     }
 }
-

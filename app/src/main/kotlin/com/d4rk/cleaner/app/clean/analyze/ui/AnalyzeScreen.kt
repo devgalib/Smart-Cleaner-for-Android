@@ -59,7 +59,7 @@ fun AnalyzeScreen(
         modifier = Modifier
             .animateContentSize()
             .fillMaxWidth()
-            .padding(vertical = SizeConstants.LargeSize), horizontalAlignment = Alignment.End
+            .padding(horizontal = SizeConstants.LargeSize), horizontalAlignment = Alignment.End
     ) {
         OutlinedCard(
             modifier = Modifier

@@ -56,7 +56,6 @@ fun ScannerScreen(paddingValues: PaddingValues, snackbarHostState: SnackbarHostS
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
-            .padding(horizontal = SizeConstants.LargeSize)
     ) {
         Box(
             modifier = Modifier
