@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,11 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -274,21 +271,7 @@ fun ScannerDashboardScreen(
         items.add(HomeItem.Ad(adQueue.removeAt(0)))
     }
 
-    var animationKey by remember { mutableIntStateOf(0) }
-    val lastAdsEnabled = remember { mutableStateOf(adsState) }
-    val lastCount = remember { mutableIntStateOf(items.size) }
-    if (adsState != lastAdsEnabled.value || items.size > lastCount.intValue) {
-        animationKey++
-        lastAdsEnabled.value = adsState
-    }
-    lastCount.intValue = items.size
-    val (visibilityStates: SnapshotStateList<Boolean>) = key(animationKey) {
-        rememberAnimatedVisibilityState(
-            listState = rememberLazyListState(),
-            itemCount = items.size
-        )
-    }
-
+    val (visibilityStates : SnapshotStateList<Boolean>) = rememberAnimatedVisibilityState(listState =  rememberLazyListState() , itemCount = items.size)
 
     Column(
         modifier = Modifier
@@ -298,16 +281,14 @@ fun ScannerDashboardScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items.forEachIndexed { index, item ->
-            val baseVisible =
-                uiState.data?.analyzeState?.isAnalyzeScreenVisible == false &&
-                        visibilityStates.getOrElse(index) { false }
             when (item) {
                 is HomeItem.Card -> when (item.type) {
                     ContentCard.QUICK_SCAN -> {
-                        val isVisible = baseVisible
                         QuickScanSummaryCard(
-                            modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                            modifier = Modifier
+                                .animateContentSize()
+                                .animateVisibility(
+                                visible = visibilityStates.getOrElse(index) { false },
                                 index = index
                             ),
                             cleanedSize = uiState.data?.storageInfo?.cleanedSpace ?: "",
@@ -324,10 +305,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.SYSTEM_STORAGE -> {
-                        val isVisible = baseVisible && showSystemStorageManagerCard
                         SystemStorageManagerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             onOpen = {
@@ -345,10 +325,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.WEEKLY_STREAK -> {
-                        val isVisible = baseVisible && showStreakCard
                         WeeklyCleanStreakCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             streakDays = streakDays,
@@ -364,10 +343,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.LARGE_FILES -> {
-                        val isVisible = baseVisible && showLargeFilesCard
                         LargeFilesCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             state = largeFilesState,
@@ -381,10 +359,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.DUPLICATES -> {
-                        val isVisible = baseVisible && showDuplicateCard
                         DuplicateFilesCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             duplicateGroups = duplicateGroups,
@@ -398,11 +375,10 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.WHATSAPP -> {
-                        val isVisible = baseVisible && showWhatsAppCard
                         if (whatsappSummary.hasData) {
                             WhatsAppCleanerCard(
                                 modifier = Modifier.animateVisibility(
-                                    visible = isVisible,
+                                    visible = visibilityStates.getOrElse(index = index) { false } ,
                                     index = index
                                 ),
                                 mediaSummary = whatsappSummary,
@@ -416,7 +392,7 @@ fun ScannerDashboardScreen(
                         } else {
                             DashboardActionCard(
                                 modifier = Modifier.animateVisibility(
-                                    visible = isVisible,
+                                    visible = visibilityStates.getOrElse(index = index) { false } ,
                                     index = index
                                 ),
                                 icon = Icons.Filled.Whatsapp,
@@ -441,12 +417,10 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.APK -> {
-                        val isCleaningApks =
-                            cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
-                        val isVisible = baseVisible && showApkCard
+                        val isCleaningApks = cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
                         ApkCleanerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             apkFiles = appManagerState.data?.apkFiles ?: emptyList(),
@@ -459,10 +433,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.EMPTY_FOLDERS -> {
-                        val isVisible = baseVisible && showEmptyFoldersCard
                         EmptyFolderCleanerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             folders = emptyFolders,
@@ -471,10 +444,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.CLIPBOARD -> {
-                        val isVisible = baseVisible && showClipboardCard
                         ClipboardCleanerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             clipboardText = clipboardText,
@@ -483,10 +455,9 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.CONTACTS -> {
-                        val isVisible = baseVisible && showContactsCard
                         ContactsCleanerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             onOpen = {
@@ -499,20 +470,18 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.LINK_CLEANER -> {
-                        val isVisible = baseVisible && showLinkCleanerCard
                         LinkCleanerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             )
                         )
                     }
 
                     ContentCard.IMAGE_OPTIMIZER -> {
-                        val isVisible = baseVisible
                         ImageOptimizerCard(
                             modifier = Modifier.animateVisibility(
-                                visible = isVisible,
+                                visible = visibilityStates.getOrElse(index = index) { false } ,
                                 index = index
                             ),
                             onOptimizeClick = {
@@ -525,11 +494,10 @@ fun ScannerDashboardScreen(
                     }
 
                     ContentCard.PROMOTED_APP -> {
-                        val isVisible = baseVisible && promotedApp != null
                         promotedApp?.let { app ->
                             PromotedAppCard(
                                 modifier = Modifier.animateVisibility(
-                                    visible = isVisible,
+                                    visible = visibilityStates.getOrElse(index = index) { false } ,
                                     index = index
                                 ),
                                 app = app
@@ -539,11 +507,10 @@ fun ScannerDashboardScreen(
                 }
 
                 is HomeItem.Ad -> {
-                    val config =
-                        chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
+                    val config = chooseAdsConfigFor(item.slot, visibleCount, promotedApp != null)
                     AdBanner(
                         modifier = Modifier.animateVisibility(
-                            visible = baseVisible,
+                            visible = visibilityStates.getOrElse(index = index) { false } ,
                             index = index
                         ),
                         adsConfig = config
