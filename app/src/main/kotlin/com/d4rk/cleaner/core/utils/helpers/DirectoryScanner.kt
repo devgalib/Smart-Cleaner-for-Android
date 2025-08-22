@@ -9,15 +9,15 @@ import java.io.File
  * is encountered, [onLockedDir] is invoked.
  */
 object DirectoryScanner {
-    fun scan(
+    suspend fun scan(
         root: File,
         showHidden: Boolean = false,
         skipDir: (File) -> Boolean = { false },
         onLockedDir: ((File) -> Unit)? = null,
-        onFile: (File) -> Unit
+        onFile: suspend (File) -> Unit
     ) {
         if (!root.exists()) return
-        root.walkTopDown()
+        val iterator = root.walkTopDown()
             .onEnter { dir ->
                 if ((!showHidden && dir.isHidden) || skipDir(dir)) {
                     if (dir.isProtectedAndroidDir()) onLockedDir?.invoke(dir)
@@ -29,10 +29,13 @@ object DirectoryScanner {
                 }
                 true
             }
-            .forEach { file ->
-                if (file.isFile && (showHidden || !file.isHidden)) {
-                    onFile(file)
-                }
+            .iterator()
+
+        while (iterator.hasNext()) {
+            val file = iterator.next()
+            if (file.isFile && (showHidden || !file.isHidden)) {
+                onFile(file)
             }
+        }
     }
 }
