@@ -153,70 +153,47 @@ class WhatsappCleanerSummaryViewModel(
                     }
                 }
             }
-
             if (files.isEmpty()) return@launch
 
-            val accessible = files.filterNot { it.isProtectedAndroidDir() }
-            if (accessible.isEmpty()) {
-                sendAction(
-                    WhatsAppCleanerAction.ShowSnackbar(
-                        UiSnackbar(message = UiTextHelper.StringResource(R.string.protected_android_folder))
-                    )
-                )
-                return@launch
-            }
-
-            pendingDeleteSizes = accessible.associate { it.absolutePath to it.length() }
-
-            FileCleaner.enqueue(
-                enqueuer = fileCleanWorkEnqueuer,
-                paths = accessible.map { it.absolutePath },
-                action = FileCleanupWorker.ACTION_DELETE,
-                getWorkId = { dataStore.whatsappCleanWorkId.first() },
-                saveWorkId = { dataStore.saveWhatsAppCleanWorkId(it) },
-                clearWorkId = { dataStore.clearWhatsAppCleanWorkId() },
-                showSnackbar = { sendAction(WhatsAppCleanerAction.ShowSnackbar(it)) },
-                onEnqueued = { id -> observeWork(id) },
-                onError = {
-                    _uiState.update { state ->
-                        state.copy(data = state.data?.copy(cleaningState = CleaningState.Error))
-                    }
-                }
-            )
+            enqueueDeletion(files)
         }
     }
 
     private fun deleteSelected(files: List<File>) {
         if (files.isEmpty()) return
         launch(context = dispatchers.io) {
-            val accessible = files.filterNot { it.isProtectedAndroidDir() }
-            if (accessible.isEmpty()) {
-                sendAction(
-                    WhatsAppCleanerAction.ShowSnackbar(
-                        UiSnackbar(message = UiTextHelper.StringResource(R.string.protected_android_folder))
-                    )
-                )
-                return@launch
-            }
-
-            pendingDeleteSizes = accessible.associate { it.absolutePath to it.length() }
-
-            FileCleaner.enqueue(
-                enqueuer = fileCleanWorkEnqueuer,
-                paths = accessible.map { it.absolutePath },
-                action = FileCleanupWorker.ACTION_DELETE,
-                getWorkId = { dataStore.whatsappCleanWorkId.first() },
-                saveWorkId = { dataStore.saveWhatsAppCleanWorkId(it) },
-                clearWorkId = { dataStore.clearWhatsAppCleanWorkId() },
-                showSnackbar = { sendAction(WhatsAppCleanerAction.ShowSnackbar(it)) },
-                onEnqueued = { id -> observeWork(id) },
-                onError = {
-                    _uiState.update { state ->
-                        state.copy(data = state.data?.copy(cleaningState = CleaningState.Error))
-                    }
-                },
-            )
+            enqueueDeletion(files)
         }
+    }
+
+    private suspend fun enqueueDeletion(files: List<File>) {
+        val accessible = files.filterNot { it.isProtectedAndroidDir() }
+        if (accessible.isEmpty()) {
+            sendAction(
+                WhatsAppCleanerAction.ShowSnackbar(
+                    UiSnackbar(message = UiTextHelper.StringResource(R.string.protected_android_folder))
+                )
+            )
+            return
+        }
+
+        pendingDeleteSizes = accessible.associate { it.absolutePath to it.length() }
+
+        FileCleaner.enqueue(
+            enqueuer = fileCleanWorkEnqueuer,
+            paths = accessible.map { it.absolutePath },
+            action = FileCleanupWorker.ACTION_DELETE,
+            getWorkId = { dataStore.whatsappCleanWorkId.first() },
+            saveWorkId = { dataStore.saveWhatsAppCleanWorkId(it) },
+            clearWorkId = { dataStore.clearWhatsAppCleanWorkId() },
+            showSnackbar = { sendAction(WhatsAppCleanerAction.ShowSnackbar(it)) },
+            onEnqueued = { id -> observeWork(id) },
+            onError = {
+                _uiState.update { state ->
+                    state.copy(data = state.data?.copy(cleaningState = CleaningState.Error))
+                }
+            },
+        )
     }
 
     private fun observeWork(id: UUID) {
