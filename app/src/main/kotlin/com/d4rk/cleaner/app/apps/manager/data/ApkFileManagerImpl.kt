@@ -22,7 +22,7 @@ class ApkFileManagerImpl(
 ) : ApkFileManager {
     override fun getApkFilesFromStorage(): Flow<DataState<List<ApkInfo>, Errors>> = flow {
         val showHidden = dataStore.showHiddenFiles.first()
-        try {
+        val result = runCatching {
             val apkFiles: MutableList<ApkInfo> = mutableListOf()
             val addedPaths: MutableSet<String> = mutableSetOf()
             val uri: Uri = MediaStore.Files.getContentUri("external")
@@ -73,9 +73,17 @@ class ApkFileManagerImpl(
                     }
                 }
             }
-            emit(value = DataState.Success(data = apkFiles))
-        } catch (throwable: Throwable) {
-            emit(value = DataState.Error(error = throwable.toError(default = Errors.UseCase.FAILED_TO_GET_APK_FILES)))
+            apkFiles
         }
+        emit(
+            result.fold(
+                onSuccess = { DataState.Success(data = it) },
+                onFailure = {
+                    DataState.Error(
+                        error = it.toError(default = Errors.UseCase.FAILED_TO_GET_APK_FILES)
+                    )
+                }
+            )
+        )
     }
 }

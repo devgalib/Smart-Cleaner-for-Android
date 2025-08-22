@@ -50,12 +50,9 @@ object ImageHashUtils {
         return inSampleSize
     }
 
-    private inline fun <T> Bitmap.use(block: (Bitmap) -> T): T {
-        return try {
-            block(this)
-        } finally {
-            recycle()
-        }
-    }
+    private inline fun <T> Bitmap.use(block: (Bitmap) -> T): T =
+        runCatching { block(this) }
+            .also { this@use.recycle() }
+            .getOrThrow()
 }
 

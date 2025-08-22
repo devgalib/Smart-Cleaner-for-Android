@@ -13,12 +13,12 @@ class CleanupDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-            try {
+            runCatching {
                 val store = DataStore(context)
                 store.saveCleanupNotificationSnoozedUntil(
                     System.currentTimeMillis() + 3.days.inWholeMilliseconds
                 )
-            } finally {
+            }.also {
                 pending.finish()
             }
         }

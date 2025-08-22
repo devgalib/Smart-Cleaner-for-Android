@@ -91,7 +91,7 @@ class DuplicatesViewModel(
                 )
                 return@launch
             }
-            try {
+            runCatching {
                 _uiState.updateData(ScreenState.IsLoading()) { current ->
                     current.copy(cleaningState = CleaningState.Cleaning)
                 }
@@ -109,7 +109,7 @@ class DuplicatesViewModel(
                         UiSnackbar(message = UiTextHelper.StringResource(R.string.all_clean))
                     )
                 )
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 _uiState.updateData(ScreenState.Error()) { current ->
                     current.copy(cleaningState = CleaningState.Error)
                 }
@@ -125,4 +125,11 @@ class DuplicatesViewModel(
         }
     }
 }
+
+private suspend inline fun <T> runCatching(block: suspend () -> T): Result<T> =
+    try {
+        Result.success(block())
+    } catch (e: Throwable) {
+        Result.failure(e)
+    }
 
