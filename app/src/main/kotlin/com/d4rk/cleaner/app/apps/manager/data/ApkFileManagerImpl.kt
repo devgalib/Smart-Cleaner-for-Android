@@ -11,7 +11,6 @@ import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.domain.model.network.Errors
 import com.d4rk.cleaner.core.utils.extensions.toError
 import com.d4rk.cleaner.core.utils.helpers.DirectoryScanner
-import com.d4rk.cleaner.core.utils.helpers.shouldSkip
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -23,7 +22,7 @@ class ApkFileManagerImpl(
 ) : ApkFileManager {
     override fun getApkFilesFromStorage(): Flow<DataState<List<ApkInfo>, Errors>> = flow {
         val showHidden = dataStore.showHiddenFiles.first()
-        runCatching {
+        try {
             val apkFiles: MutableList<ApkInfo> = mutableListOf()
             val addedPaths: MutableSet<String> = mutableSetOf()
             val uri: Uri = MediaStore.Files.getContentUri("external")
@@ -58,9 +57,8 @@ class ApkFileManagerImpl(
             if (root != null) {
                 DirectoryScanner.scan(
                     root = root,
-                    skipDir = { dir -> dir.shouldSkip(showHidden) }
+                    showHidden = showHidden
                 ) { file ->
-                    if (file.shouldSkip(showHidden)) return@scan
                     if (file.extension.equals("apk", ignoreCase = true)) {
                         val path = file.absolutePath
                         if (file.exists() && file.canWrite() && addedPaths.add(path)) {
@@ -68,17 +66,15 @@ class ApkFileManagerImpl(
                                 ApkInfo(
                                     id = path.hashCode().toLong(),
                                     path = path,
-                                    size = file.length()
+                                    size = file.length(),
                                 )
                             )
                         }
                     }
                 }
             }
-            apkFiles
-        }.onSuccess { apkFiles: MutableList<ApkInfo> ->
             emit(value = DataState.Success(data = apkFiles))
-        }.onFailure { throwable: Throwable ->
+        } catch (throwable: Throwable) {
             emit(value = DataState.Error(error = throwable.toError(default = Errors.UseCase.FAILED_TO_GET_APK_FILES)))
         }
     }

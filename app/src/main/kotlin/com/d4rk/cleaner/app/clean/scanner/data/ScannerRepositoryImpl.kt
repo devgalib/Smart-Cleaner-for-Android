@@ -18,10 +18,9 @@ import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.StorageUtils
 import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.utils.extensions.clearClipboardCompat
-import com.d4rk.cleaner.core.utils.extensions.partialMd5
+import com.d4rk.cleaner.core.utils.extensions.partialHash
 import com.d4rk.cleaner.core.utils.helpers.DirectoryScanner
 import com.d4rk.cleaner.core.utils.helpers.FileDeletionHelper
-import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.utils.helpers.shouldSkip
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -54,50 +54,63 @@ class ScannerRepositoryImpl(
         }
     }
 
-    override suspend fun getFileTypes(): FileTypesData {
-        return suspendCoroutine { continuation ->
-            val fileTypesTitles: List<String> =
-                application.resources.getStringArray(R.array.file_types_titles).toList()
+    companion object {
+        private var cachedFileTypes: FileTypesData? = null
+    }
 
-            val fileTypesData = FileTypesData(
-                fileTypesTitles = fileTypesTitles,
+    override suspend fun getFileTypes(): FileTypesData {
+        cachedFileTypes?.let { return it }
+        return withContext(Dispatchers.IO) {
+            val titles = application.resources.getStringArray(R.array.file_types_titles).toList()
+            val titleByCategory = mapOf(
+                FileTypeResolver.Category.IMAGE to titles.getOrElse(0) { "Images" },
+                FileTypeResolver.Category.VIDEO to titles.getOrElse(1) { "Videos" },
+                FileTypeResolver.Category.AUDIO to titles.getOrElse(2) { "Audios" },
+                FileTypeResolver.Category.DOCUMENT to titles.getOrElse(3) { "Documents" },
+                FileTypeResolver.Category.ARCHIVE to titles.getOrElse(4) { "Archives" },
+                FileTypeResolver.Category.APK to titles.getOrElse(5) { "APKs" },
+                FileTypeResolver.Category.FONT to titles.getOrElse(6) { "Fonts" },
+                FileTypeResolver.Category.WINDOWS to titles.getOrElse(7) { "Windows Files" },
+                FileTypeResolver.Category.OTHER to titles.getOrElse(9) { "Other Files" }
             )
-            continuation.resume(value = fileTypesData)
+
+            val showHidden = dataStore.showHiddenFiles.first()
+            val trashDir = File(application.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Trash")
+            val mapping = mutableMapOf<String, String>()
+
+            DirectoryScanner.scan(
+                root = Environment.getExternalStorageDirectory(),
+                showHidden = showHidden,
+                skipDir = { it.absolutePath.startsWith(trashDir.absolutePath) },
+            ) { file ->
+                val ext = file.extension.lowercase(Locale.ROOT)
+                if (ext.isNotEmpty() && mapping[ext] == null) {
+                    val category = FileTypeResolver.resolve(file)
+                    mapping[ext] = titleByCategory[category] ?: titles.getOrElse(9) { "Other Files" }
+                }
+            }
+
+            FileTypesData(
+                fileTypesTitles = titles,
+                extensionToCategory = mapping
+            ).also { cachedFileTypes = it }
         }
     }
 
     override fun getAllFiles(onLockedDir: ((File) -> Unit)?): Flow<File> = flow {
-        val stack: ArrayDeque<File> = ArrayDeque()
-
         val root = Environment.getExternalStorageDirectory()
-        stack.addFirst(root)
-
-        val trashDir =
-            File(application.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Trash")
-
         val showHidden = dataStore.showHiddenFiles.first()
+        val trashDir = File(application.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Trash")
+        DirectoryScanner.scan(
+            root = root,
+            showHidden = showHidden,
+            skipDir = { it.absolutePath.startsWith(trashDir.absolutePath) },
+            onLockedDir = onLockedDir
+        ) { file -> emit(file) }
+    }
 
-        while (stack.isNotEmpty()) {
-            val currentFile: File = stack.removeFirst()
-            if (currentFile.shouldSkip(showHidden)) continue
-            if (currentFile.isDirectory) {
-                if (!currentFile.absolutePath.startsWith(trashDir.absolutePath)) {
-                    currentFile.listFiles()?.forEach { child ->
-                        if (child.shouldSkip(showHidden)) {
-                            if (child.isDirectory && child.isProtectedAndroidDir()) {
-                                onLockedDir?.invoke(child)
-                            }
-                        } else if (child.isDirectory) {
-                            stack.addLast(child)
-                        } else {
-                            emit(child)
-                        }
-                    }
-                }
-            } else {
-                emit(currentFile)
-            }
-        }
+    override fun invalidateFileTypesCache() {
+        cachedFileTypes = null
     }
 
     override suspend fun getTrashFiles(): List<File> {
@@ -245,15 +258,15 @@ class ScannerRepositoryImpl(
 
             DirectoryScanner.scan(
                 root = root,
+                showHidden = showHidden,
                 skipDir = { dir ->
                     dir.absolutePath.startsWith(trashDir.absolutePath) ||
-                            dir.absolutePath.startsWith(File(root, "Android").absolutePath) ||
-                            (!showHidden && dir.isHidden)
+                            dir.absolutePath.startsWith(File(root, "Android").absolutePath)
                 }
             ) { file ->
-                if ((!showHidden && file.isHidden) || file.absolutePath in trashed) return@scan
+                if (file.absolutePath in trashed) return@scan
                 if (file.length() >= minSize) {
-                    val hash = file.partialMd5() ?: return@scan
+                    val hash = file.partialHash() ?: return@scan
                     if (seenHashes.add(hash)) {
                         val type = fileType(file)
                         groups.getOrPut(type) { mutableListOf() }.add(file)

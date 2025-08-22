@@ -11,7 +11,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetEmptyFoldersUseCase
 import com.d4rk.cleaner.app.images.utils.ImageHashUtils
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import com.d4rk.cleaner.core.data.datastore.DataStore
-import com.d4rk.cleaner.core.utils.extensions.partialMd5
+import com.d4rk.cleaner.core.utils.extensions.partialHash
 import com.d4rk.cleaner.core.utils.helpers.CleaningEventBus
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import kotlinx.coroutines.flow.first
@@ -148,7 +148,7 @@ class AutoCleanWorker(
             val hash = if (deepSearch && FileTypeResolver.resolve(file) == FileTypeResolver.Category.IMAGE) {
                 ImageHashUtils.perceptualHash(file)
             } else {
-                file.partialMd5()
+                file.partialHash()
             } ?: return@forEach
             hashMap.getOrPut(hash) { mutableListOf() }.add(file)
         }

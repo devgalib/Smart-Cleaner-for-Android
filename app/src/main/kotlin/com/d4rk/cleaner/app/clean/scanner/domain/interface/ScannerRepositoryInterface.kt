@@ -16,4 +16,5 @@ interface ScannerRepositoryInterface : FileDeletionRepository<Unit> {
     suspend fun restoreFromTrash(filesToRestore: Set<File>)
     suspend fun addTrashSize(size: Long)
     suspend fun subtractTrashSize(size: Long)
+    fun invalidateFileTypesCache()
 }

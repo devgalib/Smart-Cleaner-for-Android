@@ -2,7 +2,7 @@ package com.d4rk.cleaner.app.clean.scanner.domain.usecases
 
 import com.d4rk.android.libs.apptoolkit.core.di.DispatcherProvider
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
-import com.d4rk.cleaner.core.utils.extensions.partialMd5
+import com.d4rk.cleaner.core.utils.extensions.partialHash
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -39,7 +39,7 @@ class GetDuplicatesUseCase(
                             chunk.mapNotNull { entry ->
                                 val file = File(entry.path)
                                 val key = "${entry.path}:${entry.modified}"
-                                val hash = hashCache[key] ?: file.partialMd5()?.also { hashCache[key] = it }
+                                val hash = hashCache[key] ?: file.partialHash()?.also { hashCache[key] = it }
                                 hash?.let { it to entry }
                             }
                         }
