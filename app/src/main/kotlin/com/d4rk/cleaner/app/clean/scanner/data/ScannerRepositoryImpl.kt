@@ -253,8 +253,7 @@ class ScannerRepositoryImpl(
                 else -> "other"
             }
 
-            val groups = mutableMapOf<String, MutableList<File>>()
-            val seenHashes = mutableSetOf<String>()
+            val sizeGroups = mutableMapOf<Long, MutableList<File>>()
 
             DirectoryScanner.scan(
                 root = root,
@@ -266,10 +265,25 @@ class ScannerRepositoryImpl(
             ) { file ->
                 if (file.absolutePath in trashed) return@scan
                 if (file.length() >= minSize) {
-                    val hash = file.partialHash() ?: return@scan
-                    if (seenHashes.add(hash)) {
-                        val type = fileType(file)
-                        groups.getOrPut(type) { mutableListOf() }.add(file)
+                    sizeGroups.getOrPut(file.length()) { mutableListOf() }.add(file)
+                }
+            }
+
+            val groups = mutableMapOf<String, MutableList<File>>()
+            val seenHashes = mutableSetOf<String>()
+
+            sizeGroups.values.forEach { files ->
+                if (files.size == 1) {
+                    val file = files.first()
+                    val type = fileType(file)
+                    groups.getOrPut(type) { mutableListOf() }.add(file)
+                } else {
+                    files.forEach { file ->
+                        val hash = file.partialHash() ?: return@forEach
+                        if (seenHashes.add(hash)) {
+                            val type = fileType(file)
+                            groups.getOrPut(type) { mutableListOf() }.add(file)
+                        }
                     }
                 }
             }
