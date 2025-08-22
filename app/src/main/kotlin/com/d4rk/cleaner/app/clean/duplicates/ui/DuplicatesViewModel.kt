@@ -17,7 +17,6 @@ import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
 import com.d4rk.cleaner.core.utils.extensions.selectedFiles
 import com.d4rk.cleaner.core.utils.helpers.FileGroupingHelper
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import java.io.File
 
@@ -42,12 +41,11 @@ class DuplicatesViewModel(
 
     private fun loadDuplicates() {
         launch(dispatchers.io) {
-            val files = repository.getAllFiles().toList()
-            val grouped = getDuplicatesUseCase(files)
+            val grouped = getDuplicatesUseCase(repository.getAllFiles())
             val duplicates = grouped.map { group -> group.map { File(it.path) } }
             val originals = grouped
                 .mapNotNull { group ->
-                    group.minByOrNull { it.modified }?.let { File(it.path) }
+                    group.minByOrNull { it.modified }?.toFile()
                 }
                 .toSet()
             val groupedByDate = FileGroupingHelper.groupDuplicateGroupsByDate(grouped)
