@@ -42,4 +42,5 @@ data class UiAnalyzeModel(
 
 data class FileTypesData(
     var fileTypesTitles: List<String> = emptyList(),
+    var extensionToCategory: Map<String, String> = emptyMap(),
 )

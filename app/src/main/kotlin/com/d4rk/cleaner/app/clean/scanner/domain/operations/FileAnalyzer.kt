@@ -3,9 +3,9 @@ package com.d4rk.cleaner.app.clean.scanner.domain.operations
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
-import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import java.io.File
+import java.util.Locale
 import kotlinx.coroutines.flow.asFlow
 
 /**
@@ -57,6 +57,19 @@ class FileAnalyzer(
             duplicateGroups.mapNotNull { group -> group.minByOrNull { it.modified } }.toSet()
         } else emptySet()
 
+        val prefKeys = listOf(
+            ExtensionsConstants.IMAGE_EXTENSIONS,
+            ExtensionsConstants.VIDEO_EXTENSIONS,
+            ExtensionsConstants.AUDIO_EXTENSIONS,
+            ExtensionsConstants.OFFICE_EXTENSIONS,
+            ExtensionsConstants.ARCHIVE_EXTENSIONS,
+            ExtensionsConstants.APK_EXTENSIONS,
+            ExtensionsConstants.FONT_EXTENSIONS,
+            ExtensionsConstants.WINDOWS_EXTENSIONS,
+            ExtensionsConstants.EMPTY_FOLDERS,
+            ExtensionsConstants.OTHER_EXTENSIONS,
+        )
+
         scannedFiles.forEach { file ->
             val entry = FileEntry(
                 path = file.absolutePath,
@@ -66,20 +79,11 @@ class FileAnalyzer(
             if (includeDuplicates && entry.path in duplicateFiles) {
                 duplicatesTitle?.let { title -> filesMap.getOrPut(title) { mutableListOf() }.add(entry) }
             } else {
-                val type = FileTypeResolver.resolve(file)
-                val (index, prefKey) = when (type) {
-                    FileTypeResolver.Category.IMAGE -> 0 to ExtensionsConstants.IMAGE_EXTENSIONS
-                    FileTypeResolver.Category.VIDEO -> 1 to ExtensionsConstants.VIDEO_EXTENSIONS
-                    FileTypeResolver.Category.AUDIO -> 2 to ExtensionsConstants.AUDIO_EXTENSIONS
-                    FileTypeResolver.Category.DOCUMENT -> 3 to ExtensionsConstants.OFFICE_EXTENSIONS
-                    FileTypeResolver.Category.ARCHIVE -> 4 to ExtensionsConstants.ARCHIVE_EXTENSIONS
-                    FileTypeResolver.Category.APK -> 5 to ExtensionsConstants.APK_EXTENSIONS
-                    FileTypeResolver.Category.FONT -> 6 to ExtensionsConstants.FONT_EXTENSIONS
-                    FileTypeResolver.Category.WINDOWS -> 7 to ExtensionsConstants.WINDOWS_EXTENSIONS
-                    FileTypeResolver.Category.OTHER -> 9 to ExtensionsConstants.OTHER_EXTENSIONS
-                }
+                val extension = file.extension.lowercase(Locale.ROOT)
+                val title = fileTypesData.extensionToCategory[extension] ?: baseFinalTitles[9]
+                val index = baseFinalTitles.indexOf(title).takeIf { it >= 0 } ?: 9
+                val prefKey = prefKeys.getOrElse(index) { ExtensionsConstants.OTHER_EXTENSIONS }
                 if (preferences[prefKey] == true) {
-                    val title = baseFinalTitles[index]
                     filesMap.getOrPut(title) { mutableListOf() }.add(entry)
                 }
             }

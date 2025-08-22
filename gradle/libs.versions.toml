@@ -8,12 +8,14 @@ coilVideoVersion = "3.3.0"
 compressor = "3.0.1"
 constraintlayoutCompose = "1.1.1"
 commonsCompress = "1.28.0"
+xxhash = "1.9.0"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 coil3-coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coilVideoVersion" }
 compressor = { module = "id.zelory:compressor", version.ref = "compressor" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+xxhash = { module = "net.jpountz.lz4:lz4", version.ref = "xxhash" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
