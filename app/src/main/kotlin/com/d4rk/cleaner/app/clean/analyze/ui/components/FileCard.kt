@@ -204,6 +204,7 @@ fun FileCard(
                 Text(
                     text = file.name,
                     maxLines = 1,
+                    fontWeight = FontWeight.Bold,
                     overflow = TextOverflow.Ellipsis,
                     color = textColor,
                     modifier = Modifier
