@@ -15,6 +15,13 @@ import java.io.File
 
 class WhatsAppCleanerRepositoryImpl(private val application: Application) :
     WhatsAppCleanerRepository {
+
+    private data class CacheEntry(
+        val lastModified: Long,
+        val files: List<File>
+    )
+
+    private val mediaCache = mutableMapOf<String, CacheEntry>()
     /**
      * Locate the base WhatsApp media directory. Returns `null` when no known
      * directories are found, indicating that WhatsApp media is not available on
@@ -119,11 +126,25 @@ class WhatsAppCleanerRepositoryImpl(private val application: Application) :
                 WhatsAppMediaConstants.DIRECTORIES[type] ?: return@withContext emptyList<File>()
             val dir = File(base, dirName)
             if (!dir.exists()) return@withContext emptyList()
-            dir.walkTopDown()
-                .filter { it.isFile && it.name != ".nomedia" }
-                .drop(offset)
-                .take(limit)
-                .toList()
+
+            val lastModified = dir.lastModified()
+            val cached = mediaCache[type]
+
+            val files = if (cached == null || cached.lastModified != lastModified) {
+                val collected = dir.walkTopDown()
+                    .filter { it.isFile && it.name != ".nomedia" }
+                    .sortedByDescending { it.lastModified() }
+                    .toList()
+                mediaCache[type] = CacheEntry(lastModified, collected)
+                collected
+            } else {
+                cached.files
+            }
+
+            if (offset >= files.size) return@withContext emptyList<File>()
+
+            val toIndex = (offset + limit).coerceAtMost(files.size)
+            files.subList(offset, toIndex)
         }
 
 }
