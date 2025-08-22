@@ -153,5 +153,5 @@ dependencies {
     implementation(dependencyNotation = libs.compressor)
     implementation(dependencyNotation = libs.coil3.coil.video)
     implementation(dependencyNotation = libs.apache.commons.compress)
-    implementation(dependencyNotation = libs.xxhash)
+    implementation(dependencyNotation = libs.guava)
 }
