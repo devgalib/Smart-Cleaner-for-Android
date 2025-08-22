@@ -397,6 +397,8 @@
     <string name="share_app_failed">Uygulama paylaşılamadı</string>
     <string name="share_play_store_link">Play Store bağlantısını paylaş</string>
     <string name="share_apk_file">APK dosyasını paylaş</string>
+    <string name="share_play_store_link_icon_description">Play Store bağlantısını paylaşma simgesi</string>
+    <string name="share_apk_file_icon_description">APK dosyasını paylaşma simgesi</string>
     <string name="apk_installed_successfully">APK başarıyla yüklendi!</string>
     <string name="failed_to_install_apk">APK yüklenemedi: %1$s</string>
     <string name="failed_to_uninstall_app">Uygulama kaldırılamadı: %1$s</string>

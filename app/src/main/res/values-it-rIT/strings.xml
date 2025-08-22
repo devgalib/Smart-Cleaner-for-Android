@@ -407,6 +407,8 @@
     <string name="share_app_failed">Impossibile condividere l\'app</string>
     <string name="share_play_store_link">Condividi link del Play Store</string>
     <string name="share_apk_file">Condividi file APK</string>
+    <string name="share_play_store_link_icon_description">Icona per condividere il link del Play Store</string>
+    <string name="share_apk_file_icon_description">Icona per condividere il file APK</string>
     <string name="apk_installed_successfully">APK installato con successo!</string>
     <string name="failed_to_install_apk">Impossibile installare l\'APK: %1$s</string>
     <string name="failed_to_uninstall_app">Impossibile disinstallare l\'app: %1$s</string>

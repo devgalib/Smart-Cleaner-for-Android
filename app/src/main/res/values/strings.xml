@@ -402,6 +402,8 @@
     <string name="share_app_failed">Failed to share app</string>
     <string name="share_play_store_link">Share Play Store link</string>
     <string name="share_apk_file">Share APK file</string>
+    <string name="share_play_store_link_icon_description">Share Play Store link icon</string>
+    <string name="share_apk_file_icon_description">Share APK file icon</string>
     <string name="apk_installed_successfully">APK installed successfully!</string>
     <string name="failed_to_install_apk">Failed to install APK: %1$s</string>
     <string name="failed_to_uninstall_app">Failed to uninstall app: %1$s</string>

@@ -417,6 +417,8 @@
     <string name="share_app_failed">Не вдалося поділитися додатком</string>
     <string name="share_play_store_link">Поділитися посиланням Play Store</string>
     <string name="share_apk_file">Поділитися файлом APK</string>
+    <string name="share_play_store_link_icon_description">Піктограма спільного доступу до посилання Play Store</string>
+    <string name="share_apk_file_icon_description">Піктограма спільного доступу до файлу APK</string>
     <string name="apk_installed_successfully">APK-файл успішно встановлено!</string>
     <string name="failed_to_install_apk">Не вдалося встановити APK: %1$s</string>
     <string name="failed_to_uninstall_app">Не вдалося видалити додаток: %1$s</string>

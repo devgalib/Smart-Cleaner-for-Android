@@ -407,6 +407,8 @@
     <string name="share_app_failed">Nu s-a putut partaja aplicația</string>
     <string name="share_play_store_link">Partajează linkul Play Store</string>
     <string name="share_apk_file">Partajează fișierul APK</string>
+    <string name="share_play_store_link_icon_description">Pictogramă pentru partajarea linkului Play Store</string>
+    <string name="share_apk_file_icon_description">Pictogramă pentru partajarea fișierului APK</string>
     <string name="apk_installed_successfully">APK instalat cu succes!</string>
     <string name="failed_to_install_apk">Nu s-a putut instala APK-ul: %1$s</string>
     <string name="failed_to_uninstall_app">Nu s-a putut dezinstala aplicația: %1$s</string>

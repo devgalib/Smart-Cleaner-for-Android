@@ -387,6 +387,8 @@
     <string name="share_app_failed">無法分享應用程式</string>
     <string name="share_play_store_link">分享 Play 商店連結</string>
     <string name="share_apk_file">分享 APK 檔案</string>
+    <string name="share_play_store_link_icon_description">分享 Play 商店連結圖示</string>
+    <string name="share_apk_file_icon_description">分享 APK 檔案圖示</string>
     <string name="apk_installed_successfully">APK 安裝成功！</string>
     <string name="failed_to_install_apk">無法安裝 APK：%1$s</string>
     <string name="failed_to_uninstall_app">無法解除安裝應用程式：%1$s</string>
