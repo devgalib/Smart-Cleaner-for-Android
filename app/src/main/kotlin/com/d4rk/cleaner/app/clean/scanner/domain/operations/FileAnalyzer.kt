@@ -6,6 +6,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetDuplicatesUseCase
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import java.io.File
 import java.util.Locale
+import kotlinx.coroutines.flow.asFlow
 
 /**
  * Provides functions used during scanning to analyze files on disk.
@@ -53,7 +54,7 @@ class FileAnalyzer(
         duplicatesTitle?.let { filesMap[it] = mutableListOf() }
 
         val duplicateGroups: List<List<FileEntry>> = if (includeDuplicates) {
-            getDuplicatesUseCase(scannedFiles)
+            getDuplicatesUseCase(scannedFiles.asFlow())
         } else emptyList()
         val duplicateFiles: Set<String> = if (includeDuplicates) {
             duplicateGroups.flatten().map { it.path }.toSet()
