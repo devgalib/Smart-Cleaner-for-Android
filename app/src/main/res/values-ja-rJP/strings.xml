@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">検索</string>
+    <string name="clear_search">検索をクリア</string>
     <string name="app_manager">アプリマネージャー</string>
     <string name="installed_apps">インストール済みアプリ</string>
     <string name="system_apps">システムアプリ</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">最適化したい画像を選択してください</string>
     <string name="choose_image">画像を選択</string>
     <string name="optimize_image">画像を最適化</string>
+    <string name="selected_image">選択した画像</string>
     <string name="quick_compress">クイック圧縮</string>
     <string name="low">低</string>
     <string name="medium">中</string>

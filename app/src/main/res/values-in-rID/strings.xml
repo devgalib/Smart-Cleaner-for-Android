@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">Cari</string>
+    <string name="clear_search">Hapus pencarian</string>
     <string name="app_manager">Manajer Aplikasi</string>
     <string name="installed_apps">Aplikasi terinstal</string>
     <string name="system_apps">Aplikasi sistem</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">Pilih gambar yang ingin Anda optimalkan</string>
     <string name="choose_image">Pilih gambar</string>
     <string name="optimize_image">Optimalkan gambar</string>
+    <string name="selected_image">Gambar terpilih</string>
     <string name="quick_compress">Kompres Cepat</string>
     <string name="low">Rendah</string>
     <string name="medium">Sedang</string>

@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">검색</string>
+    <string name="clear_search">검색 지우기</string>
     <string name="app_manager">앱 관리자</string>
     <string name="installed_apps">설치된 앱</string>
     <string name="system_apps">시스템 앱</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">최적화할 이미지를 선택하세요.</string>
     <string name="choose_image">이미지 선택</string>
     <string name="optimize_image">이미지 최적화</string>
+    <string name="selected_image">선택된 이미지</string>
     <string name="quick_compress">빠른 압축</string>
     <string name="low">낮음</string>
     <string name="medium">중간</string>

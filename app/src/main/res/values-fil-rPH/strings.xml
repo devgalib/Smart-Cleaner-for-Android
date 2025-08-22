@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Maghanap</string>
+    <string name="clear_search">I-clear ang paghahanap</string>
     <string name="app_manager">Tagapamahala ng App</string>
     <string name="installed_apps">Mga naka-install na app</string>
     <string name="system_apps">Mga system app</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">Piliin ang imahe na nais mong i-optimize</string>
     <string name="choose_image">Pumili ng imahe</string>
     <string name="optimize_image">I-optimize ang imahe</string>
+    <string name="selected_image">Napiling larawan</string>
     <string name="quick_compress">Mabilisang Pag-compress</string>
     <string name="low">Mababa</string>
     <string name="medium">Katamtaman</string>

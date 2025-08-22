@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">搜尋</string>
+    <string name="clear_search">清除搜尋</string>
     <string name="app_manager">應用程式管理員</string>
     <string name="installed_apps">已安裝的應用程式</string>
     <string name="system_apps">系統應用程式</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">選取您要最佳化的圖片</string>
     <string name="choose_image">選擇圖片</string>
     <string name="optimize_image">最佳化圖片</string>
+    <string name="selected_image">已選擇的圖片</string>
     <string name="quick_compress">快速壓縮</string>
     <string name="low">低</string>
     <string name="medium">中</string>

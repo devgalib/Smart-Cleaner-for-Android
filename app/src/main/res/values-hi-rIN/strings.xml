@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">खोजें</string>
+    <string name="clear_search">खोज साफ़ करें</string>
     <string name="app_manager">ऐप मैनेजर</string>
     <string name="installed_apps">इंस्टॉल किए गए ऐप्स</string>
     <string name="system_apps">सिस्टम ऐप्स</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">वह छवि चुनें जिसे आप ऑप्टिमाइज़ करना चाहते हैं</string>
     <string name="choose_image">छवि चुनें</string>
     <string name="optimize_image">छवि ऑप्टिमाइज़ करें</string>
+    <string name="selected_image">चयनित छवि</string>
     <string name="quick_compress">त्वरित संपीड़न</string>
     <string name="low">कम</string>
     <string name="medium">मध्यम</string>
