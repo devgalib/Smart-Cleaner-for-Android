@@ -30,6 +30,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,7 +69,7 @@ fun FileCard(
     val haptic = LocalHapticFeedback.current
     val view: View = LocalView.current
     val defaultColor = MaterialTheme.colorScheme.onSurface
-    val previewType = FilePreviewHelper.getPreviewType(file)
+    val previewType = remember(file) { FilePreviewHelper.getPreviewType(file) }
     val hasAlbumArt by produceState(initialValue = false, file.path) {
         value = withContext(Dispatchers.IO) {
             if (previewType is FilePreviewHelper.PreviewType.Audio) {
