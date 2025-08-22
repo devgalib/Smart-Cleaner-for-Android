@@ -265,6 +265,7 @@
 
     <!-- App manager -->
     <string name="search">Пошук</string>
+    <string name="clear_search">Очистити пошук</string>
     <string name="app_manager">Менеджер додатків</string>
     <string name="installed_apps">Встановлені додатки</string>
     <string name="system_apps">Системні додатки</string>
@@ -297,6 +298,7 @@
     <string name="summary_select_image">Виберіть зображення для оптимізації</string>
     <string name="choose_image">Вибрати зображення</string>
     <string name="optimize_image">Оптимізувати зображення</string>
+    <string name="selected_image">Вибране зображення</string>
     <string name="quick_compress">Швидке стиснення</string>
     <string name="low">Низька</string>
     <string name="medium">Середня</string>

@@ -265,6 +265,7 @@
 
     <!-- App manager -->
     <string name="search">Поиск</string>
+    <string name="clear_search">Очистить поиск</string>
     <string name="app_manager">Менеджер приложений</string>
     <string name="installed_apps">Установленные приложения</string>
     <string name="system_apps">Системные приложения</string>
@@ -297,6 +298,7 @@
     <string name="summary_select_image">Выберите изображение, которое хотите оптимизировать</string>
     <string name="choose_image">Выбрать изображение</string>
     <string name="optimize_image">Оптимизировать изображение</string>
+    <string name="selected_image">Выбранное изображение</string>
     <string name="quick_compress">Быстрое сжатие</string>
     <string name="low">Низкое</string>
     <string name="medium">Среднее</string>

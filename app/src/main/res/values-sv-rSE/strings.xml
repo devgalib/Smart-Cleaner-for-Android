@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Sök</string>
+    <string name="clear_search">Rensa sökning</string>
     <string name="app_manager">Apphanterare</string>
     <string name="installed_apps">Installerade appar</string>
     <string name="system_apps">Systemappar</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">Välj den bild du vill optimera</string>
     <string name="choose_image">Välj bild</string>
     <string name="optimize_image">Optimera bild</string>
+    <string name="selected_image">Vald bild</string>
     <string name="quick_compress">Snabbkomprimering</string>
     <string name="low">Låg</string>
     <string name="medium">Medium</string>

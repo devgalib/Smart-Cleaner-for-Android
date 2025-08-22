@@ -235,6 +235,7 @@
 
     <!-- App manager -->
     <string name="search">Tìm kiếm</string>
+    <string name="clear_search">Xóa tìm kiếm</string>
     <string name="app_manager">Quản lý ứng dụng</string>
     <string name="installed_apps">Ứng dụng đã cài đặt</string>
     <string name="system_apps">Ứng dụng hệ thống</string>
@@ -267,6 +268,7 @@
     <string name="summary_select_image">Chọn hình ảnh bạn muốn tối ưu hóa</string>
     <string name="choose_image">Chọn ảnh</string>
     <string name="optimize_image">Tối ưu hóa ảnh</string>
+    <string name="selected_image">Hình ảnh đã chọn</string>
     <string name="quick_compress">Nén nhanh</string>
     <string name="low">Thấp</string>
     <string name="medium">Trung bình</string>

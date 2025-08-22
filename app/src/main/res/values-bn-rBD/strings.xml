@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">অনুসন্ধান</string>
+    <string name="clear_search">অনুসন্ধান মুছুন</string>
     <string name="app_manager">অ্যাপ ম্যানেজার</string>
     <string name="installed_apps">ইনস্টল করা অ্যাপসমূহ</string>
     <string name="system_apps">সিস্টেম অ্যাপসমূহ</string>
@@ -276,6 +277,7 @@
     <string name="summary_select_image">অপটিমাইজ করার জন্য ছবিটি নির্বাচন করুন</string>
     <string name="choose_image">ছবি নির্বাচন করুন</string>
     <string name="optimize_image">ছবি অপটিমাইজ করুন</string>
+    <string name="selected_image">নির্বাচিত ছবি</string>
     <string name="quick_compress">দ্রুত সংক্ষেপণ</string>
     <string name="low">কম</string>
     <string name="medium">মাঝারি</string>

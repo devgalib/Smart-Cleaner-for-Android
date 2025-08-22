@@ -245,6 +245,7 @@
 
     <!-- App manager -->
     <string name="search">Ara</string>
+    <string name="clear_search">Aramayı temizle</string>
     <string name="app_manager">Uygulama Yöneticisi</string>
     <string name="installed_apps">Yüklü uygulamalar</string>
     <string name="system_apps">Sistem uygulamaları</string>
@@ -277,6 +278,7 @@
     <string name="summary_select_image">İyileştirmek istediğiniz görüntüyü seçin</string>
     <string name="choose_image">Görüntü seç</string>
     <string name="optimize_image">Görüntüyü iyileştir</string>
+    <string name="selected_image">Seçilen resim</string>
     <string name="quick_compress">Hızlı Sıkıştır</string>
     <string name="low">Düşük</string>
     <string name="medium">Orta</string>
