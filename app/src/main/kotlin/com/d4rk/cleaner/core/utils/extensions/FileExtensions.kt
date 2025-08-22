@@ -6,7 +6,9 @@ import java.io.FileInputStream
 import java.io.RandomAccessFile
 
 private const val PARTIAL_HASH_SIZE = 1 * 1024 * 1024 // 1MB
-private val bufferPool = ThreadLocal.withInitial { ByteArray(DEFAULT_BUFFER_SIZE) }
+private val bufferPool = object : ThreadLocal<ByteArray>() {
+    override fun initialValue(): ByteArray = ByteArray(DEFAULT_BUFFER_SIZE)
+}
 private val hashFunction = Hashing.murmur3_128()
 
 fun File.partialHash(): String? = runCatching {
