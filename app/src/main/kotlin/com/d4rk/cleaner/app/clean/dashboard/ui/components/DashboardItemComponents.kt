@@ -3,6 +3,9 @@ package com.d4rk.cleaner.app.clean.dashboard.ui.components
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Whatsapp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -25,6 +28,7 @@ import com.d4rk.cleaner.app.clean.duplicates.ui.DuplicateCleanerActivity
 import com.d4rk.cleaner.app.clean.largefiles.ui.LargeFilesActivity
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
+import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ApkCleanerCard
@@ -43,6 +47,7 @@ import com.d4rk.cleaner.app.clean.scanner.ui.components.WhatsAppCleanerCard
 import com.d4rk.cleaner.app.clean.whatsapp.summary.ui.WhatsAppCleanerActivity
 import com.d4rk.cleaner.app.images.picker.ui.ImagePickerActivity
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.IntentsHelper
+import com.d4rk.cleaner.core.domain.model.network.Errors
 import java.io.File
 
 @Composable
@@ -56,7 +61,7 @@ fun RenderDashboardItem(
     storageManagerIntent: Intent,
     streakDays: Int,
     streakRecord: Int,
-    largeFilesState: DataState<List<File>, *>,
+    largeFilesState: DataState<List<File>, Errors>,
     duplicateGroups: List<List<File>>,
     whatsappSummary: WhatsAppMediaSummary,
     clipboardText: String?,
@@ -68,7 +73,7 @@ fun RenderDashboardItem(
     leaderboardAdsConfig: AdsConfig,
     bannerAdsConfig: AdsConfig,
     visibleCount: Int,
-    promotedApp: Any?
+    promotedApp: PromotedApp?
 ) {
     when (item) {
         is HomeItem.Card -> RenderContentCard(
@@ -122,14 +127,14 @@ private fun RenderContentCard(
     storageManagerIntent: Intent,
     streakDays: Int,
     streakRecord: Int,
-    largeFilesState: DataState<List<File>, *>,
+    largeFilesState: DataState<List<File>, Errors>,
     duplicateGroups: List<List<File>>,
     whatsappSummary: WhatsAppMediaSummary,
     clipboardText: String?,
     appManagerState: UiStateScreen<UiAppManagerModel>,
     cleaningApks: Boolean,
     emptyFolders: List<File>,
-    promotedApp: Any?
+    promotedApp: PromotedApp?
 ) {
     when (card) {
         ContentCard.QUICK_SCAN -> {
@@ -241,7 +246,7 @@ private fun RenderContentCard(
                         visible = visibilityStates.getOrElse(index) { false },
                         index = index
                     ),
-                    icon = androidx.compose.material.icons.Icons.Filled.Whatsapp,
+                    icon = Icons.Filled.Whatsapp,
                     title = stringResource(id = R.string.whatsapp_card_title),
                     subtitle = stringResource(id = R.string.whatsapp_cleaner_empty_message),
                     actionLabel = stringResource(id = R.string.open_whatsapp_cleaner),

@@ -1,5 +1,6 @@
 package com.d4rk.cleaner.app.clean.dashboard.ui
 
+import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -18,7 +19,7 @@ class DashboardItemBuilderTest {
             showClipboardCard = true,
             showContactsCard = true,
             showLinkCleanerCard = true,
-            promotedApp = Any(),
+            promotedApp = PromotedApp(name = "Test", packageName = "pkg", iconLogo = "logo"),
             adsState = false,
             gmsAvailable = false,
             dataLoaded = false,

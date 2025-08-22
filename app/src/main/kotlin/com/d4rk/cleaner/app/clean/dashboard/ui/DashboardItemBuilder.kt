@@ -1,6 +1,7 @@
 package com.d4rk.cleaner.app.clean.dashboard.ui
 
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
+import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
 
 enum class AdSlot { A, B, C, D, E, F }
 
@@ -36,7 +37,7 @@ data class DashboardParams(
     val showClipboardCard: Boolean,
     val showContactsCard: Boolean,
     val showLinkCleanerCard: Boolean,
-    val promotedApp: Any?,
+    val promotedApp: PromotedApp?,
     val adsState: Boolean,
     val gmsAvailable: Boolean,
     val dataLoaded: Boolean,
