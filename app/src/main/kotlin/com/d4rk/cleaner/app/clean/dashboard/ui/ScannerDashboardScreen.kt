@@ -179,6 +179,7 @@ fun ScannerDashboardScreen(
         items(items.size) { index ->
             val item = items[index]
             RenderDashboardItem(
+                modifier = Modifier.animateItem(),
                 item = item,
                 index = index,
                 visibilityStates = visibilityStates,

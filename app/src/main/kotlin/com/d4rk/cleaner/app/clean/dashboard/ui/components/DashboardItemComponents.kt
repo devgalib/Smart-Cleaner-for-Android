@@ -20,7 +20,6 @@ import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
 import com.d4rk.cleaner.app.clean.contacts.ui.ContactsCleanerActivity
 import com.d4rk.cleaner.app.clean.contacts.ui.components.ContactsCleanerCard
-import com.d4rk.cleaner.app.clean.dashboard.ui.AdSlot
 import com.d4rk.cleaner.app.clean.dashboard.ui.ContentCard
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardItemBuilder
 import com.d4rk.cleaner.app.clean.dashboard.ui.HomeItem
@@ -52,6 +51,7 @@ import java.io.File
 
 @Composable
 fun RenderDashboardItem(
+    modifier: Modifier = Modifier,
     item: HomeItem,
     index: Int,
     visibilityStates: SnapshotStateList<Boolean>,
@@ -77,6 +77,7 @@ fun RenderDashboardItem(
 ) {
     when (item) {
         is HomeItem.Card -> RenderContentCard(
+            modifier = modifier,
             card = item.type,
             index = index,
             visibilityStates = visibilityStates,
@@ -118,6 +119,7 @@ fun RenderDashboardItem(
 
 @Composable
 private fun RenderContentCard(
+    modifier : Modifier = Modifier,
     card: ContentCard,
     index: Int,
     visibilityStates: SnapshotStateList<Boolean>,
@@ -139,7 +141,7 @@ private fun RenderContentCard(
     when (card) {
         ContentCard.QUICK_SCAN -> {
             QuickScanSummaryCard(
-                modifier = Modifier
+                modifier = modifier
                     .animateVisibility(
                         visible = visibilityStates.getOrElse(index) { false },
                         index = index
@@ -159,7 +161,7 @@ private fun RenderContentCard(
 
         ContentCard.SYSTEM_STORAGE -> {
             SystemStorageManagerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -179,7 +181,7 @@ private fun RenderContentCard(
 
         ContentCard.WEEKLY_STREAK -> {
             WeeklyCleanStreakCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -195,7 +197,7 @@ private fun RenderContentCard(
 
         ContentCard.LARGE_FILES -> {
             LargeFilesCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -211,7 +213,7 @@ private fun RenderContentCard(
 
         ContentCard.DUPLICATES -> {
             DuplicateFilesCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -228,7 +230,7 @@ private fun RenderContentCard(
         ContentCard.WHATSAPP -> {
             if (whatsappSummary.hasData) {
                 WhatsAppCleanerCard(
-                    modifier = Modifier.animateVisibility(
+                    modifier = modifier.animateVisibility(
                         visible = visibilityStates.getOrElse(index) { false },
                         index = index
                     ),
@@ -242,7 +244,7 @@ private fun RenderContentCard(
                 )
             } else {
                 DashboardActionCard(
-                    modifier = Modifier.animateVisibility(
+                    modifier = modifier.animateVisibility(
                         visible = visibilityStates.getOrElse(index) { false },
                         index = index
                     ),
@@ -270,7 +272,7 @@ private fun RenderContentCard(
         ContentCard.APK -> {
             val isCleaningApks = cleaningApks && uiState.data?.analyzeState?.state == CleaningState.Cleaning
             ApkCleanerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -285,7 +287,7 @@ private fun RenderContentCard(
 
         ContentCard.EMPTY_FOLDERS -> {
             EmptyFolderCleanerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -296,7 +298,7 @@ private fun RenderContentCard(
 
         ContentCard.CLIPBOARD -> {
             ClipboardCleanerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -307,7 +309,7 @@ private fun RenderContentCard(
 
         ContentCard.CONTACTS -> {
             ContactsCleanerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -322,7 +324,7 @@ private fun RenderContentCard(
 
         ContentCard.LINK_CLEANER -> {
             LinkCleanerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 )
@@ -331,7 +333,7 @@ private fun RenderContentCard(
 
         ContentCard.IMAGE_OPTIMIZER -> {
             ImageOptimizerCard(
-                modifier = Modifier.animateVisibility(
+                modifier = modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
                     index = index
                 ),
@@ -347,7 +349,7 @@ private fun RenderContentCard(
         ContentCard.PROMOTED_APP -> {
             promotedApp?.let { app ->
                 PromotedAppCard(
-                    modifier = Modifier.animateVisibility(
+                    modifier = modifier.animateVisibility(
                         visible = visibilityStates.getOrElse(index) { false },
                         index = index
                     ),
