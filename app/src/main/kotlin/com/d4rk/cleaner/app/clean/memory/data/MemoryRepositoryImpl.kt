@@ -77,15 +77,7 @@ class MemoryRepositoryImpl(private val application: Application) : MemoryReposit
                 val downloadsDeferred =
                     async { getDirectorySize(File(externalStoragePath, "Download")) }
 
-                val (
-                    installedAppsSize,
-                    systemSize,
-                    musicSize,
-                    dcimSize,
-                    picturesSize,
-                    documentsSize,
-                    downloadsSize
-                ) = awaitAll(
+                val sizes = awaitAll(
                     installedAppsDeferred,
                     systemDeferred,
                     musicDeferred,
@@ -94,6 +86,14 @@ class MemoryRepositoryImpl(private val application: Application) : MemoryReposit
                     documentsDeferred,
                     downloadsDeferred
                 )
+
+                val installedAppsSize = sizes[0]
+                val systemSize = sizes[1]
+                val musicSize = sizes[2]
+                val dcimSize = sizes[3]
+                val picturesSize = sizes[4]
+                val documentsSize = sizes[5]
+                val downloadsSize = sizes[6]
 
                 breakdown[context.getString(R.string.installed_apps)] = installedAppsSize
                 breakdown[context.getString(R.string.system)] = systemSize
