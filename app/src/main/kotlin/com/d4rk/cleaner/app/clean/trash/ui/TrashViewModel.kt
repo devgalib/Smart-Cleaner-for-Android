@@ -23,6 +23,7 @@ import com.d4rk.cleaner.app.clean.trash.domain.usecases.RestoreFromTrashUseCase
 import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.utils.extensions.selectedFiles
 import com.d4rk.cleaner.core.utils.helpers.FileGroupingHelper
+import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.core.work.FileCleaner
 import com.d4rk.cleaner.core.work.observeFileCleanWork
@@ -253,7 +254,9 @@ class TrashViewModel(
             }
             currentData.copy(
                 fileSelectionStates = updatedSelections,
-                selectedFileCount = updatedSelections.count { it.value })
+                selectedFileCount =
+                    updatedSelections.count { it.value && !File(it.key).isProtectedAndroidDir() },
+            )
         }
     }
 
