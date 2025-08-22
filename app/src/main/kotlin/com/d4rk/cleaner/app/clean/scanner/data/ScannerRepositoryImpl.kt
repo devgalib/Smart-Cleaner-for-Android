@@ -14,6 +14,7 @@ import com.d4rk.cleaner.app.clean.memory.domain.data.model.StorageInfo
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.domain.`interface`.ScannerRepositoryInterface
+import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import com.d4rk.cleaner.app.clean.scanner.utils.helpers.StorageUtils
 import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.utils.extensions.clearClipboardCompat
@@ -55,63 +56,11 @@ class ScannerRepositoryImpl(
 
     override suspend fun getFileTypes(): FileTypesData {
         return suspendCoroutine { continuation ->
-            val apkExtensions: List<String> =
-                application.resources.getStringArray(R.array.apk_extensions).toList()
-            val imageExtensions: List<String> =
-                application.resources.getStringArray(R.array.image_extensions).toList()
-            val videoExtensions: List<String> =
-                application.resources.getStringArray(R.array.video_extensions).toList()
-            val audioExtensions: List<String> =
-                application.resources.getStringArray(R.array.audio_extensions).toList()
-            val fontExtensions: List<String> =
-                application.resources.getStringArray(R.array.font_extensions).toList()
-            val windowsExtensions: List<String> =
-                application.resources.getStringArray(R.array.windows_extensions).toList()
-            val archiveExtensions: List<String> =
-                application.resources.getStringArray(R.array.archive_extensions).toList()
-            val officeExtensions: List<String> =
-                application.resources.getStringArray(R.array.microsoft_office_extensions).toList()
-            val genericExtensions: List<String> =
-                application.resources.getStringArray(R.array.generic_extensions).toList()
             val fileTypesTitles: List<String> =
                 application.resources.getStringArray(R.array.file_types_titles).toList()
 
-            val knownExtensions = mutableSetOf<String>().apply {
-                addAll(elements = apkExtensions.map { it.lowercase() })
-                addAll(elements = imageExtensions.map { it.lowercase() })
-                addAll(elements = videoExtensions.map { it.lowercase() })
-                addAll(elements = audioExtensions.map { it.lowercase() })
-                addAll(elements = fontExtensions.map { it.lowercase() })
-                addAll(elements = windowsExtensions.map { it.lowercase() })
-                addAll(elements = archiveExtensions.map { it.lowercase() })
-                addAll(elements = officeExtensions.map { it.lowercase() })
-                addAll(elements = genericExtensions.map { it.lowercase() })
-            }
-
-            val allFoundExtensions: MutableSet<String> = mutableSetOf()
-            @Suppress("DEPRECATION")
-            val root = Environment.getExternalStorageDirectory()
-            DirectoryScanner.scan(root) { file ->
-                val ext: String = file.extension.lowercase()
-                if (ext.isNotEmpty()) {
-                    allFoundExtensions.add(ext)
-                }
-            }
-
-            val otherExtensions: List<String> =
-                (allFoundExtensions - knownExtensions).toList().sorted()
-
             val fileTypesData = FileTypesData(
-                apkExtensions = apkExtensions,
-                imageExtensions = imageExtensions,
-                videoExtensions = videoExtensions,
-                audioExtensions = audioExtensions,
-                archiveExtensions = archiveExtensions,
                 fileTypesTitles = fileTypesTitles,
-                fontExtensions = fontExtensions,
-                windowsExtensions = windowsExtensions,
-                officeExtensions = officeExtensions,
-                otherExtensions = otherExtensions
             )
             continuation.resume(value = fileTypesData)
         }
@@ -281,28 +230,13 @@ class ScannerRepositoryImpl(
             val trashed = dataStore.trashFileOriginalPaths.first()
             val showHidden = dataStore.showHiddenFiles.first()
 
-            // Load extension lists for basic type detection
-            val apkExt =
-                application.resources.getStringArray(R.array.apk_extensions).map { it.lowercase() }
-            val videoExt = application.resources.getStringArray(R.array.video_extensions)
-                .map { it.lowercase() }
-            val imageExt = application.resources.getStringArray(R.array.image_extensions)
-                .map { it.lowercase() }
-            val audioExt = application.resources.getStringArray(R.array.audio_extensions)
-                .map { it.lowercase() }
-            val archiveExt = application.resources.getStringArray(R.array.archive_extensions)
-                .map { it.lowercase() }
-            val officeExt =
-                application.resources.getStringArray(R.array.microsoft_office_extensions)
-                    .map { it.lowercase() }
-
-            fun fileType(file: File): String = when (file.extension.lowercase()) {
-                in videoExt -> "video"
-                in archiveExt -> "archive"
-                in apkExt -> "apk"
-                in imageExt -> "image"
-                in audioExt -> "audio"
-                in officeExt -> "doc"
+            fun fileType(file: File): String = when (FileTypeResolver.resolve(file)) {
+                FileTypeResolver.Category.VIDEO -> "video"
+                FileTypeResolver.Category.ARCHIVE -> "archive"
+                FileTypeResolver.Category.APK -> "apk"
+                FileTypeResolver.Category.IMAGE -> "image"
+                FileTypeResolver.Category.AUDIO -> "audio"
+                FileTypeResolver.Category.DOCUMENT -> "doc"
                 else -> "other"
             }
 

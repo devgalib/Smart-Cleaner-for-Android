@@ -42,13 +42,4 @@ data class UiAnalyzeModel(
 
 data class FileTypesData(
     var fileTypesTitles: List<String> = emptyList(),
-    var apkExtensions: List<String> = emptyList(),
-    var imageExtensions: List<String> = emptyList(),
-    var videoExtensions: List<String> = emptyList(),
-    var audioExtensions: List<String> = emptyList(),
-    var archiveExtensions: List<String> = emptyList(),
-    var fontExtensions: List<String> = emptyList(),
-    var windowsExtensions: List<String> = emptyList(),
-    var officeExtensions: List<String> = emptyList(),
-    var otherExtensions: List<String> = emptyList(),
 )

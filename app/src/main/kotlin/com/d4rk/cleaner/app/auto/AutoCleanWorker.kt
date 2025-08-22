@@ -4,24 +4,22 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.d4rk.android.libs.apptoolkit.core.domain.model.network.DataState
-import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileTypesData
 import com.d4rk.cleaner.app.clean.scanner.domain.`interface`.ScannerRepositoryInterface
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.AnalyzeFilesUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.DeleteFilesUseCase
 import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetEmptyFoldersUseCase
-import com.d4rk.cleaner.app.clean.scanner.domain.usecases.GetFileTypesUseCase
 import com.d4rk.cleaner.app.images.utils.ImageHashUtils
 import com.d4rk.cleaner.app.settings.cleaning.utils.constants.ExtensionsConstants
 import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.utils.extensions.partialMd5
 import com.d4rk.cleaner.core.utils.helpers.CleaningEventBus
+import com.d4rk.cleaner.app.clean.scanner.utils.helpers.FileTypeResolver
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
-import java.util.Locale
 import kotlin.time.Duration.Companion.days
 
 class AutoCleanWorker(
@@ -31,7 +29,6 @@ class AutoCleanWorker(
 
     private val analyzeFiles: AnalyzeFilesUseCase by inject()
     private val deleteFiles: DeleteFilesUseCase by inject()
-    private val getFileTypes: GetFileTypesUseCase by inject()
     private val getEmptyFolders: GetEmptyFoldersUseCase by inject()
     private val dataStore: DataStore by inject()
     private val repository: ScannerRepositoryInterface by inject()
@@ -63,9 +60,6 @@ class AutoCleanWorker(
             .firstOrNull { it is DataState.Error } != null
         if (errorDuringEmpty) return Result.retry()
 
-        val typesState = getFileTypes().first { it !is DataState.Loading }
-        val types = if (typesState is DataState.Success) typesState.data else FileTypesData()
-
         val prefs = mapOf(
             ExtensionsConstants.IMAGE_EXTENSIONS to dataStore.deleteImageFiles.first(),
             ExtensionsConstants.VIDEO_EXTENSIONS to dataStore.deleteVideoFiles.first(),
@@ -84,7 +78,6 @@ class AutoCleanWorker(
         val toDelete = computeFilesToClean(
             files,
             emptyFolders,
-            types,
             prefs,
             includeDuplicates,
             deepDuplicateSearch
@@ -108,20 +101,15 @@ class AutoCleanWorker(
     private fun computeFilesToClean(
         scannedFiles: List<File>,
         emptyFolders: List<File>,
-        fileTypesData: FileTypesData,
         preferences: Map<String, Boolean>,
         includeDuplicates: Boolean,
         deepDuplicateSearch: Boolean
     ): List<File> {
-        val knownExtensions = (fileTypesData.imageExtensions + fileTypesData.videoExtensions +
-                fileTypesData.audioExtensions + fileTypesData.officeExtensions + fileTypesData.archiveExtensions +
-                fileTypesData.apkExtensions + fileTypesData.fontExtensions + fileTypesData.windowsExtensions).toSet()
         val result = mutableListOf<File>()
 
         val duplicateGroups = if (includeDuplicates) findDuplicateGroups(
             scannedFiles,
-            deepDuplicateSearch,
-            fileTypesData.imageExtensions
+            deepDuplicateSearch
         ) else emptyList()
         val duplicateFiles =
             if (includeDuplicates) duplicateGroups.flatten().toSet() else emptySet()
@@ -130,19 +118,19 @@ class AutoCleanWorker(
             if (includeDuplicates && file in duplicateFiles) {
                 result.add(file)
             } else {
-                val extension = file.extension.lowercase(Locale.ROOT)
-                val match = when (extension) {
-                    in fileTypesData.imageExtensions -> preferences[ExtensionsConstants.IMAGE_EXTENSIONS] == true
-                    in fileTypesData.videoExtensions -> preferences[ExtensionsConstants.VIDEO_EXTENSIONS] == true
-                    in fileTypesData.audioExtensions -> preferences[ExtensionsConstants.AUDIO_EXTENSIONS] == true
-                    in fileTypesData.officeExtensions -> preferences[ExtensionsConstants.OFFICE_EXTENSIONS] == true
-                    in fileTypesData.archiveExtensions -> preferences[ExtensionsConstants.ARCHIVE_EXTENSIONS] == true
-                    in fileTypesData.apkExtensions -> preferences[ExtensionsConstants.APK_EXTENSIONS] == true
-                    in fileTypesData.fontExtensions -> preferences[ExtensionsConstants.FONT_EXTENSIONS] == true
-                    in fileTypesData.windowsExtensions -> preferences[ExtensionsConstants.WINDOWS_EXTENSIONS] == true
-                    else -> !knownExtensions.contains(extension) && preferences[ExtensionsConstants.OTHER_EXTENSIONS] == true
+                val type = FileTypeResolver.resolve(file)
+                val pref = when (type) {
+                    FileTypeResolver.Category.IMAGE -> ExtensionsConstants.IMAGE_EXTENSIONS
+                    FileTypeResolver.Category.VIDEO -> ExtensionsConstants.VIDEO_EXTENSIONS
+                    FileTypeResolver.Category.AUDIO -> ExtensionsConstants.AUDIO_EXTENSIONS
+                    FileTypeResolver.Category.DOCUMENT -> ExtensionsConstants.OFFICE_EXTENSIONS
+                    FileTypeResolver.Category.ARCHIVE -> ExtensionsConstants.ARCHIVE_EXTENSIONS
+                    FileTypeResolver.Category.APK -> ExtensionsConstants.APK_EXTENSIONS
+                    FileTypeResolver.Category.FONT -> ExtensionsConstants.FONT_EXTENSIONS
+                    FileTypeResolver.Category.WINDOWS -> ExtensionsConstants.WINDOWS_EXTENSIONS
+                    FileTypeResolver.Category.OTHER -> ExtensionsConstants.OTHER_EXTENSIONS
                 }
-                if (match) result.add(file)
+                if (preferences[pref] == true) result.add(file)
             }
         }
         if (preferences[ExtensionsConstants.EMPTY_FOLDERS] == true) {
@@ -153,13 +141,11 @@ class AutoCleanWorker(
 
     private fun findDuplicateGroups(
         files: List<File>,
-        deepSearch: Boolean,
-        imageExtensions: List<String>
+        deepSearch: Boolean
     ): List<List<File>> {
         val hashMap = mutableMapOf<String, MutableList<File>>()
         files.filter { it.isFile }.forEach { file ->
-            val extension = file.extension.lowercase(Locale.ROOT)
-            val hash = if (deepSearch && extension in imageExtensions) {
+            val hash = if (deepSearch && FileTypeResolver.resolve(file) == FileTypeResolver.Category.IMAGE) {
                 ImageHashUtils.perceptualHash(file)
             } else {
                 file.partialMd5()
