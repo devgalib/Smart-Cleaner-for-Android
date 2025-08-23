@@ -20,18 +20,16 @@ free and open-source software
 
 # Features
 
-- App management
-- WhatsApp media cleaner
+- WhatsApp cleaner
+- Duplicate cleaner
+- Large files cleaner
+- APK cleaner
+- Empty folders cleaner
 - Clipboard cleaner
+- Contacts cleaner
 - Link cleaner
+- App management
 - Image optimization
-- Clean empty folders
-- Clean logs, temporary files, caches, and corpse files
-- Clean advertisement folders
-- Clean archive files
-- Clean invalid media
-- Clean media files
-- Clean APK files
 
 # Benefits
 
