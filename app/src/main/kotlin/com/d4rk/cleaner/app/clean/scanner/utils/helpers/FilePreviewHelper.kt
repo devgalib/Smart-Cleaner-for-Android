@@ -181,58 +181,57 @@ object FilePreviewHelper {
             return@withContext cached.config?.let { cached.copy(it, true) } ?: cached
         }
         if (file.length() > MAX_WAVEFORM_FILE_SIZE) return@withContext null
+        val extractor = MediaExtractor()
         runCatching {
-            val extractor = MediaExtractor()
-            try {
-                extractor.setDataSource(file.path)
-                var trackIndex = 0
-                while (trackIndex < extractor.trackCount) {
-                    val format = extractor.getTrackFormat(trackIndex)
-                    val mime = format.getString(MediaFormat.KEY_MIME) ?: ""
-                    if (mime.startsWith("audio/")) break else trackIndex++
-                }
-                if (trackIndex >= extractor.trackCount) {
-                    return@runCatching null
-                }
-                extractor.selectTrack(trackIndex)
+            extractor.setDataSource(file.path)
+            var trackIndex = 0
+            while (trackIndex < extractor.trackCount) {
                 val format = extractor.getTrackFormat(trackIndex)
-                val reported = if (format.containsKey(KEY_MAX_INPUT_SIZE)) {
-                    format.getInteger(KEY_MAX_INPUT_SIZE)
-                } else {
-                    64 * 1024
-                }
-                val maxInput = min(reported, MAX_WAVEFORM_BYTES)
-                val buffer = ByteBuffer.allocate(maxInput)
-                val data = IntArray(width)
-                var i = 0
-                while (i < width) {
-                    buffer.clear()
-                    val size = extractor.readSampleData(buffer, 0)
-                    if (size < 0) break
-                    var sum = 0
-                    for (b in 0 until size step 2) {
-                        sum += abs(buffer.getShort(b).toInt())
-                    }
-                    data[i] = if (size > 0) sum / (size / 2) else 0
-                    extractor.advance()
-                    i++
-                }
-                val max = data.maxOrNull() ?: 0
-                if (max == 0) return@runCatching null
-                val bmp = createBitmap(width, height)
-                val canvas = Canvas(bmp)
-                val paint = Paint().apply { color = Color.WHITE }
-                data.forEachIndexed { idx, amp ->
-                    val ratio = amp.toFloat() / max
-                    val barHeight = ratio * height
-                    val x = idx.toFloat()
-                    canvas.drawLine(x, height - barHeight, x, height.toFloat(), paint)
-                }
-                bmp
-            } finally {
-                extractor.release()
+                val mime = format.getString(MediaFormat.KEY_MIME) ?: ""
+                if (mime.startsWith("audio/")) break else trackIndex++
             }
-        }.getOrNull()?.also { bitmapCache.put(key, it) }?.let { it.config?.let { config -> it.copy(config, true) } ?: it }
+            if (trackIndex >= extractor.trackCount) {
+                return@runCatching null
+            }
+            extractor.selectTrack(trackIndex)
+            val format = extractor.getTrackFormat(trackIndex)
+            val reported = if (format.containsKey(KEY_MAX_INPUT_SIZE)) {
+                format.getInteger(KEY_MAX_INPUT_SIZE)
+            } else {
+                64 * 1024
+            }
+            val maxInput = min(reported, MAX_WAVEFORM_BYTES)
+            val buffer = ByteBuffer.allocate(maxInput)
+            val data = IntArray(width)
+            var i = 0
+            while (i < width) {
+                buffer.clear()
+                val size = extractor.readSampleData(buffer, 0)
+                if (size < 0) break
+                var sum = 0
+                for (b in 0 until size step 2) {
+                    sum += abs(buffer.getShort(b).toInt())
+                }
+                data[i] = if (size > 0) sum / (size / 2) else 0
+                extractor.advance()
+                i++
+            }
+            val max = data.maxOrNull() ?: 0
+            if (max == 0) return@runCatching null
+            val bmp = createBitmap(width, height)
+            val canvas = Canvas(bmp)
+            val paint = Paint().apply { color = Color.WHITE }
+            data.forEachIndexed { idx, amp ->
+                val ratio = amp.toFloat() / max
+                val barHeight = ratio * height
+                val x = idx.toFloat()
+                canvas.drawLine(x, height - barHeight, x, height.toFloat(), paint)
+            }
+            bmp
+        }.also { extractor.release() }
+            .getOrNull()
+            ?.also { bitmapCache.put(key, it) }
+            ?.let { it.config?.let { config -> it.copy(config, true) } ?: it }
     }
 
     private fun isProbablyBinary(data: ByteArray): Boolean {
