@@ -226,13 +226,21 @@ class ContactsRepositoryImpl(context: Context) : ContactsRepository {
                             phones.forEach { phone ->
                                 for (i in phone.indices) {
                                     val fragment = phone.substring(i)
-                                    val prev = phoneMap.putIfAbsent(fragment, idx)
-                                    if (prev != null) union(prev, idx)
+                                    val prev = phoneMap[fragment]
+                                    if (prev == null) {
+                                        phoneMap[fragment] = idx
+                                    } else {
+                                        union(prev, idx)
+                                    }
                                 }
                             }
                             emails.forEach { email ->
-                                val prev = emailMap.putIfAbsent(email, idx)
-                                if (prev != null) union(prev, idx)
+                                val prev = emailMap[email]
+                                if (prev == null) {
+                                    emailMap[email] = idx
+                                } else {
+                                    union(prev, idx)
+                                }
                             }
                         }
                     }
