@@ -1,6 +1,8 @@
 package com.d4rk.cleaner.app.clean.scanner.ui
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.d4rk.android.libs.apptoolkit.core.di.DispatcherProvider
@@ -19,6 +21,8 @@ import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.ScreenMessageTyp
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.UiTextHelper
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.memory.domain.data.model.StorageInfo
+import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
+import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardParams
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerAction
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
@@ -52,6 +56,8 @@ import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.core.work.FileCleaner
 import com.d4rk.cleaner.core.work.observeFileCleanWork
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -816,6 +822,52 @@ class ScannerViewModel(
             folders.map { FileEntry(it.absolutePath, 0, it.lastModified()) }.toSet()
         pendingEmptyFoldersCleanup = true
         deleteFiles(entries)
+    }
+
+    fun prepareDashboardParams(
+        context: Context,
+        appManagerState: UiStateScreen<UiAppManagerModel>,
+        adsState: Boolean,
+        sessionDurationSeconds: Long
+    ): DashboardParams {
+        val promotedApp = _uiState.value.data?.promotedApp
+        val storageManagerIntent = Intent("android.os.storage.action.MANAGE_STORAGE")
+            .setPackage("com.android.storagemanager")
+        val showSystemStorageManagerCard =
+            storageManagerIntent.resolveActivity(context.packageManager) != null
+        val showApkCard = appManagerState.data?.apkFilesLoading == false &&
+            appManagerState.data?.apkFiles?.isNotEmpty() == true
+        val showWhatsAppCard = whatsAppMediaLoaded.value && isWhatsAppInstalled.value
+        val showClipboardCard = !clipboardPreview.value.isNullOrBlank()
+        val showLargeFilesCard =
+            when (val state = largestFilesState.value) {
+                is DataState.Success -> state.data.isNotEmpty()
+                else -> true
+            }
+        val showEmptyFoldersCard = emptyFolders.value.isNotEmpty() &&
+            emptyFoldersHideUntil.value <= System.currentTimeMillis()
+        val dataLoaded = appManagerState.data?.apkFilesLoading == false &&
+            whatsAppMediaLoaded.value
+        val gmsAvailable =
+            GoogleApiAvailability.getInstance()
+                .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+        return DashboardParams(
+            showSystemStorageManagerCard = showSystemStorageManagerCard,
+            showStreakCard = showStreakCard.value,
+            showLargeFilesCard = showLargeFilesCard,
+            showDuplicateCard = showDuplicateCard.value,
+            showWhatsAppCard = showWhatsAppCard,
+            showApkCard = showApkCard,
+            showEmptyFoldersCard = showEmptyFoldersCard,
+            showClipboardCard = showClipboardCard,
+            showContactsCard = true,
+            showLinkCleanerCard = true,
+            promotedApp = promotedApp,
+            adsState = adsState,
+            gmsAvailable = gmsAvailable,
+            dataLoaded = dataLoaded,
+            sessionDurationSeconds = sessionDurationSeconds
+        )
     }
 
     fun onCleanWhatsAppFiles() {
