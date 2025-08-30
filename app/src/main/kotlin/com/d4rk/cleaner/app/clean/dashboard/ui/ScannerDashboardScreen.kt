@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -42,18 +42,18 @@ fun ScannerDashboardScreen(
     val leaderboardAdsConfig: AdsConfig = koinInject(qualifier = named("leaderboard"))
     val bannerAdsConfig: AdsConfig = koinInject()
 
-    val appManagerState: UiStateScreen<UiAppManagerModel> by appManagerViewModel.uiState.collectAsState()
-    val whatsappSummary by viewModel.whatsAppMediaSummary.collectAsState()
-    val whatsappInstalled by viewModel.isWhatsAppInstalled.collectAsState()
-    val clipboardText by viewModel.clipboardPreview.collectAsState()
-    val largeFilesState by viewModel.largestFilesState.collectAsState()
+    val appManagerState: UiStateScreen<UiAppManagerModel> by appManagerViewModel.uiState.collectAsStateWithLifecycle()
+    val whatsappSummary by viewModel.whatsAppMediaSummary.collectAsStateWithLifecycle()
+    val whatsappInstalled by viewModel.isWhatsAppInstalled.collectAsStateWithLifecycle()
+    val clipboardText by viewModel.clipboardPreview.collectAsStateWithLifecycle()
+    val largeFilesState by viewModel.largestFilesState.collectAsStateWithLifecycle()
     val duplicateGroups = uiState.data?.analyzeState?.duplicateGroups?.map { group ->
         group.map { File(it.path) }
     } ?: emptyList()
-    val emptyFolders by viewModel.emptyFolders.collectAsState()
-    val streakDays by viewModel.cleanStreak.collectAsState()
-    val streakRecord by viewModel.streakRecord.collectAsState()
-    val cleaningApks by viewModel.cleaningApks.collectAsState()
+    val emptyFolders by viewModel.emptyFolders.collectAsStateWithLifecycle()
+    val streakDays by viewModel.cleanStreak.collectAsStateWithLifecycle()
+    val streakRecord by viewModel.streakRecord.collectAsStateWithLifecycle()
+    val cleaningApks by viewModel.cleaningApks.collectAsStateWithLifecycle()
 
     LaunchedEffect(whatsappInstalled, whatsappSummary.hasData) {
         if (whatsappInstalled && !whatsappSummary.hasData) {
@@ -70,7 +70,7 @@ fun ScannerDashboardScreen(
         context = context,
         appManagerStateFlow = appManagerViewModel.uiState,
         sessionDurationSeconds = sessionDuration
-    ).collectAsState(initial = DashboardItemsResult(emptyList(), 0))
+    ).collectAsStateWithLifecycle(initialValue = DashboardItemsResult(emptyList(), 0))
     val promotedApp = uiState.data?.promotedApp
     val items = dashboardItemsResult.items
     val visibleCount = dashboardItemsResult.visibleCount
