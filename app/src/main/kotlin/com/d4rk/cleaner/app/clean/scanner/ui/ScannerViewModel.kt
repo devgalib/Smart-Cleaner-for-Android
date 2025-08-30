@@ -846,8 +846,18 @@ class ScannerViewModel(
             emptyFolders,
             emptyFoldersHideUntil,
             adsStateFlow
-        ) { appManagerState, showStreak, largeFilesState, showDuplicate, whatsAppLoaded,
-            whatsAppInstalled, clipboard, emptyFoldersList, hideUntil, adsState ->
+        ) { values ->
+            val appManagerState = values[0] as UiStateScreen<UiAppManagerModel>
+            val showStreak = values[1] as Boolean
+            val largeFilesState = values[2] as DataState<List<File>, *>
+            val showDuplicate = values[3] as Boolean
+            val whatsAppLoaded = values[4] as Boolean
+            val whatsAppInstalled = values[5] as Boolean
+            val clipboard = values[6] as String?
+            val emptyFoldersList = values[7] as List<File>
+            val hideUntil = values[8] as Long
+            val adsState = values[9] as Boolean
+
             val promotedApp = _uiState.value.data?.promotedApp
             val storageManagerIntent = Intent("android.os.storage.action.MANAGE_STORAGE")
                 .setPackage("com.android.storagemanager")
