@@ -16,7 +16,7 @@ object UrlCleaner {
         val uri = runCatching {
             url.toUri()
         }.getOrElse { return url }
-        if (uri.scheme == null) return url
+        if (uri.scheme == null || !uri.isHierarchical) return url
         val builder = uri.buildUpon().clearQuery()
         uri.queryParameterNames
             .forEach { name ->

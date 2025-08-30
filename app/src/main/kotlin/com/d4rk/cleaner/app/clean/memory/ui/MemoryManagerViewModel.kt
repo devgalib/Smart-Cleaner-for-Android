@@ -19,10 +19,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.supervisorScope
 
 private const val RAM_UPDATE_INTERVAL_MS = 5_000L
@@ -54,98 +57,102 @@ class MemoryManagerViewModel(
     private fun loadMemoryData() {
         launch {
             supervisorScope {
-                val storageJob = launch(dispatchers.default) {
-                    getStorageInfoUseCase().collectLatest { result ->
-                        _uiState.update { current ->
-                            val updatedErrors = if (result is DataState.Error) {
-                                current.errors + listOf(
-                                    UiSnackbar(
-                                        message = UiTextHelper.DynamicString(
-                                            "Failed to load storage info: ${result.error}"
-                                        ), isError = true
+                coroutineScope {
+                    val storageJob = async(dispatchers.io) {
+                        getStorageInfoUseCase().collectLatest { result ->
+                            _uiState.update { current ->
+                                val updatedErrors = if (result is DataState.Error) {
+                                    current.errors + listOf(
+                                        UiSnackbar(
+                                            message = UiTextHelper.DynamicString(
+                                                "Failed to load storage info: ${result.error}"
+                                            ), isError = true
+                                        )
                                     )
-                                )
-                            } else current.errors
+                                } else current.errors
 
-                            current.copy(
-                                data = current.data?.copy(
-                                    storageInfo = (result as? DataState.Success)?.data
-                                        ?: current.data?.storageInfo
-                                ), screenState = when (result) {
+                                current.copy(
+                                    data = current.data?.copy(
+                                        storageInfo = (result as? DataState.Success)?.data
+                                            ?: current.data?.storageInfo
+                                    ),
+                                    screenState = when (result) {
+                                        is DataState.Loading -> ScreenState.IsLoading()
+                                        is DataState.Error -> ScreenState.Error()
+                                        is DataState.Success -> current.screenState
+                                    },
+                                    errors = updatedErrors
+                                )
+                            }
+                        }
+                    }
+
+                    val ramJob = async(dispatchers.io) {
+                        getRamInfoUseCase().collectLatest { result ->
+                            _uiState.update { current ->
+                                val updatedErrors = if (result is DataState.Error) {
+                                    current.errors + listOf(
+                                        UiSnackbar(
+                                            message = UiTextHelper.DynamicString("Failed to load RAM info: ${result.error}"),
+                                            isError = true
+                                        )
+                                    )
+                                } else current.errors
+
+                                val newRamInfo = (result as? DataState.Success)?.data
+                                val newState = when (result) {
                                     is DataState.Loading -> ScreenState.IsLoading()
                                     is DataState.Error -> ScreenState.Error()
-                                    is DataState.Success -> current.screenState
-                                }, errors = updatedErrors
-                            )
-                        }
-                    }
-                }
+                                    is DataState.Success -> if (current.data?.storageInfo != null) ScreenState.Success() else current.screenState
+                                }
 
-                val ramJob = launch(dispatchers.default) {
-                    getRamInfoUseCase().collectLatest { result ->
-                        _uiState.update { current ->
-                            val updatedErrors = if (result is DataState.Error) {
-                                current.errors + listOf(
-                                    UiSnackbar(
-                                        message = UiTextHelper.DynamicString("Failed to load RAM info: ${result.error}"),
-                                        isError = true
-                                    )
+                                current.copy(
+                                    data = current.data?.copy(
+                                        ramInfo = newRamInfo ?: current.data?.ramInfo
+                                    ),
+                                    screenState = newState,
+                                    errors = updatedErrors
                                 )
-                            } else current.errors
-
-                            val newRamInfo = (result as? DataState.Success)?.data
-                            val newState = when (result) {
-                                is DataState.Loading -> ScreenState.IsLoading()
-                                is DataState.Error -> ScreenState.Error()
-                                is DataState.Success -> if (current.data?.storageInfo != null) ScreenState.Success()
-                                else current.screenState
                             }
 
-                            current.copy(
-                                data = current.data?.copy(
-                                    ramInfo = newRamInfo ?: current.data?.ramInfo
-                                ), screenState = newState, errors = updatedErrors
-                            )
-                        }
-
-                        if (result is DataState.Success) {
-                            startPeriodicRamUpdate()
+                            if (result is DataState.Success) {
+                                startPeriodicRamUpdate()
+                            }
                         }
                     }
-                }
 
-                joinAll(storageJob, ramJob)
+                    awaitAll(storageJob, ramJob)
+                }
             }
         }
     }
 
     private fun startPeriodicRamUpdate() {
         ramUpdateJob?.cancel()
-        ramUpdateJob = launch(dispatchers.default) {
+        ramUpdateJob = launch(dispatchers.io) {
             while (isActive) {
                 delay(RAM_UPDATE_INTERVAL_MS)
 
                 runCatching {
-                    getRamInfoUseCase().collectLatest { result ->
-                        when (result) {
-                            is DataState.Success -> {
-                                _uiState.successData {
-                                    copy(ramInfo = result.data)
-                                }
+                    val result = getRamInfoUseCase().first()
+                    when (result) {
+                        is DataState.Success -> {
+                            _uiState.successData {
+                                copy(ramInfo = result.data)
                             }
-
-                            is DataState.Error -> {
-                                coroutineContext.ensureActive()
-                                _uiState.showSnackbar(
-                                    UiSnackbar(
-                                        message = UiTextHelper.DynamicString("Error updating RAM info: ${result.error}"),
-                                        isError = true
-                                    )
-                                )
-                            }
-
-                            else -> Unit
                         }
+
+                        is DataState.Error -> {
+                            coroutineContext.ensureActive()
+                            _uiState.showSnackbar(
+                                UiSnackbar(
+                                    message = UiTextHelper.DynamicString("Error updating RAM info: ${result.error}"),
+                                    isError = true
+                                )
+                            )
+                        }
+
+                        else -> Unit
                     }
                 }.onFailure { e ->
                     coroutineContext.ensureActive()
