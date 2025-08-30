@@ -3,7 +3,6 @@ package com.d4rk.cleaner.app.clean.dashboard.ui
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ads.AdsConfig
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 enum class AdSlot { A, B, C, D, E, F }
@@ -60,7 +59,7 @@ data class DashboardUiState(
 object DashboardItemBuilder {
     suspend fun build(
         params: DashboardParams,
-        dispatcher: CoroutineDispatcher = Dispatchers.Default
+        dispatcher: CoroutineDispatcher
     ): DashboardUiState = withContext(dispatcher) {
         val content = mutableListOf<Pair<Int, ContentCard>>().apply {
             add(1 to ContentCard.QUICK_SCAN)
