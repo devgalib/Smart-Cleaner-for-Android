@@ -27,7 +27,15 @@ fun DashboardItemList(
         state = listState,
         contentPadding = PaddingValues(SizeConstants.LargeSize)
     ) {
-        itemsIndexed(items) { index, item ->
+        itemsIndexed(
+            items = items,
+            key = { _, item ->
+                when (item) {
+                    is HomeItem.Card -> item.type
+                    is HomeItem.Ad -> item.slot
+                }
+            }
+        ) { index, item ->
             renderItem(item, index, visibilityStates)
         }
     }
