@@ -49,9 +49,12 @@ fun DashboardScreen(
     val whatsappInstalled by scannerViewModel.isWhatsAppInstalled.collectAsStateWithLifecycle()
     val clipboardText by scannerViewModel.clipboardPreview.collectAsStateWithLifecycle()
     val largeFilesState by scannerViewModel.largestFilesState.collectAsStateWithLifecycle()
-    val duplicateGroups = uiState.data?.analyzeState?.duplicateGroups?.map { group ->
-        group.map { File(it.path) }
-    } ?: emptyList()
+    val duplicateGroupsState = uiState.data?.analyzeState?.duplicateGroups
+    val duplicateGroups = remember(duplicateGroupsState) {
+        duplicateGroupsState?.map { group ->
+            group.map { File(it.path) }
+        } ?: emptyList()
+    }
     val emptyFolders by scannerViewModel.emptyFolders.collectAsStateWithLifecycle()
     val streakDays by scannerViewModel.cleanStreak.collectAsStateWithLifecycle()
     val streakRecord by scannerViewModel.streakRecord.collectAsStateWithLifecycle()
