@@ -70,6 +70,7 @@ import com.d4rk.cleaner.app.main.ui.MainViewModel
 import com.d4rk.cleaner.app.onboarding.utils.interfaces.providers.AppOnboardingProvider
 import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
+import com.d4rk.cleaner.app.clean.dashboard.domain.repository.DashboardRepository
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -122,6 +123,8 @@ val appModule: Module = module {
     single<GetPromotedAppUseCase> { GetPromotedAppUseCase() }
     single<GetTrashSizeUseCase> { GetTrashSizeUseCase(dataStore = get()) }
 
+    single { DashboardRepository(dataStore = get(), dispatchers = get()) }
+
     viewModel<ScannerViewModel> {
         ScannerViewModel(
             application = get(),
@@ -140,12 +143,7 @@ val appModule: Module = module {
         )
     }
 
-    viewModel<DashboardViewModel> {
-        DashboardViewModel(
-            dispatchers = get(),
-            dataStore = get()
-        )
-    }
+    viewModel<DashboardViewModel> { DashboardViewModel(repository = get()) }
 
     single<ContactsRepository> { ContactsRepositoryImpl(context = get()) }
     single { GetDuplicateContactsUseCase(repository = get()) }
