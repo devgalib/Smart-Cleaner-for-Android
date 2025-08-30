@@ -70,7 +70,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import java.io.File
 import java.util.UUID
@@ -894,9 +893,8 @@ class ScannerViewModel(
                 dataLoaded = dataLoaded,
                 sessionDurationSeconds = sessionDurationSeconds
             )
-            DashboardItemBuilder.build(params)
+            DashboardItemBuilder.build(params, dispatchers.default)
         }.catch { emit(DashboardItemsResult(emptyList(), 0)) }
-            .flowOn(dispatchers.default)
     }
 
     fun prepareDashboardParams(
