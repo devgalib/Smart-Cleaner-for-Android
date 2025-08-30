@@ -7,6 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Whatsapp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -97,15 +98,17 @@ fun RenderDashboardItem(
             promotedApp = promotedApp
         )
         is HomeItem.Ad -> {
-            val config = DashboardItemBuilder.chooseAdsConfigFor(
-                slot = item.slot,
-                visibleContent = visibleCount,
-                hasPromoted = promotedApp != null,
-                mrecAdsConfig = mrecAdsConfig,
-                largeBannerAdsConfig = largeBannerAdsConfig,
-                leaderboardAdsConfig = leaderboardAdsConfig,
-                bannerAdsConfig = bannerAdsConfig
-            )
+            val config = remember(item.slot, visibleCount, promotedApp) {
+                DashboardItemBuilder.chooseAdsConfigFor(
+                    slot = item.slot,
+                    visibleContent = visibleCount,
+                    hasPromoted = promotedApp != null,
+                    mrecAdsConfig = mrecAdsConfig,
+                    largeBannerAdsConfig = largeBannerAdsConfig,
+                    leaderboardAdsConfig = leaderboardAdsConfig,
+                    bannerAdsConfig = bannerAdsConfig
+                )
+            }
             AdBanner(
                 modifier = Modifier.animateVisibility(
                     visible = visibilityStates.getOrElse(index) { false },
