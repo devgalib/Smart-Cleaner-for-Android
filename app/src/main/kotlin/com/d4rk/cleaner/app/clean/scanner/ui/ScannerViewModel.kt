@@ -21,10 +21,6 @@ import com.d4rk.android.libs.apptoolkit.core.utils.constants.ui.ScreenMessageTyp
 import com.d4rk.android.libs.apptoolkit.core.utils.helpers.UiTextHelper
 import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.memory.domain.data.model.StorageInfo
-import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
-import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardParams
-import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardItemBuilder
-import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardItemsResult
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerAction
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
@@ -58,8 +54,6 @@ import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.core.work.FileCleaner
 import com.d4rk.cleaner.core.work.observeFileCleanWork
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -826,121 +820,6 @@ class ScannerViewModel(
             folders.map { FileEntry(it.absolutePath, 0, it.lastModified()) }.toSet()
         pendingEmptyFoldersCleanup = true
         deleteFiles(entries)
-    }
-
-    fun dashboardItems(
-        context: Context,
-        appManagerStateFlow: StateFlow<UiStateScreen<UiAppManagerModel>>,
-        sessionDurationSeconds: Long
-    ): Flow<DashboardItemsResult> {
-        val adsStateFlow = dataStore.ads(default = true)
-        return combine(
-            appManagerStateFlow,
-            showStreakCard,
-            largestFilesState,
-            showDuplicateCard,
-            whatsAppMediaLoaded,
-            isWhatsAppInstalled,
-            clipboardPreview,
-            emptyFolders,
-            emptyFoldersHideUntil,
-            adsStateFlow
-        ) { values ->
-            val appManagerState = values[0] as UiStateScreen<UiAppManagerModel>
-            val showStreak = values[1] as Boolean
-            val largeFilesState = values[2] as DataState<List<File>, *>
-            val showDuplicate = values[3] as Boolean
-            val whatsAppLoaded = values[4] as Boolean
-            val whatsAppInstalled = values[5] as Boolean
-            val clipboard = values[6] as String?
-            val emptyFoldersList = values[7] as List<File>
-            val hideUntil = values[8] as Long
-            val adsState = values[9] as Boolean
-
-            val promotedApp = _uiState.value.data?.promotedApp
-            val storageManagerIntent = Intent("android.os.storage.action.MANAGE_STORAGE")
-                .setPackage("com.android.storagemanager")
-            val showSystemStorageManagerCard =
-                storageManagerIntent.resolveActivity(context.packageManager) != null
-            val showApkCard = appManagerState.data?.apkFilesLoading == false &&
-                appManagerState.data?.apkFiles?.isNotEmpty() == true
-            val showWhatsAppCard = whatsAppLoaded && whatsAppInstalled
-            val showClipboardCard = !clipboard.isNullOrBlank()
-            val showLargeFilesCard = when (largeFilesState) {
-                is DataState.Success -> largeFilesState.data.isNotEmpty()
-                else -> true
-            }
-            val showEmptyFoldersCard = emptyFoldersList.isNotEmpty() &&
-                hideUntil <= System.currentTimeMillis()
-            val dataLoaded = appManagerState.data?.apkFilesLoading == false && whatsAppLoaded
-            val gmsAvailable =
-                GoogleApiAvailability.getInstance()
-                    .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
-            val params = DashboardParams(
-                showSystemStorageManagerCard = showSystemStorageManagerCard,
-                showStreakCard = showStreak,
-                showLargeFilesCard = showLargeFilesCard,
-                showDuplicateCard = showDuplicate,
-                showWhatsAppCard = showWhatsAppCard,
-                showApkCard = showApkCard,
-                showEmptyFoldersCard = showEmptyFoldersCard,
-                showClipboardCard = showClipboardCard,
-                showContactsCard = true,
-                showLinkCleanerCard = true,
-                promotedApp = promotedApp,
-                adsState = adsState,
-                gmsAvailable = gmsAvailable,
-                dataLoaded = dataLoaded,
-                sessionDurationSeconds = sessionDurationSeconds
-            )
-            DashboardItemBuilder.build(params, dispatchers.default)
-        }.catch { emit(DashboardItemsResult(emptyList(), 0)) }
-    }
-
-    fun prepareDashboardParams(
-        context: Context,
-        appManagerState: UiStateScreen<UiAppManagerModel>,
-        adsState: Boolean,
-        sessionDurationSeconds: Long
-    ): DashboardParams {
-        val promotedApp = _uiState.value.data?.promotedApp
-        val storageManagerIntent = Intent("android.os.storage.action.MANAGE_STORAGE")
-            .setPackage("com.android.storagemanager")
-        val showSystemStorageManagerCard =
-            storageManagerIntent.resolveActivity(context.packageManager) != null
-        val showApkCard = appManagerState.data?.apkFilesLoading == false &&
-            appManagerState.data?.apkFiles?.isNotEmpty() == true
-        val showWhatsAppCard = whatsAppMediaLoaded.value && isWhatsAppInstalled.value
-        val showClipboardCard = !clipboardPreview.value.isNullOrBlank()
-        val showLargeFilesCard =
-            when (val state = largestFilesState.value) {
-                is DataState.Success -> state.data.isNotEmpty()
-                else -> true
-            }
-        val showEmptyFoldersCard = emptyFolders.value.isNotEmpty() &&
-            emptyFoldersHideUntil.value <= System.currentTimeMillis()
-        val dataLoaded = appManagerState.data?.apkFilesLoading == false &&
-            whatsAppMediaLoaded.value
-        val gmsAvailable =
-            GoogleApiAvailability.getInstance()
-                .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
-        return DashboardParams(
-            showSystemStorageManagerCard = showSystemStorageManagerCard,
-            showStreakCard = showStreakCard.value,
-            showLargeFilesCard = showLargeFilesCard,
-            showDuplicateCard = showDuplicateCard.value,
-            showWhatsAppCard = showWhatsAppCard,
-            showApkCard = showApkCard,
-            showEmptyFoldersCard = showEmptyFoldersCard,
-            showClipboardCard = showClipboardCard,
-            showContactsCard = true,
-            showLinkCleanerCard = true,
-            promotedApp = promotedApp,
-            adsState = adsState,
-            gmsAvailable = gmsAvailable,
-            dataLoaded = dataLoaded,
-            sessionDurationSeconds = sessionDurationSeconds
-        )
     }
 
     fun onCleanWhatsAppFiles() {
