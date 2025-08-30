@@ -32,7 +32,7 @@ import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.WhatsAppMediaSummary
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
+import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ApkCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.ClipboardCleanerCard
 import com.d4rk.cleaner.app.clean.scanner.ui.components.DuplicateFilesCard
@@ -57,7 +57,7 @@ fun RenderDashboardItem(
     index: Int,
     visibilityStates: SnapshotStateList<Boolean>,
     uiState: UiStateScreen<UiScannerModel>,
-    viewModel: ScannerViewModel,
+    viewModel: DashboardViewModel,
     context: Context,
     storageManagerIntent: Intent,
     streakDays: Int,
@@ -127,7 +127,7 @@ private fun RenderContentCard(
     index: Int,
     visibilityStates: SnapshotStateList<Boolean>,
     uiState: UiStateScreen<UiScannerModel>,
-    viewModel: ScannerViewModel,
+    viewModel: DashboardViewModel,
     context: Context,
     storageManagerIntent: Intent,
     streakDays: Int,
@@ -155,7 +155,7 @@ private fun RenderContentCard(
                 usedPercent = ((uiState.data?.storageInfo?.storageUsageProgress ?: 0f) * 100).toInt(),
                 progress = uiState.data?.storageInfo?.storageUsageProgress ?: 0f,
                 onQuickScanClick = {
-                    viewModel.onEvent(
+                    viewModel.onScannerEvent(
                         event = ScannerEvent.ToggleAnalyzeScreen(true)
                     )
                 }
@@ -191,7 +191,7 @@ private fun RenderContentCard(
                 streakDays = streakDays,
                 streakRecord = streakRecord,
                 onDismiss = {
-                    viewModel.onEvent(
+                    viewModel.onScannerEvent(
                         ScannerEvent.SetHideStreakDialogVisibility(true)
                     )
                 }

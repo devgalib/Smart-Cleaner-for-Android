@@ -8,19 +8,38 @@ import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
 import com.d4rk.cleaner.app.clean.dashboard.domain.actions.DashboardAction
 import com.d4rk.cleaner.app.clean.dashboard.domain.actions.DashboardEvent
 import com.d4rk.cleaner.app.clean.dashboard.domain.repository.DashboardRepository
+import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.PromotedApp
+import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
+import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.WhatsAppMediaSummary
+import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.core.domain.model.network.Errors
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.io.File
 
 class DashboardViewModel(
-    private val repository: DashboardRepository
+    private val repository: DashboardRepository,
+    private val scannerViewModel: ScannerViewModel
 ) : ScreenViewModel<DashboardUiState, DashboardEvent, DashboardAction>(
     initialState = UiStateScreen(data = DashboardUiState(emptyList(), 0))
 ) {
+
+    /** Exposed flows from [ScannerViewModel] to keep the dashboard screen independent. */
+    val scannerUiState: StateFlow<UiStateScreen<UiScannerModel>> = scannerViewModel.uiState
+    val clipboardPreview: StateFlow<String?> = scannerViewModel.clipboardPreview
+    val cleanStreak: StateFlow<Int> = scannerViewModel.cleanStreak
+    val streakRecord: StateFlow<Int> = scannerViewModel.streakRecord
+    val showStreakCard: StateFlow<Boolean> = scannerViewModel.showStreakCard
+    val largestFilesState: StateFlow<DataState<List<File>, Errors>> = scannerViewModel.largestFilesState
+    val showDuplicateCard: StateFlow<Boolean> = scannerViewModel.showDuplicateCard
+    val whatsAppMediaSummary: StateFlow<WhatsAppMediaSummary> = scannerViewModel.whatsAppMediaSummary
+    val whatsAppMediaLoaded: StateFlow<Boolean> = scannerViewModel.whatsAppMediaLoaded
+    val isWhatsAppInstalled: StateFlow<Boolean> = scannerViewModel.isWhatsAppInstalled
+    val emptyFolders: StateFlow<List<File>> = scannerViewModel.emptyFolders
+    val emptyFoldersHideUntil: StateFlow<Long> = scannerViewModel.emptyFoldersHideUntil
+    val cleaningApks: StateFlow<Boolean> = scannerViewModel.cleaningApks
 
     private var observeJob: Job? = null
 
@@ -28,14 +47,6 @@ class DashboardViewModel(
 
     fun observeDashboardUiState(
         appManagerStateFlow: StateFlow<UiStateScreen<UiAppManagerModel>>,
-        showStreakCard: Flow<Boolean>,
-        largestFilesState: Flow<DataState<List<File>, Errors>>,
-        showDuplicateCard: Flow<Boolean>,
-        whatsAppMediaLoaded: Flow<Boolean>,
-        isWhatsAppInstalled: Flow<Boolean>,
-        clipboardPreview: Flow<String?>,
-        emptyFolders: Flow<List<File>>,
-        emptyFoldersHideUntil: Flow<Long>,
         sessionDurationSeconds: Long,
         promotedApp: PromotedApp?,
         showSystemStorageManagerCard: Boolean,
@@ -68,53 +79,20 @@ class DashboardViewModel(
         }
     }
 
-    fun prepareDashboardParams(
-        appManagerState: UiStateScreen<UiAppManagerModel>,
-        adsState: Boolean,
-        sessionDurationSeconds: Long,
-        showStreakCard: Boolean,
-        largestFilesState: DataState<List<File>, Errors>,
-        showDuplicateCard: Boolean,
-        whatsAppMediaLoaded: Boolean,
-        isWhatsAppInstalled: Boolean,
-        clipboardPreview: String?,
-        emptyFolders: List<File>,
-        emptyFoldersHideUntil: Long,
-        promotedApp: PromotedApp?,
-        showSystemStorageManagerCard: Boolean,
-        gmsAvailable: Boolean
-    ): DashboardParams {
-        val showApkCard = appManagerState.data?.apkFilesLoading == false &&
-            appManagerState.data?.apkFiles?.isNotEmpty() == true
-        val showWhatsAppCard = whatsAppMediaLoaded && isWhatsAppInstalled
-        val showClipboardCard = !clipboardPreview.isNullOrBlank()
-        val showLargeFilesCard =
-            when (largestFilesState) {
-                is DataState.Success -> largestFilesState.data.isNotEmpty()
-                else -> true
-            }
-        val showEmptyFoldersCard = emptyFolders.isNotEmpty() &&
-            emptyFoldersHideUntil <= System.currentTimeMillis()
-        val dataLoaded = appManagerState.data?.apkFilesLoading == false && whatsAppMediaLoaded
-        return DashboardParams(
-            showSystemStorageManagerCard = showSystemStorageManagerCard,
-            showStreakCard = showStreakCard,
-            showLargeFilesCard = showLargeFilesCard,
-            showDuplicateCard = showDuplicateCard,
-            showWhatsAppCard = showWhatsAppCard,
-            showApkCard = showApkCard,
-            showEmptyFoldersCard = showEmptyFoldersCard,
-            showClipboardCard = showClipboardCard,
-            showContactsCard = true,
-            showLinkCleanerCard = true,
-            promotedApp = promotedApp,
-            adsState = adsState,
-            gmsAvailable = gmsAvailable,
-            dataLoaded = dataLoaded,
-            sessionDurationSeconds = sessionDurationSeconds
-        )
+    fun onCleanApks(apkFiles: List<File>) {
+        scannerViewModel.onCleanApks(apkFiles)
     }
 
+    fun onCleanEmptyFolders(folders: List<File>) {
+        scannerViewModel.onCleanEmptyFolders(folders)
+    }
 
+    fun onClipboardClear() {
+        scannerViewModel.onClipboardClear()
+    }
+
+    fun onScannerEvent(event: ScannerEvent) {
+        scannerViewModel.onEvent(event)
+    }
 }
 

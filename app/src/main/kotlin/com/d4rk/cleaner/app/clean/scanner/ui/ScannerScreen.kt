@@ -80,8 +80,6 @@ fun ScannerScreen(paddingValues: PaddingValues, snackbarHostState: SnackbarHostS
                     }
                 } else {
                     DashboardScreen(
-                        uiState = uiState,
-                        scannerViewModel = viewModel,
                         dashboardViewModel = dashboardViewModel
                     )
                 }
