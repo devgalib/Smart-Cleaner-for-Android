@@ -47,7 +47,12 @@ data class DashboardParams(
     val sessionDurationSeconds: Long
 )
 
-data class DashboardItemsResult(
+/**
+ * UI state for the dashboard. Holds the list of items to render and how many of
+ * those items are visible. This follows the recommendation of exposing a
+ * single immutable state object from the ViewModel.
+ */
+data class DashboardUiState(
     val items: List<HomeItem>,
     val visibleCount: Int
 )
@@ -56,7 +61,7 @@ object DashboardItemBuilder {
     suspend fun build(
         params: DashboardParams,
         dispatcher: CoroutineDispatcher = Dispatchers.Default
-    ): DashboardItemsResult = withContext(dispatcher) {
+    ): DashboardUiState = withContext(dispatcher) {
         val content = mutableListOf<Pair<Int, ContentCard>>().apply {
             add(1 to ContentCard.QUICK_SCAN)
             if (params.showSystemStorageManagerCard) add(2 to ContentCard.SYSTEM_STORAGE)
@@ -136,7 +141,7 @@ object DashboardItemBuilder {
             items.add(HomeItem.Ad(adQueue.removeAt(0)))
         }
 
-        DashboardItemsResult(items, visibleCount)
+        DashboardUiState(items, visibleCount)
     }
 
     fun chooseAdsConfigFor(
