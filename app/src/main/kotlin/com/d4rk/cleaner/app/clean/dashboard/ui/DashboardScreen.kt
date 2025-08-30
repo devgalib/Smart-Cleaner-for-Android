@@ -22,7 +22,10 @@ import com.d4rk.cleaner.app.clean.dashboard.ui.components.RenderDashboardItem
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
+import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardUiState
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.qualifier.named
@@ -69,10 +72,16 @@ fun DashboardScreen(
     val storageManagerIntent = remember {
         Intent("android.os.storage.action.MANAGE_STORAGE").setPackage("com.android.storagemanager")
     }
+    val showSystemStorageManagerCard = remember {
+        storageManagerIntent.resolveActivity(context.packageManager) != null
+    }
+    val gmsAvailable = remember {
+        GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+    }
     val sessionDuration = remember { (System.currentTimeMillis() - Cleaner.sessionStartTime) / 1000L }
 
-    val dashboardItemsResult by dashboardViewModel.dashboardItems(
-        context = context,
+    val dashboardUiState by dashboardViewModel.getDashboardUiStateStream(
         appManagerStateFlow = appManagerViewModel.uiState,
         showStreakCard = scannerViewModel.showStreakCard,
         largestFilesState = scannerViewModel.largestFilesState,
@@ -83,11 +92,13 @@ fun DashboardScreen(
         emptyFolders = scannerViewModel.emptyFolders,
         emptyFoldersHideUntil = scannerViewModel.emptyFoldersHideUntil,
         sessionDurationSeconds = sessionDuration,
-        promotedApp = uiState.data?.promotedApp
-    ).collectAsStateWithLifecycle(initialValue = DashboardItemsResult(emptyList(), 0))
+        promotedApp = uiState.data?.promotedApp,
+        showSystemStorageManagerCard = showSystemStorageManagerCard,
+        gmsAvailable = gmsAvailable
+    ).collectAsStateWithLifecycle(initialValue = DashboardUiState(emptyList(), 0))
     val promotedApp = uiState.data?.promotedApp
-    val items = dashboardItemsResult.items
-    val visibleCount = dashboardItemsResult.visibleCount
+    val items = dashboardUiState.items
+    val visibleCount = dashboardUiState.visibleCount
 
     val listState = rememberLazyListState()
 
