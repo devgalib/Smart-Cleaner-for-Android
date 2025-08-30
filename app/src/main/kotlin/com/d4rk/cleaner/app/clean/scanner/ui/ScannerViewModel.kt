@@ -23,6 +23,8 @@ import com.d4rk.cleaner.R
 import com.d4rk.cleaner.app.clean.memory.domain.data.model.StorageInfo
 import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardParams
+import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardItemBuilder
+import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardItemsResult
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerAction
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
@@ -61,11 +63,14 @@ import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import java.io.File
 import java.util.UUID
@@ -822,6 +827,66 @@ class ScannerViewModel(
             folders.map { FileEntry(it.absolutePath, 0, it.lastModified()) }.toSet()
         pendingEmptyFoldersCleanup = true
         deleteFiles(entries)
+    }
+
+    fun dashboardItems(
+        context: Context,
+        appManagerStateFlow: StateFlow<UiStateScreen<UiAppManagerModel>>,
+        sessionDurationSeconds: Long
+    ): Flow<DashboardItemsResult> {
+        val adsStateFlow = dataStore.ads(default = true)
+        return combine(
+            appManagerStateFlow,
+            showStreakCard,
+            largestFilesState,
+            showDuplicateCard,
+            whatsAppMediaLoaded,
+            isWhatsAppInstalled,
+            clipboardPreview,
+            emptyFolders,
+            emptyFoldersHideUntil,
+            adsStateFlow
+        ) { appManagerState, showStreak, largeFilesState, showDuplicate, whatsAppLoaded,
+            whatsAppInstalled, clipboard, emptyFoldersList, hideUntil, adsState ->
+            val promotedApp = _uiState.value.data?.promotedApp
+            val storageManagerIntent = Intent("android.os.storage.action.MANAGE_STORAGE")
+                .setPackage("com.android.storagemanager")
+            val showSystemStorageManagerCard =
+                storageManagerIntent.resolveActivity(context.packageManager) != null
+            val showApkCard = appManagerState.data?.apkFilesLoading == false &&
+                appManagerState.data?.apkFiles?.isNotEmpty() == true
+            val showWhatsAppCard = whatsAppLoaded && whatsAppInstalled
+            val showClipboardCard = !clipboard.isNullOrBlank()
+            val showLargeFilesCard = when (largeFilesState) {
+                is DataState.Success -> largeFilesState.data.isNotEmpty()
+                else -> true
+            }
+            val showEmptyFoldersCard = emptyFoldersList.isNotEmpty() &&
+                hideUntil <= System.currentTimeMillis()
+            val dataLoaded = appManagerState.data?.apkFilesLoading == false && whatsAppLoaded
+            val gmsAvailable =
+                GoogleApiAvailability.getInstance()
+                    .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+            val params = DashboardParams(
+                showSystemStorageManagerCard = showSystemStorageManagerCard,
+                showStreakCard = showStreak,
+                showLargeFilesCard = showLargeFilesCard,
+                showDuplicateCard = showDuplicate,
+                showWhatsAppCard = showWhatsAppCard,
+                showApkCard = showApkCard,
+                showEmptyFoldersCard = showEmptyFoldersCard,
+                showClipboardCard = showClipboardCard,
+                showContactsCard = true,
+                showLinkCleanerCard = true,
+                promotedApp = promotedApp,
+                adsState = adsState,
+                gmsAvailable = gmsAvailable,
+                dataLoaded = dataLoaded,
+                sessionDurationSeconds = sessionDurationSeconds
+            )
+            DashboardItemBuilder.build(params)
+        }.catch { emit(DashboardItemsResult(emptyList(), 0)) }
+            .flowOn(dispatchers.default)
     }
 
     fun prepareDashboardParams(

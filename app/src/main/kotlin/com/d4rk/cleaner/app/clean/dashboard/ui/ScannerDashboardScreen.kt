@@ -21,7 +21,6 @@ import com.d4rk.cleaner.app.apps.manager.ui.AppManagerViewModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.components.RenderDashboardItem
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
-import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -56,9 +55,6 @@ fun ScannerDashboardScreen(
     val streakRecord by viewModel.streakRecord.collectAsState()
     val cleaningApks by viewModel.cleaningApks.collectAsState()
 
-    val dataStore: DataStore = koinInject()
-    val adsState: Boolean by remember { dataStore.ads(default = true) }.collectAsState(initial = true)
-
     LaunchedEffect(whatsappInstalled, whatsappSummary.hasData) {
         if (whatsappInstalled && !whatsappSummary.hasData) {
             Log.i(TAG, "WhatsApp installed but no media found")
@@ -70,17 +66,14 @@ fun ScannerDashboardScreen(
     }
     val sessionDuration = remember { (System.currentTimeMillis() - Cleaner.sessionStartTime) / 1000L }
 
-    val params = viewModel.prepareDashboardParams(
+    val dashboardItemsResult by viewModel.dashboardItems(
         context = context,
-        appManagerState = appManagerState,
-        adsState = adsState,
+        appManagerStateFlow = appManagerViewModel.uiState,
         sessionDurationSeconds = sessionDuration
-    )
-    val promotedApp = params.promotedApp
-
-    val result = remember(params) { DashboardItemBuilder.build(params) }
-    val items = result.items
-    val visibleCount = result.visibleCount
+    ).collectAsState(initial = DashboardItemsResult(emptyList(), 0))
+    val promotedApp = uiState.data?.promotedApp
+    val items = dashboardItemsResult.items
+    val visibleCount = dashboardItemsResult.visibleCount
 
     val listState = rememberLazyListState()
 
