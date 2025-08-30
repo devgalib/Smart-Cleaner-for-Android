@@ -21,8 +21,6 @@ import com.d4rk.cleaner.app.apps.manager.ui.AppManagerViewModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.components.RenderDashboardItem
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
-import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
-import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardUiState
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -81,24 +79,27 @@ fun DashboardScreen(
     }
     val sessionDuration = remember { (System.currentTimeMillis() - Cleaner.sessionStartTime) / 1000L }
 
-    val dashboardUiState by dashboardViewModel.getDashboardUiStateStream(
-        appManagerStateFlow = appManagerViewModel.uiState,
-        showStreakCard = scannerViewModel.showStreakCard,
-        largestFilesState = scannerViewModel.largestFilesState,
-        showDuplicateCard = scannerViewModel.showDuplicateCard,
-        whatsAppMediaLoaded = scannerViewModel.whatsAppMediaLoaded,
-        isWhatsAppInstalled = scannerViewModel.isWhatsAppInstalled,
-        clipboardPreview = scannerViewModel.clipboardPreview,
-        emptyFolders = scannerViewModel.emptyFolders,
-        emptyFoldersHideUntil = scannerViewModel.emptyFoldersHideUntil,
-        sessionDurationSeconds = sessionDuration,
-        promotedApp = uiState.data?.promotedApp,
-        showSystemStorageManagerCard = showSystemStorageManagerCard,
-        gmsAvailable = gmsAvailable
-    ).collectAsStateWithLifecycle(initialValue = DashboardUiState(emptyList(), 0))
+    LaunchedEffect(Unit) {
+        dashboardViewModel.observeDashboardUiState(
+            appManagerStateFlow = appManagerViewModel.uiState,
+            showStreakCard = scannerViewModel.showStreakCard,
+            largestFilesState = scannerViewModel.largestFilesState,
+            showDuplicateCard = scannerViewModel.showDuplicateCard,
+            whatsAppMediaLoaded = scannerViewModel.whatsAppMediaLoaded,
+            isWhatsAppInstalled = scannerViewModel.isWhatsAppInstalled,
+            clipboardPreview = scannerViewModel.clipboardPreview,
+            emptyFolders = scannerViewModel.emptyFolders,
+            emptyFoldersHideUntil = scannerViewModel.emptyFoldersHideUntil,
+            sessionDurationSeconds = sessionDuration,
+            promotedApp = uiState.data?.promotedApp,
+            showSystemStorageManagerCard = showSystemStorageManagerCard,
+            gmsAvailable = gmsAvailable
+        )
+    }
+    val dashboardState: UiStateScreen<DashboardUiState> by dashboardViewModel.uiState.collectAsStateWithLifecycle()
     val promotedApp = uiState.data?.promotedApp
-    val items = dashboardUiState.items
-    val visibleCount = dashboardUiState.visibleCount
+    val items = dashboardState.data?.items ?: emptyList()
+    val visibleCount = dashboardState.data?.visibleCount ?: 0
 
     val listState = rememberLazyListState()
 
