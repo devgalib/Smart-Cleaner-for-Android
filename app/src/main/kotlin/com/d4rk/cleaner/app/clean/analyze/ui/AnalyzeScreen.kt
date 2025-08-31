@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,10 +35,10 @@ import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.CleaningState
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.app.clean.scanner.ui.components.TwoRowButtons
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
 import kotlinx.coroutines.CoroutineScope
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 
 private const val TAG = LogHelper.ANALYZE_SCREEN
 
@@ -45,9 +46,10 @@ private const val TAG = LogHelper.ANALYZE_SCREEN
 @Composable
 fun AnalyzeScreen(
     view: View,
-    viewModel: ScannerViewModel,
-    data: UiScannerModel,
+    viewModel: AnalyzeViewModel,
 ) {
+    val uiState = viewModel.uiState.collectAsState().value
+    val data: UiScannerModel = uiState.data ?: UiScannerModel()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val hasSelectedFiles: Boolean = data.analyzeState.selectedFilesCount > 0
     val groupedFiles: Map<String, List<FileEntry>> =
@@ -110,7 +112,7 @@ fun AnalyzeScreen(
                     Log.e(TAG, "Error state encountered")
                     ErrorScreen(onRetry = {
                         viewModel.resetAfterError()
-                        viewModel.onEvent(ScannerEvent.AnalyzeFiles)
+                        viewModel.onScannerEvent(ScannerEvent.AnalyzeFiles)
                     })
                 }
 
@@ -122,7 +124,7 @@ fun AnalyzeScreen(
         if (groupedFiles.isNotEmpty() && data.analyzeState.state == CleaningState.ReadyToClean) {
             StatusRowSelectAll(
                 data = data,
-                onClickSelectAll = { viewModel.onEvent(ScannerEvent.OnGlobalSelectAllClick) },
+                onClickSelectAll = { viewModel.onScannerEvent(ScannerEvent.OnGlobalSelectAllClick) },
             )
         }
 
@@ -150,9 +152,9 @@ fun AnalyzeScreen(
         if (data.analyzeState.isGlobalSelectAllWarningDialogVisible) {
             GlobalSelectAllWarningDialog(
                 onConfirm = { dontShowAgain ->
-                    viewModel.onEvent(ScannerEvent.ConfirmGlobalSelectAll(dontShowAgain))
+                    viewModel.onScannerEvent(ScannerEvent.ConfirmGlobalSelectAll(dontShowAgain))
                 },
-                onDismiss = { viewModel.onEvent(ScannerEvent.DismissGlobalSelectAllWarning) }
+                onDismiss = { viewModel.onScannerEvent(ScannerEvent.DismissGlobalSelectAllWarning) }
             )
         }
     }

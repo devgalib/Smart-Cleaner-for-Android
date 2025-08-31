@@ -31,7 +31,7 @@ import com.d4rk.cleaner.app.clean.duplicates.ui.components.DuplicateGroupsSectio
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.FileEntry
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 import com.d4rk.cleaner.core.utils.helpers.isProtectedAndroidDir
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ import java.io.File
 @Composable
 fun TabsContent(
     groupedFiles: Map<String, List<FileEntry>>,
-    viewModel: ScannerViewModel,
+    viewModel: AnalyzeViewModel,
     view: View,
     coroutineScope: CoroutineScope,
     data: UiScannerModel
@@ -150,7 +150,7 @@ fun TabsContent(
                 fileSelectionStates = data.analyzeState.selectedFiles.associate { File(it) to true },
                 onFileSelectionChange = viewModel::onFileSelectionChange,
                 onDateSelectionChange = { files, checked ->
-                    viewModel.onEvent(
+                    viewModel.onScannerEvent(
                         ScannerEvent.ToggleSelectFilesForDate(
                             files,
                             checked
@@ -168,7 +168,7 @@ fun TabsContent(
                 fileSelectionStates = data.analyzeState.selectedFiles.associate { File(it) to true },
                 onFileSelectionChange = viewModel::onFileSelectionChange,
                 onDateSelectionChange = { files, checked ->
-                    viewModel.onEvent(
+                    viewModel.onScannerEvent(
                         ScannerEvent.ToggleSelectFilesForDate(
                             files,
                             checked

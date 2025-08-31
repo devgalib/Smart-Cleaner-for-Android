@@ -14,12 +14,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.d4rk.android.libs.apptoolkit.core.ui.components.dialogs.BasicAlertDialog
 import com.d4rk.cleaner.R
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 
 @Composable
-fun DeleteOrTrashConfirmation(data: UiScannerModel, viewModel: ScannerViewModel) {
+fun DeleteOrTrashConfirmation(data: UiScannerModel, viewModel: AnalyzeViewModel) {
     val isDeleteDialog = data.analyzeState.isDeleteForeverConfirmationDialogVisible
 
     val titleRes =
@@ -42,20 +42,20 @@ fun DeleteOrTrashConfirmation(data: UiScannerModel, viewModel: ScannerViewModel)
             }
         }, onConfirm = {
             if (isDeleteDialog) {
-                viewModel.onEvent(ScannerEvent.CleanFiles)
-                viewModel.onEvent(ScannerEvent.SetDeleteForeverConfirmationDialogVisibility(false))
+                viewModel.onScannerEvent(ScannerEvent.CleanFiles)
+                viewModel.onScannerEvent(ScannerEvent.SetDeleteForeverConfirmationDialogVisibility(false))
             } else {
-                viewModel.onEvent(ScannerEvent.MoveSelectedToTrash)
-                viewModel.onEvent(ScannerEvent.SetMoveToTrashConfirmationDialogVisibility(false))
+                viewModel.onScannerEvent(ScannerEvent.MoveSelectedToTrash)
+                viewModel.onScannerEvent(ScannerEvent.SetMoveToTrashConfirmationDialogVisibility(false))
             }
         },
 
         confirmButtonText = stringResource(id = confirmButtonText),
         onDismiss = {
             if (isDeleteDialog) {
-                viewModel.onEvent(ScannerEvent.SetDeleteForeverConfirmationDialogVisibility(false))
+                viewModel.onScannerEvent(ScannerEvent.SetDeleteForeverConfirmationDialogVisibility(false))
             } else {
-                viewModel.onEvent(ScannerEvent.SetMoveToTrashConfirmationDialogVisibility(false))
+                viewModel.onScannerEvent(ScannerEvent.SetMoveToTrashConfirmationDialogVisibility(false))
             }
         })
 }

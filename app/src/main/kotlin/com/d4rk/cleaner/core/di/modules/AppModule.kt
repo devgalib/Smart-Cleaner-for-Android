@@ -72,6 +72,7 @@ import com.d4rk.cleaner.core.data.datastore.DataStore
 import com.d4rk.cleaner.core.work.FileCleanWorkEnqueuer
 import com.d4rk.cleaner.app.clean.dashboard.domain.repository.DashboardRepository
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
@@ -140,6 +141,12 @@ val appModule: Module = module {
             dispatchers = get(),
             dataStore = get(),
             fileCleanWorkEnqueuer = get()
+        )
+    }
+
+    viewModel<AnalyzeViewModel> {
+        AnalyzeViewModel(
+            scannerViewModel = get()
         )
     }
 

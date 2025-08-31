@@ -25,6 +25,7 @@ import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
 import com.d4rk.android.libs.apptoolkit.core.ui.components.snackbar.DefaultSnackbarHandler
 import com.d4rk.android.libs.apptoolkit.core.ui.effects.LifecycleEventsEffect
 import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeScreen
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardScreen
 import com.d4rk.cleaner.app.clean.dashboard.ui.DashboardViewModel
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
@@ -39,6 +40,7 @@ fun ScannerScreen(paddingValues: PaddingValues, snackbarHostState: SnackbarHostS
     val view: View = LocalView.current
     val viewModel: ScannerViewModel = koinViewModel()
     val dashboardViewModel: DashboardViewModel = koinViewModel()
+    val analyzeViewModel: AnalyzeViewModel = koinViewModel()
     val uiState: UiStateScreen<UiScannerModel> by viewModel.uiState.collectAsState()
 
     val streakDialogVisible = uiState.data?.isHideStreakDialogVisible == true
@@ -73,8 +75,7 @@ fun ScannerScreen(paddingValues: PaddingValues, snackbarHostState: SnackbarHostS
                         key(data.analyzeState.fileTypesData) {
                             AnalyzeScreen(
                                 view = view,
-                                viewModel = viewModel,
-                                data = data
+                                viewModel = analyzeViewModel
                             )
                         }
                     }
