@@ -9,7 +9,6 @@ compressor = "3.0.1"
 constraintlayoutCompose = "1.1.1"
 commonsCompress = "1.28.0"
 guava = "33.4.8-android"
-lifecycleRuntimeCompose = "2.8.2"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -17,7 +16,6 @@ coil3-coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil
 compressor = { module = "id.zelory:compressor", version.ref = "compressor" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

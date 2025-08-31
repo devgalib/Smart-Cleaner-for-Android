@@ -154,5 +154,4 @@ dependencies {
     implementation(dependencyNotation = libs.coil3.coil.video)
     implementation(dependencyNotation = libs.apache.commons.compress)
     implementation(dependencyNotation = libs.guava)
-    implementation(dependencyNotation = libs.androidx.lifecycle.runtime.compose)
 }
