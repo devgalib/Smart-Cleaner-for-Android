@@ -20,11 +20,11 @@ import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.IconButton
 import com.d4rk.android.libs.apptoolkit.core.ui.components.buttons.OutlinedIconButtonWithText
 import com.d4rk.android.libs.apptoolkit.core.ui.components.spacers.LargeVerticalSpacer
 import com.d4rk.cleaner.R
+import com.d4rk.cleaner.app.clean.analyze.ui.AnalyzeViewModel
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 
 @Composable
-fun NoFilesFoundScreen(viewModel: ScannerViewModel) {
+fun NoFilesFoundScreen(viewModel: AnalyzeViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         IconButton(
             modifier = Modifier.align(Alignment.TopEnd),
@@ -33,8 +33,10 @@ fun NoFilesFoundScreen(viewModel: ScannerViewModel) {
             iconContentDescription = null,
         )
 
-        Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Icon(
                 imageVector = Icons.Outlined.FolderOff,
                 contentDescription = null,
@@ -49,13 +51,12 @@ fun NoFilesFoundScreen(viewModel: ScannerViewModel) {
             )
 
             OutlinedIconButtonWithText(
-                onClick = { viewModel.onEvent(ScannerEvent.ToggleAnalyzeScreen(true)) },
+                onClick = { viewModel.onScannerEvent(ScannerEvent.ToggleAnalyzeScreen(true)) },
                 modifier = Modifier,
                 icon = Icons.Outlined.Refresh,
                 iconContentDescription = null,
                 label = stringResource(id = com.d4rk.android.libs.apptoolkit.R.string.try_again)
             )
-        }
         }
     }
 }
