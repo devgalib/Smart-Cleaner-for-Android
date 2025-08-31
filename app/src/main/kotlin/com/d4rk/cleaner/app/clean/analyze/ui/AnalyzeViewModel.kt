@@ -1,7 +1,10 @@
 package com.d4rk.cleaner.app.clean.analyze.ui
 
 import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.UiStateScreen
+import com.d4rk.android.libs.apptoolkit.core.domain.model.ui.dismissSnackbar
 import com.d4rk.android.libs.apptoolkit.core.ui.base.ScreenViewModel
+import com.d4rk.android.libs.apptoolkit.core.ui.base.handling.ActionEvent
+import com.d4rk.android.libs.apptoolkit.core.ui.base.handling.UiEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.actions.ScannerEvent
 import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
 import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
@@ -69,9 +72,11 @@ class AnalyzeViewModel(
     }
 }
 
-sealed interface AnalyzeEvent {
+sealed interface AnalyzeEvent : UiEvent {
     data class ScannerEventWrapper(val event: ScannerEvent) : AnalyzeEvent
     data object DismissSnackbar : AnalyzeEvent
 }
 
-sealed interface AnalyzeAction
+sealed interface AnalyzeAction : ActionEvent {
+    data object None : AnalyzeAction
+}
