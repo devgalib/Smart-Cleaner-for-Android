@@ -143,7 +143,12 @@ val appModule: Module = module {
         )
     }
 
-    viewModel<DashboardViewModel> { DashboardViewModel(repository = get()) }
+    viewModel<DashboardViewModel> {
+        DashboardViewModel(
+            repository = get(),
+            scannerViewModel = get()
+        )
+    }
 
     single<ContactsRepository> { ContactsRepositoryImpl(context = get()) }
     single { GetDuplicateContactsUseCase(repository = get()) }

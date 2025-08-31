@@ -19,8 +19,6 @@ import com.d4rk.cleaner.Cleaner
 import com.d4rk.cleaner.app.apps.manager.domain.data.model.ui.UiAppManagerModel
 import com.d4rk.cleaner.app.apps.manager.ui.AppManagerViewModel
 import com.d4rk.cleaner.app.clean.dashboard.ui.components.RenderDashboardItem
-import com.d4rk.cleaner.app.clean.scanner.domain.data.model.ui.UiScannerModel
-import com.d4rk.cleaner.app.clean.scanner.ui.ScannerViewModel
 import com.d4rk.cleaner.core.utils.helpers.LogHelper
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -33,8 +31,6 @@ private const val TAG = LogHelper.DASHBOARD_SCREEN
 
 @Composable
 fun DashboardScreen(
-    uiState: UiStateScreen<UiScannerModel>,
-    scannerViewModel: ScannerViewModel,
     dashboardViewModel: DashboardViewModel,
 ) {
     val appManagerViewModel: AppManagerViewModel = koinViewModel()
@@ -46,20 +42,21 @@ fun DashboardScreen(
     val bannerAdsConfig: AdsConfig = koinInject()
 
     val appManagerState: UiStateScreen<UiAppManagerModel> by appManagerViewModel.uiState.collectAsStateWithLifecycle()
-    val whatsappSummary by scannerViewModel.whatsAppMediaSummary.collectAsStateWithLifecycle()
-    val whatsappInstalled by scannerViewModel.isWhatsAppInstalled.collectAsStateWithLifecycle()
-    val clipboardText by scannerViewModel.clipboardPreview.collectAsStateWithLifecycle()
-    val largeFilesState by scannerViewModel.largestFilesState.collectAsStateWithLifecycle()
-    val duplicateGroupsState = uiState.data?.analyzeState?.duplicateGroups
+    val scannerUiState by dashboardViewModel.scannerUiState.collectAsStateWithLifecycle()
+    val whatsappSummary by dashboardViewModel.whatsAppMediaSummary.collectAsStateWithLifecycle()
+    val whatsappInstalled by dashboardViewModel.isWhatsAppInstalled.collectAsStateWithLifecycle()
+    val clipboardText by dashboardViewModel.clipboardPreview.collectAsStateWithLifecycle()
+    val largeFilesState by dashboardViewModel.largestFilesState.collectAsStateWithLifecycle()
+    val duplicateGroupsState = scannerUiState.data?.analyzeState?.duplicateGroups
     val duplicateGroups = remember(duplicateGroupsState) {
         duplicateGroupsState?.map { group ->
             group.map { File(it.path) }
         } ?: emptyList()
     }
-    val emptyFolders by scannerViewModel.emptyFolders.collectAsStateWithLifecycle()
-    val streakDays by scannerViewModel.cleanStreak.collectAsStateWithLifecycle()
-    val streakRecord by scannerViewModel.streakRecord.collectAsStateWithLifecycle()
-    val cleaningApks by scannerViewModel.cleaningApks.collectAsStateWithLifecycle()
+    val emptyFolders by dashboardViewModel.emptyFolders.collectAsStateWithLifecycle()
+    val streakDays by dashboardViewModel.cleanStreak.collectAsStateWithLifecycle()
+    val streakRecord by dashboardViewModel.streakRecord.collectAsStateWithLifecycle()
+    val cleaningApks by dashboardViewModel.cleaningApks.collectAsStateWithLifecycle()
 
     LaunchedEffect(whatsappInstalled, whatsappSummary.hasData) {
         if (whatsappInstalled && !whatsappSummary.hasData) {
@@ -82,22 +79,14 @@ fun DashboardScreen(
     LaunchedEffect(Unit) {
         dashboardViewModel.observeDashboardUiState(
             appManagerStateFlow = appManagerViewModel.uiState,
-            showStreakCard = scannerViewModel.showStreakCard,
-            largestFilesState = scannerViewModel.largestFilesState,
-            showDuplicateCard = scannerViewModel.showDuplicateCard,
-            whatsAppMediaLoaded = scannerViewModel.whatsAppMediaLoaded,
-            isWhatsAppInstalled = scannerViewModel.isWhatsAppInstalled,
-            clipboardPreview = scannerViewModel.clipboardPreview,
-            emptyFolders = scannerViewModel.emptyFolders,
-            emptyFoldersHideUntil = scannerViewModel.emptyFoldersHideUntil,
             sessionDurationSeconds = sessionDuration,
-            promotedApp = uiState.data?.promotedApp,
+            promotedApp = scannerUiState.data?.promotedApp,
             showSystemStorageManagerCard = showSystemStorageManagerCard,
             gmsAvailable = gmsAvailable
         )
     }
     val dashboardState: UiStateScreen<DashboardUiState> by dashboardViewModel.uiState.collectAsStateWithLifecycle()
-    val promotedApp = uiState.data?.promotedApp
+    val promotedApp = scannerUiState.data?.promotedApp
     val items = dashboardState.data?.items ?: emptyList()
     val visibleCount = dashboardState.data?.visibleCount ?: 0
 
@@ -118,8 +107,8 @@ fun DashboardScreen(
             item = item,
             index = index,
             visibilityStates = visibility,
-            uiState = uiState,
-            viewModel = scannerViewModel,
+            uiState = scannerUiState,
+            viewModel = dashboardViewModel,
             context = context,
             storageManagerIntent = storageManagerIntent,
             streakDays = streakDays,
