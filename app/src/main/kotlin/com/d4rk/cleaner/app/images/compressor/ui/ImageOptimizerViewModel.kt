@@ -11,10 +11,16 @@ import com.d4rk.cleaner.app.images.compressor.domain.usecases.GetImageDimensions
 import com.d4rk.cleaner.app.images.compressor.domain.usecases.GetOptimizedDestinationFileUseCase
 import com.d4rk.cleaner.app.images.compressor.domain.usecases.GetRealFileFromUriUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -35,7 +41,30 @@ class ImageOptimizerViewModel(
         MutableStateFlow(UiImageOptimizerState())
     val uiState: StateFlow<UiImageOptimizerState> = _uiState.asStateFlow()
 
-    private var previewJob: Job? = null
+    private val previewRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    init {
+        previewRequests
+            .debounce(300)
+            .mapLatest { generatePreview() }
+            .flowOn(Dispatchers.IO)
+            .catch { e ->
+                Log.e("ImageOptimizer", "Preview failed", e)
+                _uiState.emit(_uiState.value.copy(isLoading = false))
+            }
+            .onEach { (previewFile, roundedSizeKB) ->
+                val state = _uiState.value
+                _uiState.emit(
+                    state.copy(
+                        isLoading = false,
+                        compressedImageUri = previewFile?.let { Uri.fromFile(it) }
+                            ?: state.selectedImageUri,
+                        compressedSizeKB = roundedSizeKB
+                    )
+                )
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun setCurrentTab(tab: Int) {
         viewModelScope.launch {
@@ -122,32 +151,40 @@ class ImageOptimizerViewModel(
     }
 
     fun setQuickCompressValue(value: Int) {
-        previewJob?.cancel()
-        previewJob = viewModelScope.launch {
-            _uiState.emit(_uiState.value.copy(quickCompressValue = value))
-            previewCompressImage()
+        viewModelScope.launch {
+            _uiState.emit(
+                _uiState.value.copy(
+                    quickCompressValue = value,
+                    isLoading = true
+                )
+            )
+            previewRequests.emit(Unit)
         }
     }
 
     fun setFileSize(size: Int) {
-        previewJob?.cancel()
-        previewJob = viewModelScope.launch {
-            _uiState.emit(_uiState.value.copy(fileSizeKB = size))
-            previewCompressImage()
+        viewModelScope.launch {
+            _uiState.emit(
+                _uiState.value.copy(
+                    fileSizeKB = size,
+                    isLoading = true
+                )
+            )
+            previewRequests.emit(Unit)
         }
     }
 
     fun setManualCompressSettings(width: Int, height: Int, quality: Int) {
-        previewJob?.cancel()
-        previewJob = viewModelScope.launch {
+        viewModelScope.launch {
             _uiState.emit(
                 _uiState.value.copy(
                     manualWidth = width,
                     manualHeight = height,
-                    manualQuality = quality
+                    manualQuality = quality,
+                    isLoading = true
                 )
             )
-            previewCompressImage()
+            previewRequests.emit(Unit)
         }
     }
 
@@ -170,9 +207,11 @@ class ImageOptimizerViewModel(
                     originalSizeKB = originalSizeKB,
                     compressedSizeKB = originalSizeKB,
                     quickCompressValue = 50,
-                    fileSizeKB = 0
+                    fileSizeKB = 0,
+                    isLoading = true
                 )
             )
+            previewRequests.emit(Unit)
         }
     }
 
@@ -187,57 +226,48 @@ class ImageOptimizerViewModel(
                     fileSizeKB = 0,
                     manualWidth = current.originalWidth,
                     manualHeight = current.originalHeight,
-                    manualQuality = 50
+                    manualQuality = 50,
+                    isLoading = true
                 )
             )
+            previewRequests.emit(Unit)
         }
     }
 
-    private suspend fun previewCompressImage() {
-        _uiState.emit(_uiState.value.copy(isLoading = true))
+    private suspend fun generatePreview(): Pair<File?, Double> {
         val state = _uiState.value
-        val (previewFile, roundedSizeKB) = withContext(Dispatchers.IO) {
-            val originalFile = state.selectedImageUri?.let { uri ->
-                getRealFileFromUriUseCase(uri)
-            }?.getOrNull()
-            val currentTab = state.currentTab
-            val quality = when (currentTab) {
-                0 -> state.quickCompressValue
-                1 -> 100
-                2 -> state.manualQuality
-                else -> 50
-            }
-            val (targetWidth, targetHeight) = when (currentTab) {
-                0, 1 -> originalFile?.let { getImageDimensionsUseCase(it) } ?: Pair(640, 480)
-                2 -> if (state.manualWidth > 0 && state.manualHeight > 0) Pair(
-                    state.manualWidth,
-                    state.manualHeight
-                ) else Pair(640, 480)
-
-                else -> Pair(640, 480)
-            }
-            val previewFile = originalFile?.let { file ->
-                runCatching {
-                    val desiredBytes =
-                        if (currentTab == 1 && state.fileSizeKB > 0) state.fileSizeKB * 1024L else null
-                    compressImageUseCase(file, quality, targetWidth, targetHeight, desiredBytes)
-                }.getOrElse { e ->
-                    Log.e("ImageOptimizer", "Compression failed for file: ${file.absolutePath}", e)
-                    null
-                }
-            }
-            val newSizeKB = previewFile?.length()?.div(1024.0) ?: 0.0
-            val roundedSizeKB = format(Locale.US, "%.2f", newSizeKB).toDouble()
-            previewFile to roundedSizeKB
+        val originalFile = state.selectedImageUri?.let { uri ->
+            getRealFileFromUriUseCase(uri)
+        }?.getOrNull()
+        val currentTab = state.currentTab
+        val quality = when (currentTab) {
+            0 -> state.quickCompressValue
+            1 -> 100
+            2 -> state.manualQuality
+            else -> 50
         }
-        _uiState.emit(
-            _uiState.value.copy(
-                isLoading = false,
-                compressedImageUri = previewFile?.let { Uri.fromFile(it) }
-                    ?: state.selectedImageUri,
-                compressedSizeKB = roundedSizeKB
-            ),
-        )
+        val (targetWidth, targetHeight) = when (currentTab) {
+            0, 1 -> originalFile?.let { getImageDimensionsUseCase(it) } ?: Pair(640, 480)
+            2 -> if (state.manualWidth > 0 && state.manualHeight > 0) Pair(
+                state.manualWidth,
+                state.manualHeight
+            ) else Pair(640, 480)
+
+            else -> Pair(640, 480)
+        }
+        val previewFile = originalFile?.let { file ->
+            runCatching {
+                val desiredBytes =
+                    if (currentTab == 1 && state.fileSizeKB > 0) state.fileSizeKB * 1024L else null
+                compressImageUseCase(file, quality, targetWidth, targetHeight, desiredBytes)
+            }.getOrElse { e ->
+                Log.e("ImageOptimizer", "Compression failed for file: ${file.absolutePath}", e)
+                null
+            }
+        }
+        val newSizeKB = previewFile?.length()?.div(1024.0) ?: 0.0
+        val roundedSizeKB = format(Locale.US, "%.2f", newSizeKB).toDouble()
+        return previewFile to roundedSizeKB
     }
 
 
